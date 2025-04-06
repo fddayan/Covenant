@@ -14,13 +14,6 @@ module Covenant
     end
 
     def print_contract(node, indent)
-      # puts_indent indent + 2,
-      #             Contract.format(
-      #               node[:input][:name],
-      #               node[:command],
-      #               node[:output][:name]
-      #             )
-
       puts_indent indent + 2, [
         node[:command].to_s.command_text,
         '('.symbols_text,
@@ -32,10 +25,6 @@ module Covenant
       ]
     end
 
-    # def print_map_contract_separator(indent)
-    #   Kernel.print '>>'
-    # end
-
     def print_schema_result_ast(node)
       return if node[:valid]
 
@@ -45,9 +34,8 @@ module Covenant
       ].join("\n")).symbols_text
     end
 
-    def print_map(node, indent)
+    def print_map(node, _indent)
       print_schema_result_ast(node[:result])
-      # puts_indent indent, Map.format(node[:input][:name], node[:output][:name])
     end
 
     def print_tee(node, indent)
@@ -56,11 +44,11 @@ module Covenant
       puts "#{' ' * (indent + 2)}Output: #{node[:output][:name]}"
     end
 
-    def print_or_else(node, indent)
+    def print_or_else(_node, indent)
       puts "#{' ' * indent}OrElse:"
     end
 
-    def print_retry(node, indent)
+    def print_retry(_node, indent)
       puts "#{' ' * indent}Retry:"
     end
   end

@@ -12,7 +12,7 @@ module Covenant
       @block = block
     end
 
-    def call(input)
+    def call(input) # rubocop:disable Metrics/AbcSize
       result = input_schema.call(input)
 
       if result.success?

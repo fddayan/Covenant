@@ -70,13 +70,13 @@ module Covenant
       # print_ast(node[:next_contract], indent + 2)
     end
 
-    def print_or_else(node, indent)
+    def print_or_else(_node, indent)
       puts "#{' ' * indent}OrElse:"
       # print_ast(node[:prev_contract], indent + 2)
       # print_ast(node[:next_contract], indent + 2)
     end
 
-    def print_retry(node, indent)
+    def print_retry(_node, indent)
       puts "#{' ' * indent}Retry:"
       # print_ast(node[:contract], indent + 2)
     end

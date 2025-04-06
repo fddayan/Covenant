@@ -42,7 +42,7 @@ layer = Ceventant.layer.tap do |l|
   end
 end
 
-Ceventant.run(layer, GetUserById.new(id: 1)) do |id|
+Ceventant.run(layer, GetUserById.new(id: 1))
 
 # puts Order
 
@@ -74,7 +74,5 @@ ap Order.call(
   }
 )
 
-# puts Order.name
 puts '---'
 ap Order.pick(:id).to_s
-# ap Name.call({ name: 'Federico1232' })

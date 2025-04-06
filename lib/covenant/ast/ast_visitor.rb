@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Covenant
-  class AstVisitor # rubocop:disable Metrics/ClassLength
+  class AstVisitor
     using ColorAliasRefinement
 
     def initialize(ast)
@@ -10,13 +10,6 @@ module Covenant
 
     def print
       print_ast(@ast)
-    end
-
-    def box_text(text)
-      lines = text.lines
-      max_sixe = lines.map(&:size).max
-      box = '─' * (max_sixe + 2)
-      [box, " #{text} "].join("\n")
     end
 
     def puts_indent(indent, text_or_arr)
@@ -54,15 +47,6 @@ module Covenant
       else
         raise "Unknown AST node type: #{node[:type]}"
       end
-    end
-
-    def indent_text(indent, text)
-      "#{' ' * indent}#{text}"
-    end
-
-    def puts_indent(indent, text_or_arr)
-      text = text_or_arr.is_a?(Array) ? text_or_arr.join : text_or_arr
-      puts "#{' ' * indent}#{text}"
     end
 
     def print_schema(node, indent)
@@ -135,7 +119,7 @@ module Covenant
       print_ast(node[:next_contract], indent + 2)
     end
 
-    def print_tee(node, indent)
+    def print_tee(node, indent) # rubocop:disable Metrics/AbcSize
       puts "#{' ' * indent}Tee:"
       puts "#{' ' * (indent + 2)}Input: #{node[:input][:name]}"
       puts "#{' ' * (indent + 2)}Output: #{node[:output][:name]}"

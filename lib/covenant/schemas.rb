@@ -108,7 +108,10 @@ module Covenant
 
       return unless missing.any?
 
-      result.add("Missing keys '#{missing.map(&:name).join(', ')}' in schema '#{name1}' from schena '#{name2}'")
+      result.add(
+        "Missing keys '#{missing.map(&:name).join(', ')}' " \
+        "in schema '#{name1}' from schena '#{name2}'"
+      )
     end
 
     def key_size?
