@@ -29,8 +29,11 @@ module Covenant
       # puts_indent indent + 3, "Output: #{node[:output][:name]}".output_text
 
       puts_indent indent + 2,
-                  Contract.format(node[:input][:name], node[:command],
-                                  node[:output][:name])
+                  Contracts::Contract.format(
+                    node[:input][:name],
+                    node[:command],
+                    node[:output][:name]
+                  )
     end
 
     def box_text(text)
@@ -57,7 +60,9 @@ module Covenant
       # print_ast(node[:prev_contract], indent + 2)
       # print_ast(node[:next_contract], indent + 2)
 
-      puts_indent indent, Map.format(node[:input][:name], node[:output][:name])
+      puts_indent indent,
+                  Contracts::Map.format(node[:input][:name],
+                                        node[:output][:name])
       # print_ast(node[:prev_contract], indent + 2)
       # print_ast(node[:next_contract], indent + 2)
     end

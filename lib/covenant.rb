@@ -22,7 +22,6 @@ require 'covenant/ast/ast_visitor'
 require 'covenant/ast/ast_short_printer'
 require 'covenant/ast/ast_three_printer'
 require 'covenant/types/taggable'
-require 'covenant/types'
 require 'covenant/types/type'
 
 # String = Covenant::Schema.pure(:string)
@@ -41,20 +40,20 @@ module Covenant
   class Error < StandardError; end
   class HandlerNotFoundError < Error; end
 
-  class Runtime
+  class System
     def command_registry
-      @command_registry ||= CommandRegistry.new
+      @command_registry ||= Container::CommandRegistry.new
     end
 
     def layer
-      layer = CommandLayer.new
+      layer = Container::CommandLayer.new
       yield(layer)
       add_layer(layer)
       self
     end
 
     def add_layer(layer)
-      unless layer.is_a?(CommandLayer)
+      unless layer.is_a?(Container::CommandLayer)
         raise ArgumentError,
               "Expected CommandLayer, got #{layer.class}"
       end
@@ -67,16 +66,16 @@ module Covenant
     def call(contract, input)
       raise 'No command registry found' unless @command_registry
 
-      Runner.new(@command_registry).call(contract, input)
+      Runtime::Runner.new(@command_registry).call(contract, input)
     end
   end
 
   def self.layer
-    CommandLayer.new
+    Container::CommandLayer.new
   end
 
   def self.runtime
-    Runtime.new
+    System.new
   end
 
   def self.run(layer, command)
@@ -87,14 +86,18 @@ module Covenant
   end
 
   def self.Contract(*args) # rubocop:disable Naming/MethodName
-    Covenant::Contract.new(*args)
+    Covenant::Contracts::Contract.new(*args)
   end
 
   def self.transformer(input_schema, output_schema, &block)
-    Covenant::Transformer.new(input_schema, output_schema, &block)
+    Covenant::Contracts::Transformer.new(input_schema, output_schema, &block)
   end
 
   def self.Schema(name, &block) # rubocop:disable Naming/MethodName
-    Covenant::Schemas.new(name, &block)
+    Covenant::Schemas::Schema.new(name, &block)
+  end
+
+  def self.Type(args) # rubocop:disable Naming/MethodName
+    Type.new(args)
   end
 end

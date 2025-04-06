@@ -14,14 +14,14 @@ module Covenant
 
     def build_ast(contract) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity
       case contract
-      when Contract
+      when Contracts::Contract
         {
           type: :contract,
           command: contract.command,
           input: schema_ast(contract.input),
           output: schema_ast(contract.output)
         }
-      when Map
+      when Contracts::Map
         {
           type: :map,
           prev_contract: build_ast(contract.prev_contract),
@@ -36,7 +36,7 @@ module Covenant
           valid: contract.valid?,
           errors: contract.errors.map(&:to_s)
         }
-      when Tee
+      when Contracts::Tee
         {
           type: :tee,
           prev_contract: build_ast(contract.prev_contract),
@@ -44,18 +44,18 @@ module Covenant
           input: schema_ast(contract.input),
           output: schema_ast(contract.output)
         }
-      when OrElse
+      when Contracts::OrElse
         {
           type: :or_else,
           prev_contract: build_ast(contract.prev_contract),
           next_contract: build_ast(contract.next_contract)
         }
-      when Retry
+      when Contracts::Retry
         {
           type: :retry,
           contract: build_ast(contract.contract)
         }
-      when Timeout
+      when Contracts::Timeout
         {
           type: :timeout,
           contract: build_ast(contract.contract)

@@ -20,9 +20,9 @@ RSpec.describe Covenant do
 
     it 'run a single contract' do
       expect(get_token_contract.command).to eq(:GetToken)
-      expect(get_token_contract.input).to be_a(Covenant::Schemas)
+      expect(get_token_contract.input).to be_a(Covenant::Schemas::Schema)
       expect(get_token_contract.input.name).to eq(:ID)
-      expect(get_token_contract.output).to be_a(Covenant::Schemas)
+      expect(get_token_contract.output).to be_a(Covenant::Schemas::Schema)
       expect(get_token_contract.output.name).to eq(:Token)
 
       runtime.call(get_token_contract, { id: '1' }).tap do |result|
@@ -36,10 +36,10 @@ RSpec.describe Covenant do
     it 'run a tow contracts maped' do
       contract = get_token_contract.map(get_user_contract)
 
-      expect(contract).to be_a(Covenant::Map)
-      expect(contract.input).to be_a(Covenant::Schemas)
+      expect(contract).to be_a(Covenant::Contracts::Map)
+      expect(contract.input).to be_a(Covenant::Schemas::Schema)
       expect(contract.input.name).to eq(:ID)
-      expect(contract.output).to be_a(Covenant::Schemas)
+      expect(contract.output).to be_a(Covenant::Schemas::Schema)
       expect(contract.output.name).to eq(:User)
       expect(contract.verify).to be_valid
 
@@ -57,15 +57,15 @@ RSpec.describe Covenant do
       contract1 = get_user_contract.map(get_token_contract)
       contract2 = get_user_contract.map(get_token_contract)
 
-      expect(contract1).to be_a(Covenant::Map)
+      expect(contract1).to be_a(Covenant::Contracts::Map)
       contract1.verify.tap do |result|
-        expect(result).to be_a(Covenant::SchemaComparatorResult)
+        expect(result).to be_a(Covenant::Schemas::SchemaComparatorResult)
         expect(result).to be_invalid
       end
 
-      expect(contract2).to be_a(Covenant::Map)
+      expect(contract2).to be_a(Covenant::Contracts::Map)
       contract2.verify.tap do |result|
-        expect(result).to be_a(Covenant::SchemaComparatorResult)
+        expect(result).to be_a(Covenant::Schemas::SchemaComparatorResult)
         expect(result).to be_invalid
       end
 
@@ -75,9 +75,9 @@ RSpec.describe Covenant do
         .map(get_user_contract.timeout(1))
         .map(get_user_contract.retry(1))
 
-      expect(contract3).to be_a(Covenant::Map)
+      expect(contract3).to be_a(Covenant::Contracts::Map)
       contract3.verify.tap do |result|
-        expect(result).to be_a(Covenant::SchemaComparatorResult)
+        expect(result).to be_a(Covenant::Schemas::SchemaComparatorResult)
         expect(result).to be_invalid
       end
       

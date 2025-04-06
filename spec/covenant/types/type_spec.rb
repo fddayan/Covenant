@@ -10,7 +10,7 @@ RSpec.describe Covenant::Type do
 
       expect(result[:id]).to be_success
       expect(result[:id].value).to eq(1)
-      expect(result[:id]).to be_kind_of(Covenant::ValidationResult)
+      expect(result[:id]).to be_kind_of(Covenant::Validator::ValidationResult)
     end
     
     it "should work with one type passing string" do
@@ -18,7 +18,7 @@ RSpec.describe Covenant::Type do
 
       expect(result[:name]).to be_success
       expect(result[:name].value).to eq("Federico1234")
-      expect(result[:name]).to be_kind_of(Covenant::ValidationResult)
+      expect(result[:name]).to be_kind_of(Covenant::Validator::ValidationResult)
     end
 
     it "should work with one type passing struct" do
@@ -32,9 +32,9 @@ RSpec.describe Covenant::Type do
       expect(result[:user][:email]).to be_success
       expect(result[:user][:email].value).to eq("Fedde")
       expect(result[:user]).to be_kind_of(Hash)
-      expect(result[:user][:id]).to be_kind_of(Covenant::ValidationResult)
-      expect(result[:user][:name]).to be_kind_of(Covenant::ValidationResult)
-      expect(result[:user][:email]).to be_kind_of(Covenant::ValidationResult)
+      expect(result[:user][:id]).to be_kind_of(Covenant::Validator::ValidationResult)
+      expect(result[:user][:name]).to be_kind_of(Covenant::Validator::ValidationResult)
+      expect(result[:user][:email]).to be_kind_of(Covenant::Validator::ValidationResult)
     end
 
     it "should return failure with one type passing wrong value" do
@@ -80,12 +80,12 @@ RSpec.describe Covenant::Type do
       expect(result).to be_kind_of(Hash)
       expect(result[:names]).to be_kind_of(Array)
 
-      expect(result[:names].first).to be_kind_of(Covenant::ValidationResult)
+      expect(result[:names].first).to be_kind_of(Covenant::Validator::ValidationResult)
       expect(result[:names].first).to be_failure
       expect(result[:names].first.value).to eq('Fede')
       expect(result[:names].first.errors).not_to be_empty
       
-      expect(result[:names].last).to be_kind_of(Covenant::ValidationResult)
+      expect(result[:names].last).to be_kind_of(Covenant::Validator::ValidationResult)
       expect(result[:names].last).to be_success
       expect(result[:names].last.value).to eq('Federico1235')
       expect(result[:names].last.errors).to be_empty
@@ -97,7 +97,7 @@ RSpec.describe Covenant::Type do
      expect(FirstName.same?(Order)).to be false
      expect(FirstName.same?(Name)).to be true
     #  expect(FirstName.props).to eq({ first_name: Name.props[:name] })
-     expect(FirstName.call(first_name: 'Federico1234')[:first_name]).to be_kind_of(Covenant::ValidationResult)
+     expect(FirstName.call(first_name: 'Federico1234')[:first_name]).to be_kind_of(Covenant::Validator::ValidationResult)
      expect(FirstName.call(first_name: 'Federico1234')[:first_name].value).to eq('Federico1234')
      expect(FirstName.call(first_name: 'Federico1234')[:first_name].errors).to be_empty
      expect(FirstName.call(first_name: 'Federico1234')[:first_name]).to be_success

@@ -1,17 +1,17 @@
-ID = Covenant.Type({ id: Covenant::Validation.coerce(:integer) })
+ID = Covenant.Type({ id: Covenant::Validator::Validation.coerce(:integer) })
 
 Name = Covenant.Type({
-  name: Covenant::Validation.coerce(:string)
-        .and_then(Covenant::Validation.length(min: 8, max: 30))
-        .and_then(Covenant::Validation.format(/[A-Z]/))
-        .and_then(Covenant::Validation.format(/[0-9]/))
+  name: Covenant::Validator::Validation.coerce(:string)
+        .and_then(Covenant::Validator::Validation.length(min: 8, max: 30))
+        .and_then(Covenant::Validator::Validation.format(/[A-Z]/))
+        .and_then(Covenant::Validator::Validation.format(/[0-9]/))
 })
 
 Names = Name.array(:names)
 
-Email = Covenant.Type({ email: Covenant::Validation.coerce(:string) })
+Email = Covenant.Type({ email: Covenant::Validator::Validation.coerce(:string) })
 
-Price = Covenant.Type({ price: Covenant::Validation.coerce(:float) })
+Price = Covenant.Type({ price: Covenant::Validator::Validation.coerce(:float) })
 
 User = Covenant::Type(
   { user: ID & Name & Email }
