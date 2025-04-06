@@ -1,0 +1,23 @@
+version: "3"
+
+tasks:
+  default:
+    desc: Run all tasks
+    cmds:
+      - task: lint
+      - task: test
+
+  lint:
+    desc: Run linting
+    cmds:
+      - bundle exec rubocop -a
+
+  test:
+    desc: Run tests
+    cmds:
+      - bundle exec rspec
+
+  examples:
+    desc: Runs all ruby examples under /examples directory
+    cmds:
+      - find ./examples -name '*.rb' -print0 | xargs -0 -n 1 -I{} bash -c 'ruby "{}" || exit 1'

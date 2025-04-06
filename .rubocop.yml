@@ -1,0 +1,82 @@
+# .rubocop.yml
+# require:
+#   - rubocop-rspec
+plugins:
+  - rubocop-performance
+  - rubocop-rspec
+  - rubocop-rake
+
+# Inherit the default configuration as a baseline.
+# inherit_from:
+# - "https://raw.githubusercontent.com/rubocop-hq/rubocop/master/config/default.yml"
+
+# Global settings
+AllCops:
+  TargetRubyVersion: 3.0 # Set to your gem's Ruby version.
+  DisplayCopNames: true # Show cop names in output.
+  NewCops: enable # Automatically enable new cops.
+  Severity: error # Treat all offenses as errors.
+  Exclude:
+    - "vendor/**/*"
+    - "bin/**/*"
+    - "spec/**/*"
+
+# Layout and formatting rules
+Layout/LineLength:
+  Max: 80 # Limit lines to 80 characters.
+Layout/TrailingWhitespace:
+  Enabled: true # Disallow trailing whitespace.
+Layout/ExtraSpacing:
+  Enabled: true # Disallow extra spaces.
+Layout/IndentationWidth:
+  Width: 2 # Enforce 2-space indentation.
+
+# Style and documentation
+Style/FrozenStringLiteralComment:
+  Enabled: true # Require frozen string literal magic comment.
+Style/Documentation:
+  Enabled: false # Enforce documentation for classes and modules.
+Style/StringLiterals:
+  EnforcedStyle: single_quotes # Prefer single-quoted strings.
+Style/RedundantReturn:
+  Enabled: true # Disallow redundant return statements.
+Style/GuardClause:
+  Enabled: true # Enforce use of guard clauses.
+Style/ConditionalAssignment:
+  Enabled: true # Prevent assignments in conditionals.
+
+# Metrics for maintainability
+Metrics/MethodLength:
+  Max: 15 # Limit methods to 10 lines.
+  Severity: error
+Metrics/ClassLength:
+  Max: 100 # Limit classes to 100 lines.
+  Severity: error
+Metrics/BlockLength:
+  Max: 25 # Limit blocks to 25 lines.
+  Severity: error
+Metrics/ParameterLists:
+  Max: 4 # Limit methods to 4 parameters.
+  Severity: error
+
+# Linting rules to catch potential issues
+Lint/UselessAssignment:
+  Enabled: true
+Lint/UnusedMethodArgument:
+  Enabled: true
+Lint/ShadowingOuterLocalVariable:
+  Enabled: true
+
+# Naming conventions
+Naming/MethodName:
+  Enabled: true
+Naming/VariableName:
+  Enabled: true
+
+# Performance and security enhancements
+Performance/Detect:
+  Enabled: true
+Performance/RedundantMerge:
+  Enabled: true
+Security/Eval:
+  Enabled: true
