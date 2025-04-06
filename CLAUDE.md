@@ -7,7 +7,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Run tests: `bundle exec rspec`
 - Run single test: `bundle exec rspec path/to/spec_file.rb:line_number`
 - Lint: `bundle exec rubocop -a` (auto-corrects when possible)
-- Run examples: `task examples` (runs all Ruby examples)
 
 ## Code Style Guidelines
 - Ruby 3.0+ with frozen_string_literal comments

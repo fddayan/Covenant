@@ -1,55 +1,57 @@
-# frozen_string_literal: true
+# # frozen_string_literal: true
 
-require_relative 'covenant'
+# require 'covenant'
 
-module MySchemas
-  IdSchema = Dry::Schema.Params do
-    required(:id).filled(:string)
-  end
+# module MySchemas
+#   IdSchema = Dry::Schema.Params do
+#     required(:id).filled(:string)
+#   end
 
-  UserSchema = Dry::Schema.Params do
-    required(:name).filled(:string)
-    required(:email).filled(:string)
-  end
+#   UserSchema = Dry::Schema.Params do
+#     required(:name).filled(:string)
+#     required(:email).filled(:string)
+#   end
 
-  TokenSchema = Dry::Schema.Params { required(:token).filled(:string) }
-end
+#   TokenSchema = Dry::Schema.Params { required(:token).filled(:string) }
+# end
 
-module MyContracts
-  GetTokenContract      = Contract(:GetToken, IdSchema, TokenSchema)
+# module MyContracts
+#   include MySchemas
 
-  GetUserContract       = Contract(:GetUser, TokenSchema, UserSchema)
+#   GetTokenContract      = Contract(:GetToken, IdSchema, TokenSchema)
 
-  GetOwnerContract      = Contract(:GetOwner, TokenSchema, UserSchema)
+#   GetUserContract       = Contract(:GetUser, TokenSchema, UserSchema)
 
-  AuthorizeUserContract = Contract(:AuthorizeUser, IdSchema, Void)
+#   GetOwnerContract      = Contract(:GetOwner, TokenSchema, UserSchema)
 
-  LogMessageContract    = Contract(:LogMessage, Any, Void)
-end
+#   AuthorizeUserContract = Contract(:AuthorizeUser, IdSchema, Void)
 
-module MyTransformers
-  GetUserIdFromUserTransformer = Transformer(UserSchema, IdSchema) do |user|
-    user[:id]
-  end
-end
+#   LogMessageContract    = Contract(:LogMessage, Any, Void)
+# end
 
-ContractComposition1 = MyContracts::GetToken
-                       .and_then(MyTransformers::GetUserIdFromUserTransformer)
-                       .and_then(
-                         MyContracts::GetUserContract
-                        .or_else(MyContracts::GetOwnerContract)
-                       )
-                       .tee(MyContracts::AuthorizeUserContracg.retry(3))
-                       .tee(MyContracts::LogMessageContract.timeout(1))
+# module MyTransformers
+#   GetUserIdFromUserTransformer = Transformer(UserSchema, IdSchema) do |user|
+#     user[:id]
+#   end
+# end
 
-runtme = Covenant.runtime.layer do |l|
-  l.register(:GetToken, ->(input) { input[:token] })
-  l.register(:GetUser, ->(input) { input[:user] })
-  l.register(:GetOwner, ->(input) { input[:owner] })
-  l.register(:AuthorizeUser, ->(input) { input[:user_id] })
-  l.register(:LogMessage, ->(input) { puts "Log: #{input}" })
-end
+# ContractComposition1 = MyContracts::GetToken
+#                        .and_then(MyTransformers::GetUserIdFromUserTransformer)
+#                        .and_then(
+#                          MyContracts::GetUserContract
+#                         .or_else(MyContracts::GetOwnerContract)
+#                        )
+#                        .tee(MyContracts::AuthorizeUserContracg.retry(3))
+#                        .tee(MyContracts::LogMessageContract.timeout(1))
 
-runtme.call(ContractComposition1, { id: '1' }).tap do |result|
-  puts "Result: #{result}"
-end
+# runtme = Covenant.runtime.layer do |l|
+#   l.register(:GetToken, ->(input) { input[:token] })
+#   l.register(:GetUser, ->(input) { input[:user] })
+#   l.register(:GetOwner, ->(input) { input[:owner] })
+#   l.register(:AuthorizeUser, ->(input) { input[:user_id] })
+#   l.register(:LogMessage, ->(input) { puts "Log: #{input}" })
+# end
+
+# runtme.call(ContractComposition1, { id: '1' }).tap do |result|
+#   puts "Result: #{result}"
+# end
