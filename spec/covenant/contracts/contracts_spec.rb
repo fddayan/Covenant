@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative "./support/dummy"
+require_relative "../../support/dummy"
 
-RSpec.describe Covenant do
+RSpec.describe Covenant::Contracts do
   it 'has a version number' do
     expect(Covenant::VERSION).not_to be_nil
   end
@@ -33,7 +33,7 @@ RSpec.describe Covenant do
   end
 
   describe "Map" do
-    it 'run a tow contracts maped' do
+    it 'run a two contracts maped' do
       contract = get_token_contract.map(get_user_contract)
 
       expect(contract).to be_a(Covenant::Contracts::Map)

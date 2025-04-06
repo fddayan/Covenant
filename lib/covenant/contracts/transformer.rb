@@ -3,8 +3,6 @@
 module Covenant
   module Contracts
     class Transformer
-      # include Dry::Monads[:result]
-
       attr_reader :input_schema, :output_schema, :block
 
       def initialize(input_schema, output_schema, &block)

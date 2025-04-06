@@ -103,4 +103,11 @@ module Covenant
   def self.Type(args) # rubocop:disable Naming/MethodName
     Types::Type.new(args)
   end
+
+  def self.assert_type(value, type)
+    return if value.is_a?(type)
+
+    raise ArgumentError,
+          "Expected type #{type}, got #{value.class}"
+  end
 end

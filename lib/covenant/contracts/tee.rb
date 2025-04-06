@@ -15,7 +15,7 @@ module Covenant
       end
 
       def verify
-        @prev_contract.output.call(@next_contract.input)
+        Contract.can_chain?(@prev_contract, @next_contract)
       end
 
       def to_s
