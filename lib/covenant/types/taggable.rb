@@ -1,21 +1,23 @@
 # frozen_string_literal: true
 
 module Covenant
-  module Taggable
-    def tag
-      @tag
-      # ||= self.class.name.split('::').last.downcase
-    end
+  module Types
+    module Taggable
+      def tag
+        @tag
+        # ||= self.class.name.split('::').last.downcase
+      end
 
-    def tag!(tag)
-      # @tag ||= self.class.name.split('::').last.downcase
-      @tag ||= tag
-    end
+      def tag!(tag)
+        # @tag ||= self.class.name.split('::').last.downcase
+        @tag ||= tag
+      end
 
-    protected
+      protected
 
-    def retag!(tag)
-      @tag = tag
+      def retag!(tag)
+        @tag = tag
+      end
     end
   end
 end

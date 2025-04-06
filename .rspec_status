@@ -1,15 +1,15 @@
 example_id                                | status | run_time        |
 ----------------------------------------- | ------ | --------------- |
-./spec/covenant/types/type_spec.rb[1:1:1] | passed | 0.00179 seconds |
-./spec/covenant/types/type_spec.rb[1:1:2] | passed | 0.00005 seconds |
-./spec/covenant/types/type_spec.rb[1:1:3] | passed | 0.00006 seconds |
-./spec/covenant/types/type_spec.rb[1:1:4] | passed | 0.00004 seconds |
-./spec/covenant/types/type_spec.rb[1:1:5] | passed | 0.00005 seconds |
-./spec/covenant/types/type_spec.rb[1:1:6] | passed | 0.00005 seconds |
-./spec/covenant/types/type_spec.rb[1:1:7] | passed | 0.00043 seconds |
-./spec/covenant/types/type_spec.rb[1:1:8] | passed | 0.00004 seconds |
+./spec/covenant/types/type_spec.rb[1:1:1] | passed | 0.00397 seconds |
+./spec/covenant/types/type_spec.rb[1:1:2] | passed | 0.00007 seconds |
+./spec/covenant/types/type_spec.rb[1:1:3] | passed | 0.00007 seconds |
+./spec/covenant/types/type_spec.rb[1:1:4] | passed | 0.00005 seconds |
+./spec/covenant/types/type_spec.rb[1:1:5] | passed | 0.00007 seconds |
+./spec/covenant/types/type_spec.rb[1:1:6] | passed | 0.00023 seconds |
+./spec/covenant/types/type_spec.rb[1:1:7] | passed | 0.00055 seconds |
+./spec/covenant/types/type_spec.rb[1:1:8] | passed | 0.00005 seconds |
 ./spec/covenant/types/type_spec.rb[1:1:9] | passed | 0.00003 seconds |
 ./spec/covenant_spec.rb[1:1]              | passed | 0.00003 seconds |
-./spec/covenant_spec.rb[1:2:1]            | passed | 0.00134 seconds |
-./spec/covenant_spec.rb[1:3:1]            | passed | 0.00024 seconds |
-./spec/covenant_spec.rb[1:3:2]            | passed | 0.0002 seconds  |
+./spec/covenant_spec.rb[1:2:1]            | passed | 0.0025 seconds  |
+./spec/covenant_spec.rb[1:3:1]            | passed | 0.00404 seconds |
+./spec/covenant_spec.rb[1:3:2]            | passed | 0.00098 seconds |

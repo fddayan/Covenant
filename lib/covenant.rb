@@ -7,22 +7,25 @@ require 'zeitwerk'
 
 # Zeitwerk::Loader.for_gem.setup
 
-require 'covenant/version'
-require 'covenant/monad'
-require 'covenant/color_alias_refinment'
-require 'covenant/command'
-require 'covenant/runner'
-require 'covenant/compositions'
-require 'covenant/contract'
-require 'covenant/transformer'
-require 'covenant/schemas'
-require 'covenant/validator'
-require 'covenant/ast/ast'
-require 'covenant/ast/ast_visitor'
-require 'covenant/ast/ast_short_printer'
-require 'covenant/ast/ast_three_printer'
-require 'covenant/types/taggable'
-require 'covenant/types/type'
+# require 'covenant/version'
+# require 'covenant/monad'
+# require 'covenant/color_alias_refinment'
+# require 'covenant/command'
+# require 'covenant/runner'
+# require 'covenant/compositions'
+# require 'covenant/contract'
+# require 'covenant/transformer'
+# require 'covenant/schemas'
+# require 'covenant/validator'
+# require 'covenant/ast/ast'
+# require 'covenant/ast/ast_visitor'
+# require 'covenant/ast/ast_short_printer'
+# require 'covenant/ast/ast_three_printer'
+# require 'covenant/types/taggable'
+# require 'covenant/types/type'
+
+loader = Zeitwerk::Loader.for_gem
+loader.setup
 
 # String = Covenant::Schema.pure(:string)
 # Integer = Covenant::Schema.pure(:string)
@@ -98,6 +101,6 @@ module Covenant
   end
 
   def self.Type(args) # rubocop:disable Naming/MethodName
-    Type.new(args)
+    Types::Type.new(args)
   end
 end

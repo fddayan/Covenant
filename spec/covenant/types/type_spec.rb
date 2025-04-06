@@ -3,7 +3,7 @@ require 'awesome_print'
 require_relative '../../support/types_dummy'
 
 
-RSpec.describe Covenant::Type do
+RSpec.describe Covenant::Types::Type do
   describe '#call' do
     it "should work wth one type pasing integer" do 
       result = ID.call(id: "1")

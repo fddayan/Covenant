@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # # frozen_string_literal: true
 
 # Name = Covenant.Prop(
@@ -25,7 +27,8 @@
 
 # User3 = Covenant.Type.struct(Base + Product, id: ID, name: Name, price: Price)
 
-# User4 = Covenant.Struct(:user, ID & Name.prefix('owner') & Email).extends(Base)
+# User4 = Covenant.Struct(:user, ID & Name.prefix('owner') & Email)
+# .extends(Base)
 
 # Name1 = Covenant.Type.prop(
 #   :name,

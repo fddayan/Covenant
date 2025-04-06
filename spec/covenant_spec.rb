@@ -43,8 +43,8 @@ RSpec.describe Covenant do
       expect(contract.output.name).to eq(:User)
       expect(contract.verify).to be_valid
 
-      Covenant::Ast.new(contract).to_ast.tap do |ast|
-        Covenant::AstThreePrinter.new(ast).print
+      Covenant::Ast::Ast.new(contract).to_ast.tap do |ast|
+        Covenant::Ast::AstThreePrinter.new(ast).print
       end
 
       runtime.call(contract, { id: '1' }).tap do |result|
@@ -81,8 +81,8 @@ RSpec.describe Covenant do
         expect(result).to be_invalid
       end
       
-      Covenant::Ast.new(contract2).to_ast.tap do |ast|
-        Covenant::AstShortPrinter.new(ast).print
+      Covenant::Ast::Ast.new(contract2).to_ast.tap do |ast|
+        Covenant::Ast::AstShortPrinter.new(ast).print
       end
     end
   end
