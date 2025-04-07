@@ -11,8 +11,8 @@ RSpec.describe Covenant::Contracts do
 
   let(:runtime) do 
     Covenant.runtime.layer do |l|
-      l.register(:GetToken, ->(input) { { token:"Token123" } })
-      l.register(:GetUser, ->(input) { { user: { name:"Fede", email: "fede@gmail.com" } }})
+      l.register(:GetToken, ->(input) { { token: "Token123" } })
+      l.register(:GetUser, ->(input) { {  name:"Fede", email: "fede@gmail.com"  }})
     end
   end
 
@@ -20,27 +20,29 @@ RSpec.describe Covenant::Contracts do
 
     it 'run a single contract' do
       expect(get_token_contract.command).to eq(:GetToken)
-      expect(get_token_contract.input).to be_a(Covenant::Types::Type)
+      expect(get_token_contract.input).to be_a(Covenant::Types::Struct)
       expect(get_token_contract.input.name).to eq(:id)
-      expect(get_token_contract.output).to be_a(Covenant::Types::Type)
+      expect(get_token_contract.output).to be_a(Covenant::Types::Struct)
       expect(get_token_contract.output.name).to eq(:token)
 
       runtime.call(get_token_contract, { id: '1' }).tap do |result|
-        expect(result).to be_a(Hash) 
-        expect(result.size).to eq(1)
-        expect(result[:token].value).to eq("Token123")
+        expect(result).to be_a(Covenant::Validator::ValidationResult) 
+        expect(result.value.size).to eq(1)
+        expect(result.value[:token].value).to eq("Token123")
       end
     end
   end
 
   describe "Map" do
-    it 'run a two contracts maped' do
+    it 'run a two contracts mapped' do
       contract = get_token_contract.map(get_user_contract)
 
+      ap contract.verify.errors
+
       expect(contract).to be_a(Covenant::Contracts::Map)
-      expect(contract.input).to be_a(Covenant::Types::Type)
+      expect(contract.input).to be_a(Covenant::Types::Struct)
       expect(contract.input.name).to eq(:id)
-      expect(contract.output).to be_a(Covenant::Types::Type)
+      expect(contract.output).to be_a(Covenant::Types::Struct)
       expect(contract.output.name).to eq(:user)
       expect(contract.verify).to be_success
 
@@ -49,14 +51,9 @@ RSpec.describe Covenant::Contracts do
       end
 
       runtime.call(contract, { id: '1' }).tap do |result|
-        expect(result).to be_a(Hash) 
-
-        # TODO: Improve this
-        vals = result[:user].transform_values do |v|
-          v.value
-        end
-
-        expect(vals).to eq({ name:"Fede", email: "fede@gmail.com" })
+        expect(result).to be_a(Covenant::Validator::ValidationResult) 
+        expect(result).to be_success
+        expect(result.unwrap).to eq({ name:"Fede", email: "fede@gmail.com" })
       end
     end
 

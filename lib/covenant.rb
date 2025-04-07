@@ -5,40 +5,8 @@ require 'awesome_print'
 require 'colorize'
 require 'zeitwerk'
 
-# Zeitwerk::Loader.for_gem.setup
-
-# require 'covenant/version'
-# require 'covenant/monad'
-# require 'covenant/color_alias_refinment'
-# require 'covenant/command'
-# require 'covenant/runner'
-# require 'covenant/compositions'
-# require 'covenant/contract'
-# require 'covenant/transformer'
-# require 'covenant/schemas'
-# require 'covenant/validator'
-# require 'covenant/ast/ast'
-# require 'covenant/ast/ast_visitor'
-# require 'covenant/ast/ast_short_printer'
-# require 'covenant/ast/ast_three_printer'
-# require 'covenant/types/taggable'
-# require 'covenant/types/type'
-
 loader = Zeitwerk::Loader.for_gem
 loader.setup
-
-# String = Covenant::Schema.pure(:string)
-# Integer = Covenant::Schema.pure(:string)
-
-# # Covenant.pipe(
-# User = Covenant::Schema.prop(:name,     String)   +
-#        Covenant::Schema.prop(:age,      Integer)  +
-#        Covenant::Schema.prop(:email,    String)   +
-#        Covenant::Schema.prop(:address,  String)   +
-#        Covenant::Schema.prop(:phone,    String)
-
-# Payload = Covenant::Schema.prop(:user, User.branded.pick(:name, :email))
-
 module Covenant
   class Error < StandardError; end
   class HandlerNotFoundError < Error; end
@@ -112,10 +80,21 @@ module Covenant
     Types::Struct.new(*args)
   end
 
+  def self.Validate # rubocop:disable Naming/MethodName
+    Covenant::Validator::Validation
+  end
+
   def self.assert_type(value, type)
     return if value.is_a?(type)
 
     raise ArgumentError,
           "Expected type #{type}, got #{value.class}"
+  end
+
+  def self.assert_any_type_of(value, types)
+    return if types.any? { |type| value.is_a?(type) }
+
+    raise ArgumentError,
+          "Expected one of types #{types}, got #{value.class}"
   end
 end

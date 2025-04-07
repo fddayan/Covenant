@@ -29,6 +29,26 @@ module Covenant
         props_map.key?(key)
       end
 
+      def to_a
+        @props
+      end
+
+      def keys
+        @props.map(&:tag)
+      end
+
+      def struct_props
+        @struct_props ||= @props.select { |prop| prop.is_a?(Struct) }
+      end
+
+      def prop_props
+        @prop_props ||= @props.select { |prop| prop.is_a?(Prop) }
+      end
+
+      def size
+        @props.size
+      end
+
       def to_s
         "Props[#{@props.map(&:to_s).join(', ')}]"
       end

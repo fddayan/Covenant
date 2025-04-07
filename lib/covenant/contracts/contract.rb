@@ -10,8 +10,8 @@ module Covenant
 
       def initialize(command, input, output)
         Covenant.assert_type(command, Symbol)
-        Covenant.assert_type(input, Types::Type)
-        Covenant.assert_type(output, Types::Type)
+        Covenant.assert_any_type_of(input, [Types::Prop, Types::Props, Types::Struct])
+        Covenant.assert_any_type_of(output, [Types::Prop, Types::Props, Types::Struct])
 
         @command = command
         @input = input

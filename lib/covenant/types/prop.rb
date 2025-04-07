@@ -13,13 +13,17 @@ module Covenant
         tag! tag
       end
 
-      # def name
-      #   first.first
-      # end
+      def struct
+        Types::Struct.new(tag, to_props)
+      end
 
-      # def type
-      #   first.second
-      # end
+      def to_props
+        Types::Props.new([self])
+      end
+
+      def name
+        tag
+      end
 
       def to_s
         "Prop(:#{@tag})"

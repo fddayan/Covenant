@@ -15,10 +15,15 @@ module Covenant
       end
 
       def call(input)
+        if input.is_a?(Covenant::Validator::ValidationResult)
+          return input if input.failure?
+
+          input = input.value
+        end
+
         input_result = contract.input.call(input)
-        result = handler.call(input_result)
-        output_result = contract.output.call(result)
-        output_result.to_h
+        result = handler.call(input_result.unwrap)
+        contract.output.call(result)
       end
     end
 

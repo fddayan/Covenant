@@ -5,9 +5,23 @@ require_relative '../../support/types_dummy'
 
 
 RSpec.describe Covenant::Types::Type do
+  let(:id) { Covenant.Type({ id: Covenant::Validator::Validation.coerce(:integer) })}
+  let(:name) { Covenant.Type({
+      name: Covenant::Validator::Validation.coerce(:string)
+        .and_then(Covenant::Validator::Validation.length(min: 8, max: 30))
+        .and_then(Covenant::Validator::Validation.format(/[A-Z]/))
+        .and_then(Covenant::Validator::Validation.format(/[0-9]/))
+    })
+  }
+  let(:email) { Covenant.Type({ email: Covenant::Validator::Validation.coerce(:string)}) }
+  let(:user) { Covenant.Type({ user: id & name & email })}
+  let(:order_item) { Covenant.Type({ id: id, product: user, price: Covenant::Validator::Validation.coerce(:float) })  }
+  let(:order) { Covenant.Type({ order: id & user & order_item.array(:order_items) })}
+  let(:names) { name.array(:names) }
+  
   describe '#call' do
     it "should work wth one type pasing integer" do 
-      result = ID.call(id: "1")
+      result = id.call(id: "1")
 
       expect(result[:id]).to be_success
       expect(result[:id].value).to eq(1)
@@ -39,7 +53,7 @@ RSpec.describe Covenant::Types::Type do
     end
 
     it "should return failure with one type passing wrong value" do
-      result = Name.call(name: 'Fede')
+      result = name.call(name: 'Fede')
 
       expect(result[:name]).to be_failure
       expect(result[:name].value).to eq("Fede")
@@ -47,7 +61,7 @@ RSpec.describe Covenant::Types::Type do
     end
 
     it "should work with a complext nested excturcture" do 
-      result = Order.call(
+      result = order.call(
         {
           order: {
             id: 1,
@@ -76,7 +90,7 @@ RSpec.describe Covenant::Types::Type do
     end
 
     it "should work with array typs" do 
-      result = Names.call(names: ['Fede', 'Federico1235'])
+      result = names.call(names: ['Fede', 'Federico1235'])
 
       expect(result).to be_kind_of(Hash)
       expect(result[:names]).to be_kind_of(Array)
@@ -93,10 +107,10 @@ RSpec.describe Covenant::Types::Type do
     end
 
     it "should let me rename a type buck keep the same type tag/name" do 
-     FirstName =  Name.rename(:first_name)
+     FirstName =  name.rename(:first_name)
 
      expect(FirstName.same?(Order)).to be_failure
-     expect(FirstName.same?(Name)).to be_success
+     expect(FirstName.same?(name)).to be_success
     #  expect(FirstName.props).to eq({ first_name: Name.props[:name] })
      expect(FirstName.call(first_name: 'Federico1234')[:first_name]).to be_kind_of(Covenant::Validator::ValidationResult)
      expect(FirstName.call(first_name: 'Federico1234')[:first_name].value).to eq('Federico1234')
@@ -105,7 +119,7 @@ RSpec.describe Covenant::Types::Type do
     end
 
     it "should let me rename a complex type buck keep the same type tag/name" do 
-     Client = User.rename(:client)
+     Client = user.rename(:client)
 
      expect(Client.same?(Order)).to be_failure
      expect(Client.same?(User)).to be_success
@@ -126,15 +140,15 @@ RSpec.describe Covenant::Types::Type do
     end
 
     it "should be able to compare combine types that are the same and succedde" do
-      result =(MySchemas::ID & MySchemas::Name & MySchemas::Email)
-                .same?(MySchemas::Name & MySchemas::ID & MySchemas::Email)
+      result =(id & name & email)
+                .same?(name & id & email)
 
       expect(result).to be_success
     end
 
     it "should be able to compare combine types that are not the same and fail" do
-      c1  = MySchemas::Name & MySchemas::Email
-      c2 = (MySchemas::ID & MySchemas::Name)
+      c1  = name & email
+      c2 = (id & name)
       result = c1 =~ c2
 
       expect(result).to be_failure
@@ -163,7 +177,7 @@ RSpec.describe Covenant::Types::Type do
 
   describe "#map_slice" do 
     it "should slice a type" do
-      result = User[:user].map_slice(:name)
+      result = user[:user].map_slice(:name)
       
 
       expect(result).to be_kind_of(Covenant::Types::Type)
