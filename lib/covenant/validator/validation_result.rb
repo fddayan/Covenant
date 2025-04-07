@@ -28,6 +28,16 @@ module Covenant
         end
       end
 
+      def unwrap
+        if value.is_a?(Hash)
+          value.transform_values do |val|
+            val.is_a?(ValidationResult) ? val.unwrap : val
+          end
+        else
+          value
+        end
+      end
+
       def success?
         @errors.empty?
       end

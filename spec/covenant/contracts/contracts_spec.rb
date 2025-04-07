@@ -67,18 +67,12 @@ RSpec.describe Covenant::Contracts do
       expect(contract1).to be_a(Covenant::Contracts::Map)
       expect(contract1.verify).to be_failure
 
-      # contract1.verify.tap do |result|
-      #   expect(result).to be_a(Covenant::Schemas::SchemaComparatorResult)
-      #   expect(result).to be_invalid
-      # end
-
       expect(contract2).to be_a(Covenant::Contracts::Map)
       expect(contract2.verify).to be_failure
       # contract2.verify.tap do |result|
       #   expect(result).to be_a(Covenant::Schemas::SchemaComparatorResult)
       #   expect(result).to be_invalid
       # end
-
       # expect(contract1.verify).to be true
 
       contract3 = contract2.map(contract1)
@@ -87,10 +81,6 @@ RSpec.describe Covenant::Contracts do
 
       expect(contract3).to be_a(Covenant::Contracts::Map)
       expect(contract3.verify).to be_failure
-      # contract3.verify.tap do |result|
-      #   expect(result).to be_a(Covenant::Schemas::SchemaComparatorResult)
-      #   expect(result).to be_invalid
-      # end
       
       Covenant::Ast::Ast.new(contract2).to_ast.tap do |ast|
         Covenant::Ast::AstShortPrinter.new(ast).print

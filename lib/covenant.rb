@@ -104,6 +104,14 @@ module Covenant
     Types::Type.new(args)
   end
 
+  def self.Prop(*args) # rubocop:disable Naming/MethodName
+    Types::Prop.new(*args)
+  end
+
+  def self.Struct(*args) # rubocop:disable Naming/MethodName
+    Types::Struct.new(*args)
+  end
+
   def self.assert_type(value, type)
     return if value.is_a?(type)
 

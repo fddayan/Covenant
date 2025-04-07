@@ -6,6 +6,8 @@ module Covenant
   module Validator
     # Validator is a blueprint for validation
     class Validator
+      include Covenant::Types::Taggable
+
       def initialize(&validation)
         @validation = validation
       end
@@ -19,6 +21,10 @@ module Covenant
           result = call(value)
           result.and_then(other_validator)
         end
+      end
+
+      def to_s
+        'Validator'
       end
 
       # Chain multiple validators and run all of them regardless of failures
