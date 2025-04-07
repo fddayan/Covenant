@@ -10,8 +10,8 @@ module Covenant
 
       def initialize(command, input, output)
         Covenant.assert_type(command, Symbol)
-        Covenant.assert_type(input, Schemas::Schema)
-        Covenant.assert_type(output, Schemas::Schema)
+        Covenant.assert_type(input, Types::Type)
+        Covenant.assert_type(output, Types::Type)
 
         @command = command
         @input = input
@@ -19,11 +19,11 @@ module Covenant
       end
 
       def can_chain_to?(other_contract)
-        other_contract.output.same?(input)
+        self.class.can_chain?(self, other_contract)
       end
 
       def can_chain_from?(other_contract)
-        output.same?(other_contract.input)
+        self.class.can_chain?(other_contract, self)
       end
 
       def to_s

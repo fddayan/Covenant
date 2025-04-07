@@ -44,6 +44,12 @@ module Covenant
         end
       end
 
+      def self.any
+        Validator.new do |value|
+          ValidationResult.new(value)
+        end
+      end
+
       # Combine multiple validators
       def self.all(*validators)
         Validator.new do |value|

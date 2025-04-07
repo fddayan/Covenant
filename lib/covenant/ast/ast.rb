@@ -69,8 +69,9 @@ module Covenant
       def schema_comparator_result_ast(schema_comparator_result)
         {
           type: :schema_comparator_result,
-          valid: schema_comparator_result.valid?,
-          errors: schema_comparator_result.errors.map(&:to_s)
+          valid: schema_comparator_result
+          # valid: schema_comparator_result.valid?,
+          # errors: schema_comparator_result.errors.map(&:to_s)
         }
       end
 

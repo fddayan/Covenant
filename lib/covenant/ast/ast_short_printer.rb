@@ -30,8 +30,8 @@ module Covenant
         return if node[:valid]
 
         puts box_text([
-          indent_text(0, "⚠️ Type mismatch\n".upcase),
-          indent_text(1, "- #{node[:errors].join(', ')}")
+          indent_text(0, "⚠️ Type mismatch\n".upcase)
+          # indent_text(1, "- #{node[:errors].join(', ')}")
         ].join("\n")).symbols_text
       end
 

@@ -4,6 +4,35 @@ require_relative 'type_array'
 
 module Covenant
   module Types
+    class TypeCompare
+      attr_reader :type_a, :type_b, :errors
+
+      def self.same?(type_a, type_b)
+        errors = []
+        if type_a.tag != type_b.tag
+          errors << "Types tags are not the same: #{type_a.tag} => #{type_b.tag}"
+          # elsif type_a.size != type_b.size
+          #   errors << "Types props are not the same: #{type_a.size} => #{type_b.size}"
+        end
+
+        new(type_a, type_b, errors)
+      end
+
+      def initialize(type_a, type_b, errors = [])
+        @type_a = type_a
+        @type_b = type_b
+        @errors = errors
+      end
+
+      def success?
+        @errors.empty?
+      end
+
+      def failure?
+        !success?
+      end
+    end
+
     class Type
       include Taggable
 
@@ -12,22 +41,8 @@ module Covenant
       def initialize(props)
         raise ArgumentError, 'Expected a hash' unless props.is_a?(Hash)
 
-        # if props.size != 1
-        #   raise ArgumentError,
-        #         "Expected a hash with one key #{props}"
-        # end
-
-        # if props.keys.first.nil?
-        #   raise ArgumentError,
-        #         'Expected a hash with one key'
-        # end
-        # if props.values.first.nil?
-        #   raise ArgumentError,
-        #         'Expected a hash with one key'
-        # end
-
         @props = props
-        tag!(props.keys.first)
+        tag! props.keys.sort
       end
 
       def &(other)
@@ -36,10 +51,16 @@ module Covenant
         end
       end
 
+      def size
+        first.first.size
+      end
+
+      def root
+        first.second
+      end
+
       def array(new_key)
-        map_first do |_key, value|
-          { new_key => TypeArray.new(value) }
-        end
+        map_first { |_key, value| { new_key => TypeArray.new(value) } }
       end
 
       def first
@@ -50,19 +71,32 @@ module Covenant
         yield @props
       end
 
-      # def match?
-      # end
+      def name
+        first.first
+      end
 
       def same?(other)
-        tag == other.tag
+        TypeCompare.same?(self, other)
       end
 
       def rename(new_key)
         key, value = first
 
-        Type.new({ new_key => value }).tap do |type|
-          type.retag!(key)
-        end
+        Type.new({ new_key => value }).tap { |type| type.retag!([key]) }
+      end
+
+      def =~(other)
+        return false if other.nil?
+
+        same?(other)
+      end
+
+      def [](key)
+        @props[key]
+      end
+
+      def keys
+        @props.keys
       end
 
       def map_first
@@ -91,16 +125,40 @@ module Covenant
       def pick(*names)
         map do |props|
           key, value = props.first
-          { key => value.slice(*names) }
+          { key => value.slice_props(*names) }
         end
       end
 
-      def slice(*names)
+      def slice_props(*names)
         @props.slice(*names)
+      end
+
+      def map_slice(*names)
+        map do |props|
+          props.slice(*names)
+        end
       end
 
       def root?
         @props.size == 1 && @props.keys.first.nil?
+      end
+
+      def diff(other)
+        return false if other.nil?
+
+        diff = @props.keys - other.keys
+
+        return true if diff.empty?
+
+        @props.slice(*diff)
+      end
+
+      def branded
+        BrandedType.new(self)
+      end
+
+      def to_h
+        @props
       end
 
       def to_s

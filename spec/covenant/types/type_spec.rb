@@ -1,5 +1,6 @@
 require 'awesome_print'
 
+require_relative '../../support/dummy'
 require_relative '../../support/types_dummy'
 
 
@@ -94,8 +95,8 @@ RSpec.describe Covenant::Types::Type do
     it "should let me rename a type buck keep the same type tag/name" do 
      FirstName =  Name.rename(:first_name)
 
-     expect(FirstName.same?(Order)).to be false
-     expect(FirstName.same?(Name)).to be true
+     expect(FirstName.same?(Order)).to be_failure
+     expect(FirstName.same?(Name)).to be_success
     #  expect(FirstName.props).to eq({ first_name: Name.props[:name] })
      expect(FirstName.call(first_name: 'Federico1234')[:first_name]).to be_kind_of(Covenant::Validator::ValidationResult)
      expect(FirstName.call(first_name: 'Federico1234')[:first_name].value).to eq('Federico1234')
@@ -106,29 +107,78 @@ RSpec.describe Covenant::Types::Type do
     it "should let me rename a complex type buck keep the same type tag/name" do 
      Client = User.rename(:client)
 
-     expect(Client.same?(Order)).to be false
-     expect(Client.same?(User)).to be true
+     expect(Client.same?(Order)).to be_failure
+     expect(Client.same?(User)).to be_success
+    end
+  end
+
+  describe "#same" do  
+    it "should return true for same type" do 
+      expect(User.same?(User)).to be_success
     end
 
-    it "should match other type" do 
-      # result = ID.call(id: 1)
-      # expect(result.match?(ID)).to be true
-      # expect(result.match?(Name)).to be false
+    it "should return failure and errors for different type" do 
+      result = User.same?(Order)
+      
+      expect(result).to be_failure
+      expect(result.errors).not_to be_empty
+      expect(result.errors).to eq(["Types tags are not the same: [:user] => [:order]"])
     end
 
-    # it "should run a function" do
-    #   GetUserById = Covenant.Func(:get_user_by_id, ID, User)
+    it "should be able to compare combine types that are the same and succedde" do
+      result =(MySchemas::IdSchema & MySchemas::Name & MySchemas::Email)
+                .same?(MySchemas::Name & MySchemas::IdSchema & MySchemas::Email)
 
-    #   layer = Ceventant.layer.tap do |l|
-    #     l.register(:get_user_by_id) do |id|
-    #       { id: id, name: 'Federico1234', email: 'Fedde' }
-    #     end
-    #   end
+      expect(result).to be_success
+    end
 
-    #   result = Ceventant.run(layer, GetUserById.new(id: 1))
+    it "should be able to compare combine types that are not the same and fail" do
+      c1  = MySchemas::Name & MySchemas::Email
+      c2 = (MySchemas::IdSchema & MySchemas::Name)
+      result = c1 =~ c2
 
-    #   expect(result).to be_success
-    #   expect(result.value).not_to be_nil
+      expect(result).to be_failure
+      expect(result.errors).to match([/Types tags are not the same/])
+      expect(c1.diff(c2).keys).to eq([:email])
+    end
+  end
+
+  describe "#pick" do
+    it "should pick a type and be different", pending: "Not implemented yet" do
+      name1 = User.pick(:name)
+      name2 = Name
+
+      expect(name1.same?(name2)).to be_failure
+      expect(name1.same?(User)).to be_failure
+    end
+
+    # it "should pick a nested type" do
+    #   name1 = User.pick(:name)
+    #   name2 = Name
+
+    #   expect(name1.same?(name2)).to be_failure
+    #   expect(name1.same?(User)).to be_failure
     # end
   end
+
+  describe "#map_slice" do 
+    it "should slice a type" do
+      result = User[:user].map_slice(:name)
+      
+
+      expect(result).to be_kind_of(Covenant::Types::Type)
+      expect(result.keys).to eq([:name])
+      # expect(result.name).to eq(:name)
+      # expect(result.props).to eq({ name: Name.props })
+      expect(result.same?(Name)).to be_success
+      expect(result.same?(User)).to be_failure
+    end
+  end
+
+  describe "#deep_tags" do
+    it "should return the deep tags of a type" do
+      puts "#{User.deep_tags}"
+    end
+  end
+  
 end

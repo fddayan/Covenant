@@ -19,7 +19,6 @@ module Covenant
         result = handler.call(input_result)
         output_result = contract.output.call(result)
         output_result.to_h
-        # result
       end
     end
 

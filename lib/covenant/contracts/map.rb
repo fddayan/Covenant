@@ -15,6 +15,10 @@ module Covenant
         @next_contract = next_contract
       end
 
+      def command
+        "#{@prev_contract.command}  ->  #{@next_contract.command}"
+      end
+
       def verify
         Contract.can_chain?(@prev_contract, @next_contract)
       end

@@ -13,9 +13,12 @@ Email = Covenant.Type({ email: Covenant::Validator::Validation.coerce(:string) }
 
 Price = Covenant.Type({ price: Covenant::Validator::Validation.coerce(:float) })
 
-User = Covenant::Type(
-  { user: ID & Name & Email }
-)
+User = Covenant::Type({ user: ID & Name & Email }) 
+# do |type, errors|
+#   if type[:id] == 1 && type[:name] == "Federico1234" && type[:email] == "Fedde"
+#     errors.add([:user,:email, :id], "This user is not allowed")
+#   end
+# end
 
 Product = Covenant.Type(product: ID & Name & Price)
 

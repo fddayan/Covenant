@@ -50,9 +50,7 @@ module Covenant
       end
 
       def key_size?
-        unless dry_schema1.key_map.keys.size == dry_schema2.key_map.keys.size
-          return false
-        end
+        return false unless dry_schema1.key_map.keys.size == dry_schema2.key_map.keys.size
 
         true
       end

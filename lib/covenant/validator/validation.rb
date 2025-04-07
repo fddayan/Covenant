@@ -2,7 +2,7 @@
 
 module Covenant
   module Validator
-    module Validation # rubocop:disable Metrics/ModuleLength
+    module Validation
       # Type coercion
       def self.coerce(type) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength
         Validator.new do |value| # rubocop:disable Metrics/BlockLength
@@ -70,18 +70,14 @@ module Covenant
         end
       end
 
-      def self.length(min: nil, max: nil) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity,Metrics/MethodLength
+      def self.length(min: nil, max: nil) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
         Validator.new do |value|
           errors = []
 
           if !value.nil? && value.respond_to?(:length)
-            if min && value.length < min
-              errors << "Length must be at least #{min}"
-            end
+            errors << "Length must be at least #{min}" if min && value.length < min
 
-            if max && value.length > max
-              errors << "Length must be at most #{max}"
-            end
+            errors << "Length must be at most #{max}" if max && value.length > max
           elsif !value.nil?
             errors << 'Value does not support length validation'
           end

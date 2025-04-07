@@ -23,7 +23,7 @@ AllCops:
 
 # Layout and formatting rules
 Layout/LineLength:
-  Max: 80 # Limit lines to 80 characters.
+  Max: 100 # Limit lines to 80 characters.
 Layout/TrailingWhitespace:
   Enabled: true # Disallow trailing whitespace.
 Layout/ExtraSpacing:

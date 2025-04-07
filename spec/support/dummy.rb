@@ -1,43 +1,34 @@
-module Primitives
-  # Id = Dry::Types['strict.string']
-  # Token = Dry::Types['strict.string']
-  # Void = Dry::Types['strict.nil']
-  # Any = Dry::Types['any']
-  # String = Dry::Types['strict.string']
-  # Integer = Dry::Types['strict.integer']
-  # Float = Dry::Types['strict.float']
-  # Bool = Dry::Types['strict.bool']
-  # Array = Dry::Types['array']
-  # Hash = Dry::Types['hash']
-  # Symbol = Dry::Types['symbol']
-  # Date = Dry::Types['date']
-  # DateTime = Dry::Types['date_time']
-  # Time = Dry::Types['time']
-  # Regexp = Dry::Types['regexp']
-  # Email = Dry::Types['string.email']
-  # Url = Dry::Types['string.url']
-  # Uuid = Dry::Types['string.uuid']
-  # Enum = Dry::Types['string.enum']
-  # EnumInt = Dry::Types['integer.enum']
-  # EnumSymbol = Dry::Types['symbol.enum']
-
-  Void = Covenant.Schema(:Void) { optional(:void) }
-  Any = Covenant.Schema(:Any) { optional(:any) }
-  String = Covenant.Schema(:String) { optional(:value).filled(:string) }
-end
+# module Primitives
+#   Void = Covenant.Schema(:Void) { optional(:void) }
+#   Any = Covenant.Schema(:Any) { optional(:any) }
+#   String = Covenant.Schema(:String) { optional(:value).filled(:string) }
+# end
 
 module MySchemas
-  IdSchema = Covenant.Schema :ID do
-    required(:id).filled(:string)
-  end
+  IdSchema = Covenant.Type({ id: Covenant::Validator::Validation.coerce(:integer) })
+  TokenSchema = Covenant.Type({ token: Covenant::Validator::Validation.coerce(:string) })
+  Any = Covenant.Type({ any: Covenant::Validator::Validator.any })
+  
+  Name = Covenant.Type({name: Covenant::Validator::Validation.coerce(:string)})
+  Email = Covenant.Type({email: Covenant::Validator::Validation.coerce(:string)})
+  # User = Covenant.Type({user: IdSchema & Name & Email})
 
-  UserSchema = Covenant.Schema :User do
-    required(:name).filled(:string)
-    required(:email).filled(:string)
-  end
-
-  TokenSchema = Covenant.Schema(:Token) { required(:token).filled(:string) }
+  UserSchema = Covenant.Type(
+    { user: IdSchema & Name & Email }
+  )
 end
+# module MySchemas
+#   IdSchema = Covenant.Schema :ID do
+#     required(:id).filled(:string)
+#   end
+
+#   UserSchema = Covenant.Schema :User do
+#     required(:name).filled(:string)
+#     required(:email).filled(:string)
+#   end
+
+#   TokenSchema = Covenant.Schema(:Token) { required(:token).filled(:string) }
+# end
 
 module MyContracts
   include MySchemas
@@ -45,8 +36,8 @@ module MyContracts
   GetTokenContract      = Covenant.Contract(:GetToken, IdSchema, TokenSchema)
   GetUserContract       = Covenant.Contract(:GetUser, TokenSchema, UserSchema)
   GetOwnerContract      = Covenant.Contract(:GetOwner, TokenSchema, UserSchema)
-  AuthorizeUserContract = Covenant.Contract(:AuthorizeUser, IdSchema, Primitives::Void)
-  LogMessageContract    = Covenant.Contract(:LogMessage, Primitives::Any, Primitives::Void)
+  AuthorizeUserContract = Covenant.Contract(:AuthorizeUser, IdSchema, Any)
+  LogMessageContract    = Covenant.Contract(:LogMessage, Any, Any)
 end
 
 module MyTransformers
