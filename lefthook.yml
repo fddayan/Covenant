@@ -1,0 +1,14 @@
+pre-commit:
+  commands:
+    rubocop:
+      tags: style
+      glob: "*.rb"
+      exclude: '(^|/)(application|routes)\.rb$'
+      run: bundle exec rubocop --force-exclusion {all_files}
+      stage_fixed: true
+
+pre-push:
+  commands:
+    test:
+      tags: test
+      run: bundle exec rspec

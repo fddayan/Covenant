@@ -14,7 +14,7 @@ module Covenant
         end
       end
 
-      def print_contract(node, indent)
+      def print_contract(node, indent) # rubocop:disable Metrics/AbcSize
         contract = [
           node[:command].to_s.command_text,
           '('.symbols_text,

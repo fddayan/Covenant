@@ -8,6 +8,7 @@ gemspec
 
 group :development, :test do
   gem 'awesome_print'
+  gem 'lefthook', require: false
   gem 'rake'
   gem 'rspec'
   gem 'rubocop'

@@ -13,7 +13,7 @@ module Covenant
 
       private
 
-      def build_ast(contract, opts = {}) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+      def build_ast(contract, opts = {}) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity
         case contract
         when Contracts::Contract
           {
