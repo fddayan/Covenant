@@ -20,8 +20,9 @@ module Covenant
       end
 
       def call(values)
-        props_validation = _validate_props(values)
+        return Validator::ValidationResult.success(values) if %i[any void].include?(tag)
 
+        props_validation = _validate_props(values)
         _validate_struct(props_validation)
       end
 
@@ -66,7 +67,6 @@ module Covenant
           next unless prop.is_a?(Struct)
 
           acc << prop
-          # acc.concat(prop.compositions)
         end
       end
 
@@ -106,11 +106,15 @@ module Covenant
       def _validate_struct(props_validation)
         Covenant::Validator::ValidationResult.new(
           props_validation,
-          props_validation.values
+          props_validation
+            .values
             .flat_map(&:errors)
             .reject(&:empty?)
         )
       end
     end
+
+    Any = Prop.new(:any, :any).struct
+    Void = Prop.new(:void, :void).struct
   end
 end

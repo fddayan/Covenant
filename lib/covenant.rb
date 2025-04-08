@@ -41,6 +41,20 @@ module Covenant
     end
   end
 
+  def self.Layer # rubocop:disable Naming/MethodName
+    layer = Container::CommandLayer.new
+    yield(layer)
+    layer
+  end
+
+  def self.Runtime(*layers) # rubocop:disable Naming/MethodName
+    System.new.tap do |system|
+      layers.each do |layer|
+        system.add_layer(layer)
+      end
+    end
+  end
+
   def self.layer
     Container::CommandLayer.new
   end

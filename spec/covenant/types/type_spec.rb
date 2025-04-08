@@ -157,23 +157,15 @@ RSpec.describe Covenant::Types::Type do
     end
   end
 
-  describe "#pick" do
-    it "should pick a type and be different", skip: "I cannot make it work the way it is" do
-      name1 = User.pick(:name)
-      name2 = Name
+  # describe "#pick" do
+  #   it "should pick a type and be different", skip: "I cannot make it work the way it is" do
+  #     name1 = User.pick(:name)
+  #     name2 = Name
 
-      expect(name1.same?(name2)).to be_failure
-      expect(name1.same?(User)).to be_failure
-    end
-
-    # it "should pick a nested type" do
-    #   name1 = User.pick(:name)
-    #   name2 = Name
-
-    #   expect(name1.same?(name2)).to be_failure
-    #   expect(name1.same?(User)).to be_failure
-    # end
-  end
+  #     expect(name1.same?(name2)).to be_failure
+  #     expect(name1.same?(User)).to be_failure
+  #   end
+  # end
 
   describe "#map_slice" do 
     it "should slice a type" do
@@ -188,11 +180,4 @@ RSpec.describe Covenant::Types::Type do
       expect(result.same?(User)).to be_failure
     end
   end
-
-  # describe "#deep_tags" do
-  #   it "should return the deep tags of a type" do
-  #     puts "#{User.deep_tags}"
-  #   end
-  # end
-  
 end
