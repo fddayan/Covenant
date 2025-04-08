@@ -11,6 +11,8 @@ I love programming and I run my own researchs, so I created this and since 1 lin
 
 The big difference of this approach vs using interfeces with dependency injection is that you are forced here to NOT implemented the code. You have to define the coordination of the different business parts without the actual implementation. You can reason about what needs to happend and not how it needs to happend. 
 
+**Look at [example1.rb](/examples/example1.rb) to see what I'm talking about**
+
 Inspired by everything that is out there such as
 
 * Effect.ts
