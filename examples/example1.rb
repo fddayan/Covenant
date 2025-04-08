@@ -56,7 +56,7 @@ end
 module MyBusinessImplementation
   Layer = Covenant.Layer do |l|
     l.register(:GetToken,       ->(_input) { { token: 'Token123' } })
-    l.register(:GetUser,        ->(_input) { { name: 'Fede', email: 'fede@gmail.com' } })
+    l.register(:GetUser,        ->(_input) { { name: 'Fede', email: 'fede@xxx.com' } })
     l.register(:AuthorizeUser,  ->(_input) { true })
     l.register(:LogMessage,     ->(input)  { puts "Log #{input}" })
     l.register(:NotifySuccess,  ->(_input) { puts 'Success!' })
