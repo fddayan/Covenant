@@ -73,12 +73,7 @@ module Covenant
         input_result = contract.input.call(input)
 
         if input_result.failure?
-          return ExecutionResult.new(
-            contract,
-            handler,
-            input_result,
-            output_result
-          )
+          return ExecutionResult.new(contract, handler, input_result, output_result)
         end
 
         result = handler.call(input_result.unwrap)

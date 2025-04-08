@@ -29,13 +29,7 @@ module Covenant
       def same?
         SchemaComparatorResult.new(schema1, schema2).tap do |r|
           missing_keys(r)
-          # r.add 'Key size mismatch' unless key_size?
-          # r.add 'AST mismatch' unless schema1.to_ast == schema2.to_ast
         end
-        # && key_names?
-        # &&
-        # key_types? &&
-        # key_optionals?
       end
 
       def missing_keys(result)

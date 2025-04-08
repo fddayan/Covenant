@@ -32,14 +32,14 @@ module Covenant
       protected
 
       def compare!
-        add_error('Struct tags are not the same') do
+        add_error("Struct tags are not the same #{@struct_a.tag} != #{@struct_b.tag}") do
           @struct_a.tag != @struct_b.tag
         end
 
         struct_diff = @struct_b - @struct_a
 
         add_error("Missing props: #{struct_diff.keys.join(', ')}") do
-          @struct_a.size != @struct_b.size
+          !struct_diff.empty?
         end
 
         compositions_struct_compare.each do |struct_compare|

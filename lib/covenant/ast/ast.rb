@@ -13,37 +13,45 @@ module Covenant
 
       private
 
-      def build_ast(contract) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity
+      def build_ast(contract, opts = {}) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
         case contract
         when Contracts::Contract
           {
             type: :contract,
             command: contract.command,
-            input: schema_ast(contract.input),
-            output: schema_ast(contract.output)
+            input: build_ast(contract.input),
+            output: build_ast(contract.output),
+            opts: opts
           }
         when Contracts::Map
+          result = contract.verify
           {
             type: :map,
-            prev_contract: build_ast(contract.prev_contract),
-            next_contract: build_ast(contract.next_contract),
-            input: schema_ast(contract.input),
-            output: schema_ast(contract.output),
-            result: schema_comparator_result_ast(contract.verify)
+            prev_contract: build_ast(contract.prev_contract, success: result.success?),
+            next_contract: build_ast(contract.next_contract, success: result.success?),
+            input: build_ast(contract.input),
+            output: build_ast(contract.output),
+            result: build_ast(result)
           }
-        when SchemaComparatorResult
+        when Types::StructCompare
           {
-            type: :schema_comparator_result,
-            valid: contract.valid?,
-            errors: contract.errors.map(&:to_s)
+            type: :struct_compare,
+            success: contract.success?,
+            errors: contract.errors
+          }
+        when Types::Struct
+          {
+            type: :struct,
+            tag: contract.tag,
+            properties: contract.keys
           }
         when Contracts::Tee
           {
             type: :tee,
             prev_contract: build_ast(contract.prev_contract),
             next_contract: build_ast(contract.next_contract),
-            input: schema_ast(contract.input),
-            output: schema_ast(contract.output)
+            input: build_ast(contract.input),
+            output: build_ast(contract.output)
           }
         when Contracts::OrElse
           {
@@ -64,23 +72,6 @@ module Covenant
         else
           raise "Unknown contract type: #{contract.class}"
         end
-      end
-
-      def schema_comparator_result_ast(schema_comparator_result)
-        {
-          type: :schema_comparator_result,
-          valid: schema_comparator_result
-          # valid: schema_comparator_result.valid?,
-          # errors: schema_comparator_result.errors.map(&:to_s)
-        }
-      end
-
-      def schema_ast(schema)
-        {
-          type: :schema,
-          name: schema.name,
-          properties: schema.keys
-        }
       end
     end
   end

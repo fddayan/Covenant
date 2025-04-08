@@ -67,7 +67,7 @@ RSpec.describe Covenant::Contracts do
       expect(contract.verify).to be_success
 
       Covenant::Ast::Ast.new(contract).to_ast.tap do |ast|
-        Covenant::Ast::AstThreePrinter.new(ast).print
+        expect(Covenant::Ast::AstThreePrinter.new(ast).print).not_to be nil
       end
 
       runtime.call(contract, { id: '1' }).tap do |result|
@@ -95,7 +95,7 @@ RSpec.describe Covenant::Contracts do
       expect(contract3.verify).to be_failure
       
       Covenant::Ast::Ast.new(contract2).to_ast.tap do |ast|
-        Covenant::Ast::AstShortPrinter.new(ast).print
+        expect(Covenant::Ast::AstShortPrinter.new(ast).print).not_to be nil
       end
     end
   end
