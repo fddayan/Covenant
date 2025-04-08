@@ -16,28 +16,48 @@ RSpec.describe Covenant::Contracts do
     end
   end
 
-  describe "Simple" do 
-
-    it 'run a single contract' do
+  describe "Simple" do
+    it 'run succeesfull contract' do
       expect(get_token_contract.command).to eq(:GetToken)
       expect(get_token_contract.input).to be_a(Covenant::Types::Struct)
       expect(get_token_contract.input.name).to eq(:id)
       expect(get_token_contract.output).to be_a(Covenant::Types::Struct)
       expect(get_token_contract.output.name).to eq(:token)
 
-      runtime.call(get_token_contract, { id: '1' }).tap do |result|
-        expect(result).to be_a(Covenant::Validator::ValidationResult) 
-        expect(result.value.size).to eq(1)
-        expect(result.value[:token].value).to eq("Token123")
+      result = runtime.call(get_token_contract, { id: '1' })
+      
+      expect(result).to be_a(Covenant::Runtime::ExecutionResult) 
+      expect(result).to be_success
+      expect(result.value.size).to eq(1)
+      expect(result.value[:token].value).to eq("Token123")
+    end
+
+     it 'run failure contract' do
+       wrong_runtime = Covenant.runtime.layer do |l|
+        l.register(:GetToken, ->(input) { { token: "To" } })
+        l.register(:GetUser, ->(input) { {  name:"Fede", email: "fede@gmail.com"  }})
       end
+      
+      expect(get_token_contract.command).to eq(:GetToken)
+      expect(get_token_contract.input).to be_a(Covenant::Types::Struct)
+      expect(get_token_contract.input.name).to eq(:id)
+      expect(get_token_contract.output).to be_a(Covenant::Types::Struct)
+      expect(get_token_contract.output.name).to eq(:token)
+
+      result = wrong_runtime.call(get_token_contract, { id: '1' })
+      
+      expect(result).to be_a(Covenant::Runtime::ExecutionResult) 
+      expect(result).to be_failure
+      expect(result.value.size).to eq(1)
+      expect(result.value[:token].value).to eq("To")
+      expect(result.errors).to eq(["Length must be at least 4"])
+      expect(result.blame.uncolorize).to match(/failed to validate output for GetToken with/)
     end
   end
 
   describe "Map" do
     it 'run a two contracts mapped' do
       contract = get_token_contract.map(get_user_contract)
-
-      ap contract.verify.errors
 
       expect(contract).to be_a(Covenant::Contracts::Map)
       expect(contract.input).to be_a(Covenant::Types::Struct)
@@ -51,7 +71,7 @@ RSpec.describe Covenant::Contracts do
       end
 
       runtime.call(contract, { id: '1' }).tap do |result|
-        expect(result).to be_a(Covenant::Validator::ValidationResult) 
+        expect(result).to be_a(Covenant::Runtime::ExecutionResult) 
         expect(result).to be_success
         expect(result.unwrap).to eq({ name:"Fede", email: "fede@gmail.com" })
       end
@@ -66,12 +86,7 @@ RSpec.describe Covenant::Contracts do
 
       expect(contract2).to be_a(Covenant::Contracts::Map)
       expect(contract2.verify).to be_failure
-      # contract2.verify.tap do |result|
-      #   expect(result).to be_a(Covenant::Schemas::SchemaComparatorResult)
-      #   expect(result).to be_invalid
-      # end
-      # expect(contract1.verify).to be true
-
+    
       contract3 = contract2.map(contract1)
         .map(get_user_contract.timeout(1))
         .map(get_user_contract.retry(1))

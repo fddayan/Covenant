@@ -7,9 +7,18 @@ module Covenant
 
       attr_reader :props
 
-      def initialize(props)
-        @props = props
-        tag! @props.map(&:tag)
+      def initialize(props, parent = nil)
+        tag! props.map(&:tag)
+        if parent
+          parent! parent
+          @props = props.map { |prop| prop.brand_to(parent) }
+        else
+          @props = props
+        end
+      end
+
+      def brand_to(struct)
+        Props.new(@props, struct)
       end
 
       def +(other)
@@ -18,6 +27,21 @@ module Covenant
           Props.new(props + [other])
         when Props
           Props.new(props + other.props)
+        end
+      end
+
+      def reject(tags)
+        Props.new(@props.reject { |r| tags.include?(r.tag) })
+      end
+
+      def -(other)
+        case other
+        when Prop
+          reject [other.tag]
+        when Props
+          reject other.props.map(&:tag)
+        else
+          raise ArgumentError, "Expected Prop, Struct or Props got #{other.class}"
         end
       end
 
@@ -35,6 +59,10 @@ module Covenant
 
       def keys
         @props.map(&:tag)
+      end
+
+      def empty?
+        @props.empty?
       end
 
       def struct_props
@@ -55,10 +83,6 @@ module Covenant
 
       def props_map
         @props_map ||= @props.to_h { |prop| [prop.tag, prop] }
-      end
-
-      def awesome_inspect
-        props_map
       end
     end
   end

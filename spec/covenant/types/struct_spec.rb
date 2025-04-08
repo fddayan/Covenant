@@ -58,4 +58,127 @@ RSpec.describe Covenant::Types::Struct do
       })
     end
   end
+
+  describe "#==" do
+    it "should compare two structs with the same values" do 
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+
+      struct1 = Covenant.Struct(:user, id + name)
+      struct2 = Covenant.Struct(:user, id + name)
+
+      expect(struct1 == struct2).to be true
+    end
+
+    it "should compare two structs with different values" do 
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+
+      struct1 = Covenant.Struct(:user, id + name)
+      struct2 = Covenant.Struct(:user, id + name + Covenant.Prop(:age, Covenant::Validator::Validation.coerce(:integer)))
+
+      expect(struct1 == struct2).to be false
+    end
+  end
+
+  describe "#compare" do
+    it "should compare two structs with the same values" do
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+
+      struct1 = Covenant.Struct(:user, id + name)
+      struct2 = Covenant.Struct(:user, id + name + Covenant.Prop(:age, Covenant::Validator::Validation.coerce(:integer)))
+
+      result = struct1.compare(struct2)
+
+      expect(result.errors).to eq(["Missing props: age"])
+    end
+
+    it "should compare nested structs" do
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      price = Covenant.Prop(:price, Covenant::Validator::Validation.coerce(:float))
+      user = Covenant.Struct(:user, id + name)
+      order = Covenant.Struct(:order, id + user + price)
+      order2 = Covenant.Struct(:order, id + user + price)
+      result = order.compare(order2)
+      expect(result.success?).to be true
+      expect(result.failure?).to be false
+      expect(result.errors).to be_empty
+    end
+    
+    it "should compare nested structs with different values" do
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      price = Covenant.Prop(:price, Covenant::Validator::Validation.coerce(:float))
+      
+      user1 = Covenant.Struct(:user, id + name)
+      user2 = Covenant.Struct(:user, id + name + Covenant.Prop(:age, Covenant::Validator::Validation.coerce(:integer)))
+      
+      order = Covenant.Struct(:order, id + user1 + price)
+      order2 = Covenant.Struct(:order, id + user2 + price)
+      
+      result = order.compare(order2)
+      
+      expect(result.success?).to be false
+      expect(result.failure?).to be true
+      expect(result.errors).not_to be_empty
+      expect(result.errors).to eq([{ user: ["Missing props: age"] }])
+    end
+
+    it "should compare nested structs with different values and tags" do
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      price = Covenant.Prop(:price, Covenant::Validator::Validation.coerce(:float))
+      user = Covenant.Struct(:user, id + name)
+      order = Covenant.Struct(:order, id + user + price)
+      order2 = Covenant.Struct(:order2, id + user + price + Covenant.Prop(:age, Covenant::Validator::Validation.coerce(:integer)))
+      result = order.compare(order2)
+
+      expect(result.success?).to be false
+      expect(result.failure?).to be true
+      expect(result.errors).not_to be_empty
+    end
+  end
+
+  describe "#pick" do
+    it "should pick a prop from the struct" do
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+
+      struct = Covenant.Struct(:user, id + name)
+
+      expect(struct.pick(:id)).to be_kind_of(Covenant::Types::Prop)
+      expect(struct.pick(:name)).to be_kind_of(Covenant::Types::Prop)
+      expect(struct.pick(:age)).to be_nil
+
+      expect(struct.pick(:id) == id).to be false
+      expect(struct.pick(:name) == name).to be false
+
+      expect(id == id).to be true
+      expect(name == name).to be true
+    end
+
+    it "should pick a prop from a nested struct" do
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      price = Covenant.Prop(:price, Covenant::Validator::Validation.coerce(:float))
+      
+      user = Covenant.Struct(:user, id + name)
+      order = Covenant.Struct(:order, id + user + price)
+
+      expect(order.pick(:user)).to be_kind_of(Covenant::Types::Struct)
+      expect(order.pick(:user).pick(:name)).to be_kind_of(Covenant::Types::Prop)
+      expect(order.pick(:user).pick(:age)).to be_nil
+
+      expect(order.pick(:user).tag_chain).to eq([:user, :order])
+      expect(order.pick(:user).pick(:name).tag_chain).to eq([:name , :user , :order])
+
+      expect(order.pick(:user).pick(:name) == order.pick(:user).pick(:name)).to be true
+      expect(order.pick(:user).pick(:name) == order.pick(:user).pick(:id)).to be false
+      expect(order.pick(:user).pick(:name) == name).to be false
+    end
+    
+  end
+
 end

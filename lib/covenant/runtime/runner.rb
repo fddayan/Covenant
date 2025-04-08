@@ -2,6 +2,56 @@
 
 module Covenant
   module Runtime
+    class ExecutionResult
+      attr_reader :contract, :handler, :input_validation_result, :output_validation_result
+
+      def initialize(contract, handler, input_validation_result, output_validation_result)
+        @contract = contract
+        @handler = handler
+        @input_validation_result = input_validation_result
+        @output_validation_result = output_validation_result
+      end
+
+      def value
+        @output_validation_result.value
+      end
+
+      def success?
+        @output_validation_result.success? && @input_validation_result.success?
+      end
+
+      def failure?
+        !success?
+      end
+
+      def blame
+        return if success?
+
+        from = @input_validation_result.failure? ? 'input' : 'output'
+
+        [
+          @handler.to_s.red,
+          'failed to validate'.magenta,
+          from.red,
+          'for'.magenta,
+          @contract.command.to_s.red,
+          'with'.magenta,
+          errors.join(', ').red
+        ].join(' ')
+        # "#{@handler} did not follow #{from} contract #{@contract.command}"
+      end
+
+      def unwrap
+        return @output_validation_result.unwrap if success?
+
+        raise 'Cannot unwrap a failed result'
+      end
+
+      def errors
+        @output_validation_result.errors + @input_validation_result.errors
+      end
+    end
+
     class Executor
       attr_reader :contract
 
@@ -10,20 +60,31 @@ module Covenant
         @contract = contract
       end
 
-      def handler
+      def fetch_handler
         @command_registry.handler_for(@contract.command)
       end
 
-      def call(input)
-        if input.is_a?(Covenant::Validator::ValidationResult)
-          return input if input.failure?
+      def call(input) # rubocop:disable Metrics/AbcSize
+        return input if input.is_a?(ExecutionResult) && input.failure?
 
-          input = input.value
+        input = input.value if input.is_a?(ExecutionResult)
+
+        handler = fetch_handler
+        input_result = contract.input.call(input)
+
+        if input_result.failure?
+          return ExecutionResult.new(
+            contract,
+            handler,
+            input_result,
+            output_result
+          )
         end
 
-        input_result = contract.input.call(input)
         result = handler.call(input_result.unwrap)
-        contract.output.call(result)
+        output_result = contract.output.call(result)
+
+        ExecutionResult.new(contract, handler, input_result, output_result)
       end
     end
 

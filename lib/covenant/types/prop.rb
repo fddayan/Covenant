@@ -6,11 +6,16 @@ module Covenant
     class Prop
       include Taggable
 
-      def initialize(tag, validator)
+      def initialize(tag, validator, parent = nil)
         @tag = tag
         @validator = validator
         @name = tag
         tag! tag
+        parent! parent if parent
+      end
+
+      def brand_to(struct)
+        Prop.new(@tag, @validator, struct)
       end
 
       def struct
@@ -38,20 +43,8 @@ module Covenant
         end
       end
 
-      # def inspect
-      #   to_s
-      # end
-
-      # def same?(other)
-      #   TypeCompare.same?(self, other)
-      # end
-
       def ==(other)
-        # return true if equal?(other)
-        # return false unless other.is_a?(self.class)
-        # && @validator == other.validator
-
-        @tag == other.tag
+        tag_chain == other.tag_chain
       end
 
       def call(value)

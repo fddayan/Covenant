@@ -14,17 +14,16 @@
 # end
 
 module MyProps
-  ID    = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-  Token = Covenant.Prop(:token, Covenant::Validator::Validation.coerce(:string))
-  Name  = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
-  Email = Covenant.Prop(:email, Covenant::Validator::Validation.coerce(:string))
+  ID    = Covenant.Prop(:id, Covenant.Validate.coerce(:integer))
+  Token = Covenant.Prop(:token, Covenant.Validate.coerce(:string).and_then(Covenant.Validate.length(min: 4)))
+  Name  = Covenant.Prop(:name, Covenant.Validate.coerce(:string))
+  Email = Covenant.Prop(:email, Covenant.Validate.coerce(:string))
 end
 
 module MySchemas
   include MyProps
-  Any = Covenant.Struct(:any, Covenant::Validator::Validator.any)
+  Any = Covenant.Prop(:any, Covenant::Validator::Validator.any)
   User = Covenant.Struct(:user, ID + Name + Email)
-  # User2 = Covenant.Struct(:user, { user: ID, name: Name, email: Email })
 end
 
 module MyContracts

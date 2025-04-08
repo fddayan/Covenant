@@ -5,12 +5,25 @@ module Covenant
     module Taggable
       def tag
         @tag
-        # ||= self.class.name.split('::').last.downcase
       end
 
       def tag!(tag)
-        # @tag ||= self.class.name.split('::').last.downcase
         @tag ||= tag
+      end
+
+      def parent
+        @parent
+      end
+
+      def parent!(parent)
+        @parent = parent
+      end
+
+      def tag_chain
+        arr = []
+        arr << @tag if @tag
+        arr += @parent.tag_chain if @parent
+        arr
       end
 
       protected

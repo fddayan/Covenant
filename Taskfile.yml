@@ -17,6 +17,11 @@ tasks:
     cmds:
       - bundle exec rspec
 
+  test:watch:
+    desc: Run tests with watch
+    cmds:
+      - watchexec -c --exts rb  "bundle exec rspec spec"
+
   examples:
     desc: Runs all ruby examples under /examples directory
     cmds:
