@@ -1,6 +1,23 @@
 # Covenant
 
-Welcome to the Covenant gem! This gem provides [describe what the gem does].
+> [!NOTE]
+> Work in progress feedback appreciated
+
+I created this gem inspired by design-by-contract after a lot of frustartion wrintng business logic for a few big projects. I thought there has to be a better way to organize business logic and coordinate. 
+
+Using the word `Service` as a bag for dumping business logic (such as `UserService`, `OrderService`) never clicked with me. I feel there was something wrong I could not understand what the hell whas a service in this terms. 
+
+I love programming and I run my own researchs, so I created this and since 1 line of code says more than 1000 words I want to know what people think about this concept of designing the business logic without implementing the business logic. 
+
+The big difference of this approach vs using interfeces with dependency injection is that you are forced here to NOT implemented the code. You have to define the coordination of the different business parts without the actual implementation. You can reason about what needs to happend and not how it needs to happend. 
+
+Inspired by everything that is out there such as
+
+* Effect.ts
+* TypeScript
+* dry-rb
+* Declarative programming
+* Monads
 
 ## Installation
 
