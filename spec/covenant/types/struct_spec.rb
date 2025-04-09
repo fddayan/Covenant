@@ -178,7 +178,18 @@ RSpec.describe Covenant::Types::Struct do
       expect(order.pick(:user).pick(:name) == order.pick(:user).pick(:id)).to be false
       expect(order.pick(:user).pick(:name) == name).to be false
     end
-    
   end
+
+  # describe "with array" do
+  #   it "should let me create a struct with an array" do 
+  #      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+  #      names = name.array
+
+  #      result = names.call(["John Doe", "Jane Doe"])
+
+  #      expect(result).to be_success
+  #      expect(result.value).to ["John Doe", "Jane Doe"]
+  #   end
+  # end
 
 end

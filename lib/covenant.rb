@@ -77,14 +77,6 @@ module Covenant
     Covenant::Contracts::Transformer.new(input_schema, output_schema, &block)
   end
 
-  def self.Schema(name, &block) # rubocop:disable Naming/MethodName
-    Covenant::Schemas::Schema.new(name, &block)
-  end
-
-  def self.Type(args) # rubocop:disable Naming/MethodName
-    Types::Type.new(args)
-  end
-
   def self.Prop(*args) # rubocop:disable Naming/MethodName
     Types::Prop.new(*args)
   end
