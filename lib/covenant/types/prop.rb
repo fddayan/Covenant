@@ -36,10 +36,12 @@ module Covenant
 
         values_validated = transofome_values(values)
 
-        Validator::ValidationResult.new(values_validated,
-                                        values_validated
-                                        .flat_map(&:errors)
-                                        .reject(&:empty?))
+        Validator::ValidationResult.new(
+          values_validated,
+          values_validated
+          .flat_map(&:errors)
+          .reject(&:empty?)
+        )
       end
 
       def brand_to(struct)
