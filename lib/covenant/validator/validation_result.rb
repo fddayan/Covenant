@@ -29,12 +29,23 @@ module Covenant
       end
 
       def unwrap
-        if value.is_a?(Hash)
-          value.transform_values do |val|
-            val.is_a?(ValidationResult) ? val.unwrap : val
+        _unwrap(value)
+      end
+
+      def _unwrap(val)
+        case val
+        when Hash
+          val.transform_values do |v|
+            _unwrap(v)
           end
+        when Array
+          val.map do |v|
+            _unwrap(v)
+          end
+        when ValidationResult
+          _unwrap(val.value)
         else
-          value
+          val
         end
       end
 

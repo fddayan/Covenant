@@ -180,16 +180,18 @@ RSpec.describe Covenant::Types::Struct do
     end
   end
 
-  # describe "with array" do
-  #   it "should let me create a struct with an array" do 
-  #      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
-  #      names = name.array
+  describe "with an array" do
+    it "should let me use a struct with an array" do
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      names = name.array
+      user = Covenant.Struct(:user, names.to_props)
 
-  #      result = names.call(["John Doe", "Jane Doe"])
+      result = user.call({ name_array: ["John Doe", "Jane Doe"] })
 
-  #      expect(result).to be_success
-  #      expect(result.value).to ["John Doe", "Jane Doe"]
-  #   end
-  # end
-
+      expect(result).to be_success
+      expect(result.value[:name_array]).to be_success
+      expect(result.unwrap).to eq({ name_array: ["John Doe", "Jane Doe"] })
+    end
+  end
+  
 end

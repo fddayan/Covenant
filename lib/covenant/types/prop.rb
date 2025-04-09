@@ -2,20 +2,12 @@
 
 module Covenant
   module Types
-    # Prop is a blueprint for a property
-    class Prop
+    class BaseProp
       include Taggable
 
-      def initialize(tag, validator, parent = nil)
-        @tag = tag
-        @validator = validator
-        @name = tag
+      def initialize(tag, parent = nil)
         tag! tag
         parent! parent if parent
-      end
-
-      def brand_to(struct)
-        Prop.new(@tag, @validator, struct)
       end
 
       def struct
@@ -28,6 +20,58 @@ module Covenant
 
       def name
         tag
+      end
+    end
+
+    class PropArray < BaseProp
+      include Taggable
+
+      def initialize(prop)
+        super(:"#{prop.tag}_array", prop.parent)
+        @prop = prop
+      end
+
+      def call(values)
+        raise ArgumentError, 'Expected an array' unless values.is_a?(Array)
+
+        values_validated = transofome_values(values)
+
+        Validator::ValidationResult.new(values_validated,
+                                        values_validated.flat_map(&:errors).reject(&:empty?))
+      end
+
+      def brand_to(struct)
+        PropArray.new(@prop.brand_to(struct))
+      end
+
+      private
+
+      def transofome_values(values)
+        values.map do |value|
+          if value.is_a?(Hash)
+            @prop.struct.call(value)
+          else
+            @prop.call(value)
+          end
+        end
+      end
+    end
+
+    # Prop is a blueprint for a property
+    class Prop < BaseProp
+      include Taggable
+
+      def initialize(tag, validator, parent = nil)
+        super(tag, parent)
+        @validator = validator
+      end
+
+      def brand_to(struct)
+        Prop.new(@tag, @validator, struct)
+      end
+
+      def array
+        PropArray.new(self)
       end
 
       def to_s
