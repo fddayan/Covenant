@@ -3,7 +3,8 @@
 > [!NOTE]
 > Work in progress feedback appreciated
 
-I created this gem inspired by design-by-contract after a lot of frustartion wrintng business logic for a few big projects. I thought there has to be a better way to organize business logic and coordinate. 
+
+I created this gem inspired by [design-by-contract](https://en.wikipedia.org/wiki/Design_by_contract) after a lot of frustartion wrintng business logic for a few big projects. I thought there has to be a better way to organize business logic and coordinate operations. 
 
 Using the word `Service` as a bag for dumping business logic (such as `UserService`, `OrderService`) never clicked with me. I feel there was something wrong I could not understand what the hell whas a service in this terms. 
 
@@ -13,13 +14,112 @@ The big difference of this approach vs using interfeces with dependency injectio
 
 **Look at [example1.rb](/examples/example1.rb) to see what I'm talking about**
 
-Inspired by everything that is out there such as
+There are 3 parts in this library
+* Validations (parsing actually)
+* Prop
+* Struct
+* Contract
+
+```
+Validations |> Prop |> Struct |> Contract
+```
+
+Inspired by:
 
 * Effect.ts
 * TypeScript
 * dry-rb
 * Declarative programming
 * Monads
+
+## Show me the code
+
+### Simple
+```ruby
+# Creating props with validations
+Id = Covenant.Prop(:id, Covenant.Validate.coerce(:integer))
+Name  = Covenant.Prop(:name, Covenant.Validate.coerce(:string))
+Email = Covenant.Prop(:email, Covenant.Validate.coerce(:string))
+
+# Using props to create a struct
+User = Covenant.Struct(:user, Id + Name + Email)
+
+# Using Structs to create a Contract with Id is the input and User is the output
+GetUserByIdContract = Covenant.Contract(:GetUserById, ID.struct, User)
+
+# Creating the a layer mapping a contract with the actual implementation
+Layer = Covenant.Layer do |l|
+  l.register(:GetUserById, ->(_input) { { name: 'Fede', email: 'fede@xxx.com' } })
+end
+
+# Setting app the Runtime with a layer. Many layers might be passed
+Runtime = Covenant.Runtime(Layer)
+
+# Running a contract. Using the contract tag, I get the implementation then I just run it
+result = Runtime.call(GetUserByIdContract,{ id: '1' })
+
+puts result.success?
+# true
+puts result.value
+# { name: ValidationResult(...), email: ValidationResul(...) }
+puts result.unwrap
+# { name: 'fede', email: 'fede@xxx.com'  }
+```
+
+### Adding more complex stuff
+
+```ruby
+# I define more props
+Token = Covenant.Prop(:token, Covenant.Validate.coerce(:string)
+                                               .and_then(Covenant.Validate.length(min: 4)))
+
+# I define more contracts
+GetIdByTokenContract  = Covenant.Contract(:GetIdByToken, Token.struct, ID.struct)
+AuthorizeUserContract = Covenant.Contract(:AuthorizeUser, ID.struct, Covenant::Types::Void)
+LogMessageContract    = Covenant.Contract(:LogMessage,Covenant::Types::Any, Covenant::Types::Void)
+NotifySuccessContract = Covenant.Contract(:NotifySuccess, Covenant::Types::Any, Covenant::Types::Void)
+NotifyFailureContract = Covenant.Contract(:NotifyFailure, Covenant::Types::Any,Covenant::Types::Void)
+
+
+# I compose a new contract with other chaining other contracts
+# GetUserByTokenContract has to Struct input of GetIdByTokenContract and the Struct output of GetUserByIdContract
+# so inout is Token and output is user it like defining a contract: GetUserByTokenContract(Token, User)
+# tee is like tap. it does not change the output.
+# by combining tee with match I create a match that does not change the output
+GetUserByTokenContract = GetIdByTokenContract
+                        .and_then(GetUserByIdContract)
+                        .tee(AuthorizeUserContract)
+                        .tee(LogMessageContract)
+                        .tee(
+                          Covenant::Contracts.match(
+                            success: NotifySuccessContract,
+                            failure: NotifyFailureContract
+                          )
+                        )
+
+Layer2 = Covenant.Layer do |l|
+  l.register(:GetIdByToken,  ->(_input) { { token: 'Token123' } })
+  l.register(:GetUser,       ->(_input) { { name: 'Fede', email: 'fede@xxx.com' } })
+  l.register(:AuthorizeUser, ->(_input) { true })
+  l.register(:LogMessage,    ->(input)  { puts "Log #{input}" })
+  l.register(:NotifySuccess, ->(_input) { puts 'Success!' })
+  l.register(:NotifyFailure, ->(_input) { puts 'Failure!' })
+end
+
+Runtime2 = Covenant.Runtime(Layer, Layer2)
+
+result = Runtime2.call(GetUserByTokenContract, { id: '1' })
+# Prints:
+# Log { name: 'fede', email: 'fede@xxx.com'  }
+# Success!
+
+puts result.success?
+# true
+puts result.value
+# { name: ValidationResult(...), email: ValidationResul(...) }
+puts result.unwrap
+# { name: 'fede', email: 'fede@xxx.com'  }
+```
 
 ## Installation
 

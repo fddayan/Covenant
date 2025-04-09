@@ -3,6 +3,10 @@
 require_relative '../lib/covenant'
 
 module MyBusinessLogic
+  # You have to define your types. No types are provided internally.
+  # Becuse in business logic there is no such a thing as string, int, boolean, etc
+  # A Prop is a type with a name and a validator. So I do more than just checking the type.
+  # I make sure it follows the rules defined.
   module Props
     ID    = Covenant.Prop(:id, Covenant.Validate.coerce(:integer))
     Token = Covenant.Prop(:token,
@@ -12,12 +16,15 @@ module MyBusinessLogic
     Email = Covenant.Prop(:email, Covenant.Validate.coerce(:string))
   end
 
+  # With you types defined, you can create your structs.
   module Structs
     include Props
 
     User = Covenant.Struct(:user, ID + Name + Email)
   end
 
+  # With your structs now you can create your contracts.
+  # What goes in and what goes out
   module Contracts
     include Structs
 
@@ -37,6 +44,8 @@ module MyBusinessLogic
                                               Covenant::Types::Void)
   end
 
+  # This is your business logic.
+  # With you contracts defined, you define the flow of execution.
   module Chains
     include Contracts
 
