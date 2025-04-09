@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'dry-schema'
 require 'awesome_print'
 require 'colorize'
 require 'zeitwerk'
