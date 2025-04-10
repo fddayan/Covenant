@@ -1,4 +1,4 @@
-RSpec.describe Covenant::Types::Prop do
+RSpec.describe Covenant::Types::PropArray do
   describe "with array" do
     it "should let me create a struct with an array" do 
        name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))

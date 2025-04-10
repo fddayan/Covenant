@@ -77,7 +77,7 @@ RSpec.describe Covenant::Types::Struct do
       struct1 = Covenant.Struct(:user, id + name)
       struct2 = Covenant.Struct(:user, id + name + Covenant.Prop(:age, Covenant::Validator::Validation.coerce(:integer)))
 
-      expect(struct1 == struct2).to be false
+      expect(struct2 == struct1).to be false
     end
   end
 
@@ -153,9 +153,9 @@ RSpec.describe Covenant::Types::Struct do
 
       struct = Covenant.Struct(:user, id + name)
 
-      expect(struct.pick(:id)).to be_kind_of(Covenant::Types::Prop)
-      expect(struct.pick(:name)).to be_kind_of(Covenant::Types::Prop)
-      expect(struct.pick(:age)).to be_nil
+      expect(struct.pick(:id)).to be_kind_of(Covenant::Types::Props)
+      expect(struct.pick(:name)).to be_kind_of(Covenant::Types::Props)
+      expect(struct.pick(:age)).to be_empty
 
       expect(struct.pick(:id) == id).to be false
       expect(struct.pick(:name) == name).to be false
@@ -172,16 +172,18 @@ RSpec.describe Covenant::Types::Struct do
       user = Covenant.Struct(:user, id + name)
       order = Covenant.Struct(:order, id + user + price)
 
-      expect(order.pick(:user)).to be_kind_of(Covenant::Types::Struct)
-      expect(order.pick(:user).pick(:name)).to be_kind_of(Covenant::Types::Prop)
-      expect(order.pick(:user).pick(:age)).to be_nil
+      expect(order.pick(:user)).to be_kind_of(Covenant::Types::Props)
+      expect(order.pick(:user).pick(:name)).to be_kind_of(Covenant::Types::Props)
+      expect(order.pick(:user).pick(:age)).to be_empty
 
-      expect(order.pick(:user).tag_chain).to eq([:user, :order])
-      expect(order.pick(:user).pick(:name).tag_chain).to eq([:name , :user , :order])
+      expect(order.pick(:user).tag_chain).to eq([[:user], :order])
+      expect(order.pick(:user)[:user].tag_chain).to eq([:user, :order])
 
-      expect(order.pick(:user).pick(:name) == order.pick(:user).pick(:name)).to be true
-      expect(order.pick(:user).pick(:name) == order.pick(:user).pick(:id)).to be false
-      expect(order.pick(:user).pick(:name) == name).to be false
+      expect(order.pick(:user)[:user].pick(:name).tag_chain).to eq([[:name] , :user , :order])
+
+      expect(order.pick(:user)[:user].pick(:name) == order.pick(:user)[:user].pick(:name)).to be true
+      expect(order.pick(:user)[:user].pick(:name) == order.pick(:user)[:user].pick(:id)).to be false
+      expect(order.pick(:user)[:user].pick(:name) == name).to be false
     end
   end
 

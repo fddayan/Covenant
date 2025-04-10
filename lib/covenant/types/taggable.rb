@@ -16,7 +16,7 @@ module Covenant
       end
 
       def parent!(parent)
-        @parent = parent
+        @parent ||= parent
       end
 
       def tag_chain

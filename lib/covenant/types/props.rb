@@ -2,19 +2,18 @@
 
 module Covenant
   module Types
-    class Props
+    class Props < BaseType
       include Taggable
 
       attr_reader :props
 
       def initialize(props, parent = nil)
-        tag! props.map(&:tag)
-        if parent
-          parent! parent
-          @props = props.map { |prop| prop.brand_to(parent) }
-        else
-          @props = props
-        end
+        super(props.map(&:tag), parent)
+        @props = if parent
+                   props.map { |prop| prop.brand_to(parent) }
+                 else
+                   props
+                 end
       end
 
       def brand_to(struct)
@@ -28,6 +27,18 @@ module Covenant
         when Props
           Props.new(props + other.props)
         end
+      end
+
+      def pick(*tags)
+        Props.new(@props.select { |r| tags.include?(r.tag) }, @parent)
+      end
+
+      def omit(*tags)
+        Props.new(@props.reject { |r| tags.include?(r.tag) }, @parent)
+      end
+
+      def include?(tag)
+        @props.any? { |r| r.tag == tag }
       end
 
       def reject(tags)

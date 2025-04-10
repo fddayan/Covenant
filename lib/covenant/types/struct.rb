@@ -2,21 +2,16 @@
 
 module Covenant
   module Types
-    class Struct
-      include Taggable
-
+    class Struct < BaseType
       attr_reader :props
 
-      alias name tag
-
       def initialize(tag, props, parent = nil)
-        tag! tag
-        parent! parent if parent
+        super(tag, parent)
         @props = props.brand_to(self)
       end
 
-      def brand_to(struct)
-        Struct.new(@tag, @props, struct)
+      def brand_to(other_tag)
+        Struct.new(@tag, @props, other_tag)
       end
 
       def call(values)
@@ -42,25 +37,14 @@ module Covenant
       end
 
       def ==(other)
-        StructCompare.new(self, other).success?
+        compare(other).success?
       end
 
       def same?(other)
-        StructCompare.new(self, other)
+        compare(other)
       end
 
       def compare(other)
-        # StructCompare.new(self, other)
-        # Comparable::StructureComparator.new(self, other) do |a, b|
-        #   [a.tag != b.tag, ['Invalid tags']]
-        # end
-        # Comparable
-        #   .empty
-        #   .and_then(Comparable.check_struct)
-        #   # .and_then(Comparable.tags)
-        #   # .and_then(Comparable.check_nested)
-        #   .call(self, other)
-
         Comparable.check_struct.call(self, other)
       end
 
@@ -93,9 +77,11 @@ module Covenant
         @props.keys
       end
 
-      def pick(tag)
-        @props[tag]
+      def pick(*tag)
+        @props.pick(*tag)
       end
+
+      # def omit(*tags)
 
       def size
         @props.size

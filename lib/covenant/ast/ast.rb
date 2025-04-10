@@ -33,11 +33,11 @@ module Covenant
             output: build_ast(contract.output),
             result: build_ast(result)
           }
-        when Types::StructCompare
+        when Comparable::Result
           {
             type: :struct_compare,
             success: contract.success?,
-            errors: contract.errors
+            errors: contract.unwrap
           }
         when Types::Struct
           {
