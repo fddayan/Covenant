@@ -89,9 +89,12 @@ RSpec.describe Covenant::Types::Struct do
       struct1 = Covenant.Struct(:user, id + name)
       struct2 = Covenant.Struct(:user, id + name + Covenant.Prop(:age, Covenant::Validator::Validation.coerce(:integer)))
 
-      result = struct1.compare(struct2)
+      result = struct2.compare(struct1)
 
-      expect(result.errors).to eq(["Missing props: age"])
+      expect(result).to be_kind_of(Covenant::Comparable::Result)
+      expect(result.success?).to be false
+      expect(result.errors).not_to be_empty
+      expect(result.unwrap).to eq(user: [{:id=>[]}, {:name=>[]}, {:age=>["missing prop"]}])
     end
 
     it "should compare nested structs" do
@@ -102,38 +105,40 @@ RSpec.describe Covenant::Types::Struct do
       order = Covenant.Struct(:order, id + user + price)
       order2 = Covenant.Struct(:order, id + user + price)
       result = order.compare(order2)
+
       expect(result.success?).to be true
       expect(result.failure?).to be false
-      expect(result.errors).to be_empty
+      expect(result.unwrap).to eq({:order=>[{:id=>[]}, {:user=>[{:id=>[]}, {:name=>[]}]}, {:price=>[]}]})
     end
     
-    it "should compare nested structs with different values" do
+    it "should compare nested structs with different values and fail" do
       id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
       price = Covenant.Prop(:price, Covenant::Validator::Validation.coerce(:float))
       
-      user1 = Covenant.Struct(:user, id + name)
-      user2 = Covenant.Struct(:user, id + name + Covenant.Prop(:age, Covenant::Validator::Validation.coerce(:integer)))
+      user1 = Covenant.Struct(:user, id + name + Covenant.Prop(:age, Covenant::Validator::Validation.coerce(:integer)))
+      user2 = Covenant.Struct(:user, id + name)
       
       order = Covenant.Struct(:order, id + user1 + price)
       order2 = Covenant.Struct(:order, id + user2 + price)
       
       result = order.compare(order2)
-      
+
       expect(result.success?).to be false
       expect(result.failure?).to be true
-      expect(result.errors).not_to be_empty
-      expect(result.errors).to eq([{ user: ["Missing props: age"] }])
+      expect(result.unwrap).to eq(:order => [{:id=>[]}, {:user=>[{:id=>[]}, {:name=>[]}, {:age=>["missing prop"]}]}, {:price=>[]}])
     end
 
-    it "should compare nested structs with different values and tags" do
+    it "should compare nested structs with different values and tags and fail" do
       id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
       price = Covenant.Prop(:price, Covenant::Validator::Validation.coerce(:float))
+      
       user = Covenant.Struct(:user, id + name)
       order = Covenant.Struct(:order, id + user + price)
       order2 = Covenant.Struct(:order2, id + user + price + Covenant.Prop(:age, Covenant::Validator::Validation.coerce(:integer)))
-      result = order.compare(order2)
+      
+      result = order2.compare(order)
 
       expect(result.success?).to be false
       expect(result.failure?).to be true

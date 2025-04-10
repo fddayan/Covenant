@@ -50,7 +50,18 @@ module Covenant
       end
 
       def compare(other)
-        StructCompare.new(self, other)
+        # StructCompare.new(self, other)
+        # Comparable::StructureComparator.new(self, other) do |a, b|
+        #   [a.tag != b.tag, ['Invalid tags']]
+        # end
+        # Comparable
+        #   .empty
+        #   .and_then(Comparable.check_struct)
+        #   # .and_then(Comparable.tags)
+        #   # .and_then(Comparable.check_nested)
+        #   .call(self, other)
+
+        Comparable.check_struct.call(self, other)
       end
 
       def +(other)

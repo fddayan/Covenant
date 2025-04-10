@@ -34,6 +34,14 @@ module Covenant
         Props.new(@props.reject { |r| tags.include?(r.tag) })
       end
 
+      def each(&block)
+        @props.each(&block)
+      end
+
+      def prop?(other_prop)
+        other.is_a?(Prop) && !@props.props.detect { |p| p.tag == other_prop.tag }.nil?
+      end
+
       def -(other)
         case other
         when Prop
