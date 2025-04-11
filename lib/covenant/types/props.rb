@@ -68,7 +68,7 @@ module Covenant
         props_map[key]
       end
 
-      def key?(key)
+      def tag?(key)
         props_map.key?(key)
       end
 

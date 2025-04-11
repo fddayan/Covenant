@@ -70,8 +70,10 @@ module Covenant
       end
 
       def prop?(key)
-        @props.key?(key)
+        @props.tag?(key)
       end
+
+      alias tag? prop?
 
       def keys
         @props.keys
@@ -81,7 +83,9 @@ module Covenant
         @props.pick(*tag)
       end
 
-      # def omit(*tags)
+      def omit(*tags)
+        Struct.new(@tag, @props.omit(*tags))
+      end
 
       def size
         @props.size
@@ -89,6 +93,10 @@ module Covenant
 
       def to_s
         "Struct(:#{@tag} => #{@props})"
+      end
+
+      def tag_chain
+        [props.tag, @tag]
       end
 
       private

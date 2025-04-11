@@ -50,6 +50,9 @@ module Covenant
 
     def self.check_struct
       StructureComparator.new do |left, right|
+        next Result.failure(left.tag, 'is not a struct') unless left.is_a?(Types::Struct)
+        next Result.failure(right.tag, 'is not a struct') unless right.is_a?(Types::Struct)
+
         Result.from_array(left.tag) do
           left.props.props.flat_map do |prop|
             compare_prop_to_struct(prop, right)

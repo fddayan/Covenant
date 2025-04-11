@@ -2,15 +2,41 @@
 
 module Covenant
   module Types
-    class BaseType
-      include Taggable
+    class Tag
+      attr_reader :tag, :parent, :child
+      alias name tag
+
+      def initialize(tag, parent, child)
+        @tag = tag
+        @parent = parent
+        @child = child
+      end
+
+      def tags_upstream
+        arr = []
+        arr << @tag
+        arr += @parent.tag_upstream if @parent
+        arr
+      end
+
+      def tags_downstream
+        arr = []
+        arr << @tag
+        arr += @child.tag_downstream if @child
+        arr
+      end
+    end
+
+    class BaseType < Tag
+      # include Taggable
 
       attr_reader :tag, :parent
       alias name tag
 
-      def initialize(tag, parent = nil)
-        tag! tag
-        parent! parent if parent
+      def initialize(tag, parent)
+        super(tag, parent, nil)
+        # tag! tag
+        # parent! parent if parent
       end
 
       def ==(other)

@@ -28,6 +28,7 @@ Inspired by:
 
 * Effect.ts
 * TypeScript
+* zod
 * dry-rb
 * Declarative programming
 * Monads
@@ -97,6 +98,7 @@ GetUserByTokenContract = GetIdByTokenContract
                           )
                         )
 
+# I can register anything that respons to .call
 Layer2 = Covenant.Layer do |l|
   l.register(:GetIdByToken,  ->(_input) { { token: 'Token123' } })
   l.register(:GetUser,       ->(_input) { { name: 'Fede', email: 'fede@xxx.com' } })

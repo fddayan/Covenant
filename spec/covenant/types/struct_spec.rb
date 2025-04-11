@@ -176,16 +176,54 @@ RSpec.describe Covenant::Types::Struct do
       expect(order.pick(:user).pick(:name)).to be_kind_of(Covenant::Types::Props)
       expect(order.pick(:user).pick(:age)).to be_empty
 
-      expect(order.pick(:user).tag_chain).to eq([[:user], :order])
-      expect(order.pick(:user)[:user].tag_chain).to eq([:user, :order])
+      expect(order.pick(:user).tag_chain).to eq([[:user], [:id, :user, :price], :order])
+      expect(order.pick(:user)[:user].tag_chain).to eq([[:id, :name], :user])
 
-      expect(order.pick(:user)[:user].pick(:name).tag_chain).to eq([[:name] , :user , :order])
+      expect(order.pick(:user)[:user].pick(:name).tag_chain).to eq([[:name], [:id, :name], :user])
 
       expect(order.pick(:user)[:user].pick(:name) == order.pick(:user)[:user].pick(:name)).to be true
       expect(order.pick(:user)[:user].pick(:name) == order.pick(:user)[:user].pick(:id)).to be false
       expect(order.pick(:user)[:user].pick(:name) == name).to be false
     end
   end
+
+  describe "#omit" do
+    it "should omit a prop from the struct" do
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+
+      struct = Covenant.Struct(:user, id + name)
+
+      expect(struct.omit(:id)).to be_kind_of(Covenant::Types::Struct)
+      expect(struct.omit(:name)).to be_kind_of(Covenant::Types::Struct)
+      expect(struct.omit(:age)).not_to be_empty
+
+      new_struct = struct.omit(:id)
+      expect(new_struct.tag?(:name)).to be true
+      expect(new_struct.tag?(:id)).to be false
+
+      expect(struct.omit(:id) == id).to be false
+      expect(struct.omit(:name) == name).to be false
+
+      expect(id == id).to be true
+      expect(name == name).to be true
+    end
+
+    it "should omit a prop from a nested struct" do
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      price = Covenant.Prop(:price, Covenant::Validator::Validation.coerce(:float))
+      
+      user = Covenant.Struct(:user, id + name)
+      order = Covenant.Struct(:order, id + user + price)
+
+      expect(order.omit(:user)).to be_kind_of(Covenant::Types::Struct)
+      expect(order.omit(:user).omit(:name)).to be_kind_of(Covenant::Types::Struct)
+      expect(order.omit(:user).omit(:age)).not_to be_empty
+      expect(order.omit(:user).tag_chain).to eq([[:id, :price],:order])
+    end
+  end
+  
 
   describe "with an array" do
     it "should let me use a struct with an array" do
