@@ -14,18 +14,18 @@
 # end
 
 module MyProps
-  ID    = Covenant.Prop(:id, Covenant.Validate.coerce(:integer))
-  Token = Covenant.Prop(:token, 
+  ID    = Covenant.Scalar(:id, Covenant.Validate.coerce(:integer))
+  Token = Covenant.Scalar(:token, 
     Covenant.Validate
     .coerce(:string)
     .and_then(Covenant.Validate.length(min: 4)))
-  Name  = Covenant.Prop(:name, Covenant.Validate.coerce(:string))
-  Email = Covenant.Prop(:email, Covenant.Validate.coerce(:string))
+  Name  = Covenant.Scalar(:name, Covenant.Validate.coerce(:string))
+  Email = Covenant.Scalar(:email, Covenant.Validate.coerce(:string))
 end
 
 module MySchemas
   include MyProps
-  Any = Covenant.Prop(:any, Covenant::Validator::Validator.any)
+  Any = Covenant.Scalar(:any, Covenant::Validator::Validator.any)
   User = Covenant.Struct(:user, ID + Name + Email)
 end
 

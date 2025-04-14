@@ -3,7 +3,7 @@
 RSpec.describe Covenant::Types::Scalar do
   describe "#call" do 
     it "should parse a value" do 
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
 
       result = id.call("1")
       expect(result).to be_success
@@ -13,15 +13,15 @@ RSpec.describe Covenant::Types::Scalar do
 
   describe "#==" do
     it "should compare two props" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      id2 = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      id2 = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
 
       expect(id).to eq(id2)
     end
 
     it "should not compare two different props" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
       expect(id).not_to eq(name)
     end
@@ -29,8 +29,8 @@ RSpec.describe Covenant::Types::Scalar do
 
   describe "#+" do 
     it "should add two props" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
       
       result = id + name
 
@@ -43,8 +43,8 @@ RSpec.describe Covenant::Types::Scalar do
 
   describe "#-" do
     it "should remove a prop" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
       
       result = id + name - name
 

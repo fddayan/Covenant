@@ -78,7 +78,7 @@ module Covenant
     Covenant::Contracts::Transformer.new(input_schema, output_schema, &block)
   end
 
-  def self.Prop(*args) # rubocop:disable Naming/MethodName
+  def self.Scalar(*args) # rubocop:disable Naming/MethodName
     Types::Scalar.new(*args)
   end
 

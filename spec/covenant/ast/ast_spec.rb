@@ -1,8 +1,8 @@
 RSpec.describe Covenant::Ast::Ast do
   describe "#to_ast" do
     it "should return a valid AST for a schema" do
-      id = Covenant.Prop(:id, Covenant.Validate.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant.Validate.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant.Validate.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant.Validate.coerce(:string))
       user = Covenant.Struct(:user, id + name)
 
       ast = Covenant::Ast::Ast.new(user).to_ast
@@ -12,8 +12,8 @@ RSpec.describe Covenant::Ast::Ast do
     end
 
     it "should return a valid AST for a contract" do
-      id = Covenant.Prop(:id, Covenant.Validate.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant.Validate.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant.Validate.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant.Validate.coerce(:string))
       user = Covenant.Struct(:user, id + name)
       contract = Covenant.Contract(:GetUser, id.struct, user)
 

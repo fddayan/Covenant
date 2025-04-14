@@ -38,9 +38,9 @@ Inspired by:
 ### Simple
 ```ruby
 # Creating props with validations
-Id = Covenant.Prop(:id, Covenant.Validate.coerce(:integer))
-Name  = Covenant.Prop(:name, Covenant.Validate.coerce(:string))
-Email = Covenant.Prop(:email, Covenant.Validate.coerce(:string))
+Id = Covenant.Scalar(:id, Covenant.Validate.coerce(:integer))
+Name  = Covenant.Scalar(:name, Covenant.Validate.coerce(:string))
+Email = Covenant.Scalar(:email, Covenant.Validate.coerce(:string))
 
 # Using props to create a struct
 User = Covenant.Struct(:user, Id + Name + Email)
@@ -71,7 +71,7 @@ puts result.unwrap
 
 ```ruby
 # I define more props
-Token = Covenant.Prop(:token, Covenant.Validate.coerce(:string)
+Token = Covenant.Scalar(:token, Covenant.Validate.coerce(:string)
                                                .and_then(Covenant.Validate.length(min: 4)))
 
 # I define more contracts

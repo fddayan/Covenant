@@ -8,12 +8,12 @@ module MyBusinessLogic
   # A Prop is a type with a name and a validator. So I do more than just checking the type.
   # I make sure it follows the rules defined.
   module Props
-    ID    = Covenant.Prop(:id, Covenant.Validate.coerce(:integer))
-    Token = Covenant.Prop(:token,
-                          Covenant.Validate.coerce(:string)
-                          .and_then(Covenant.Validate.length(min: 4)))
-    Name  = Covenant.Prop(:name, Covenant.Validate.coerce(:string))
-    Email = Covenant.Prop(:email, Covenant.Validate.coerce(:string))
+    ID    = Covenant.Scalar(:id, Covenant.Validate.coerce(:integer))
+    Token = Covenant.Scalar(:token,
+                            Covenant.Validate.coerce(:string)
+                            .and_then(Covenant.Validate.length(min: 4)))
+    Name  = Covenant.Scalar(:name, Covenant.Validate.coerce(:string))
+    Email = Covenant.Scalar(:email, Covenant.Validate.coerce(:string))
   end
 
   # With you types defined, you can create your structs.

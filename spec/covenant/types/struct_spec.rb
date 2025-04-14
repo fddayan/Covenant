@@ -1,8 +1,8 @@
 RSpec.describe Covenant::Types::Schema do
   describe "#call" do 
     it "should parse a valid value and succeed" do 
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
       struct = Covenant.Struct(:user, id + name)
 
@@ -14,8 +14,8 @@ RSpec.describe Covenant::Types::Schema do
     end
 
     it "should parse an invalid value and fail" do 
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string).and_then(Covenant::Validator::Validation.length(min: 5, max: 8)))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string).and_then(Covenant::Validator::Validation.length(min: 5, max: 8)))
 
       user = Covenant.Struct(:user, id + name)
 
@@ -28,9 +28,9 @@ RSpec.describe Covenant::Types::Schema do
     end
 
     it "should let me use a struct with a struct" do 
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
-      price = Covenant.Prop(:price, Covenant::Validator::Validation.coerce(:float))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
+      price = Covenant.Scalar(:price, Covenant::Validator::Validation.coerce(:float))
       
       user = Covenant.Struct(:user, id + name)
       order = Covenant.Struct(:order, id + user + price)
@@ -61,8 +61,8 @@ RSpec.describe Covenant::Types::Schema do
 
   describe "#==" do
     it "should compare two structs with the same values" do 
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
       struct1 = Covenant.Struct(:user, id + name)
       struct2 = Covenant.Struct(:user, id + name)
@@ -71,11 +71,11 @@ RSpec.describe Covenant::Types::Schema do
     end
 
     it "should compare two structs with different values" do 
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
       struct1 = Covenant.Struct(:user, id + name)
-      struct2 = Covenant.Struct(:user, id + name + Covenant.Prop(:age, Covenant::Validator::Validation.coerce(:integer)))
+      struct2 = Covenant.Struct(:user, id + name + Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer)))
 
       expect(struct2 == struct1).to be false
     end
@@ -83,11 +83,11 @@ RSpec.describe Covenant::Types::Schema do
 
   describe "#compare" do
     it "should compare two structs with the same values" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
       struct1 = Covenant.Struct(:user, id + name)
-      struct2 = Covenant.Struct(:user, id + name + Covenant.Prop(:age, Covenant::Validator::Validation.coerce(:integer)))
+      struct2 = Covenant.Struct(:user, id + name + Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer)))
 
       result = struct2.compare(struct1)
 
@@ -98,9 +98,9 @@ RSpec.describe Covenant::Types::Schema do
     end
 
     it "should compare nested structs" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
-      price = Covenant.Prop(:price, Covenant::Validator::Validation.coerce(:float))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
+      price = Covenant.Scalar(:price, Covenant::Validator::Validation.coerce(:float))
       user = Covenant.Struct(:user, id + name)
       order = Covenant.Struct(:order, id + user + price)
       order2 = Covenant.Struct(:order, id + user + price)
@@ -112,11 +112,11 @@ RSpec.describe Covenant::Types::Schema do
     end
     
     it "should compare nested structs with different values and fail" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
-      price = Covenant.Prop(:price, Covenant::Validator::Validation.coerce(:float))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
+      price = Covenant.Scalar(:price, Covenant::Validator::Validation.coerce(:float))
       
-      user1 = Covenant.Struct(:user, id + name + Covenant.Prop(:age, Covenant::Validator::Validation.coerce(:integer)))
+      user1 = Covenant.Struct(:user, id + name + Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer)))
       user2 = Covenant.Struct(:user, id + name)
       
       order = Covenant.Struct(:order, id + user1 + price)
@@ -130,13 +130,13 @@ RSpec.describe Covenant::Types::Schema do
     end
 
     it "should compare nested structs with different values and tags and fail" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
-      price = Covenant.Prop(:price, Covenant::Validator::Validation.coerce(:float))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
+      price = Covenant.Scalar(:price, Covenant::Validator::Validation.coerce(:float))
       
       user = Covenant.Struct(:user, id + name)
       order = Covenant.Struct(:order, id + user + price)
-      order2 = Covenant.Struct(:order2, id + user + price + Covenant.Prop(:age, Covenant::Validator::Validation.coerce(:integer)))
+      order2 = Covenant.Struct(:order2, id + user + price + Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer)))
       
       result = order2.compare(order)
 
@@ -148,8 +148,8 @@ RSpec.describe Covenant::Types::Schema do
 
   describe "#pick" do
     it "should pick a prop from the struct" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
       struct = Covenant.Struct(:user, id + name)
 
@@ -165,9 +165,9 @@ RSpec.describe Covenant::Types::Schema do
     end
 
     it "should pick a prop from a nested struct" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
-      price = Covenant.Prop(:price, Covenant::Validator::Validation.coerce(:float))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
+      price = Covenant.Scalar(:price, Covenant::Validator::Validation.coerce(:float))
       
       user = Covenant.Struct(:user, id + name)
       order = Covenant.Struct(:order, id + user + price)
@@ -194,8 +194,8 @@ RSpec.describe Covenant::Types::Schema do
 
   describe "#omit" do
     it "should omit a prop from the struct" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
       struct = Covenant.Struct(:user, id + name)
 
@@ -215,9 +215,9 @@ RSpec.describe Covenant::Types::Schema do
     end
 
     it "should omit a prop from a nested struct" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
-      price = Covenant.Prop(:price, Covenant::Validator::Validation.coerce(:float))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
+      price = Covenant.Scalar(:price, Covenant::Validator::Validation.coerce(:float))
       
       user = Covenant.Struct(:user, id + name)
       order = Covenant.Struct(:order, id + user + price)
@@ -231,7 +231,7 @@ RSpec.describe Covenant::Types::Schema do
 
   describe "with an array" do
     it "should let me use a struct with an array" do
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
       names = name.array
       user = Covenant.Struct(:user, names.to_props)
 
@@ -245,9 +245,9 @@ RSpec.describe Covenant::Types::Schema do
 
   describe "#+" do
     it "should add a prop to the struct and produce a new struct" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
-      email = Covenant.Prop(:email, Covenant::Validator::Validation.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
+      email = Covenant.Scalar(:email, Covenant::Validator::Validation.coerce(:string))
 
       struct = Covenant.Struct(:user, id + name)
 
@@ -259,8 +259,8 @@ RSpec.describe Covenant::Types::Schema do
     end
 
     it "should replace a property with same tag" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
       struct = Covenant.Struct(:user, id + name)
 
@@ -272,8 +272,8 @@ RSpec.describe Covenant::Types::Schema do
     end
 
     it "should combien two structs and create a new struct with the tag of the first" do 
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
       struct1 = Covenant.Struct(:user, id + name)
       struct2 = Covenant.Struct(:user2, id + name)
@@ -291,9 +291,9 @@ RSpec.describe Covenant::Types::Schema do
 
   describe "#-" do 
     it "should remove a prop from the struct and produce a new struct" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
-      email = Covenant.Prop(:email, Covenant::Validator::Validation.coerce(:string))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
+      email = Covenant.Scalar(:email, Covenant::Validator::Validation.coerce(:string))
 
       struct = Covenant.Struct(:user, id + name + email)
 
@@ -308,8 +308,8 @@ RSpec.describe Covenant::Types::Schema do
 
   describe "optional values" do 
     it "should let me use a struct with optional values" do
-      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
-      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string).and_then(Covenant::Validator::Validation.length(min: 10)))
+      id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string).and_then(Covenant::Validator::Validation.length(min: 10)))
 
       struct1 = Covenant.Struct(:user, id + name.optional)
 
