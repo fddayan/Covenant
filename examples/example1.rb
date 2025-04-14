@@ -20,7 +20,7 @@ module MyBusinessLogic
   module Structs
     include Props
 
-    User = Covenant.Struct(:user, ID + Name + Email)
+    User = Covenant.Schema(:user, ID + Name + Email)
   end
 
   # With your structs now you can create your contracts.

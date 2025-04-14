@@ -43,7 +43,7 @@ Name  = Covenant.Scalar(:name, Covenant.Validate.coerce(:string))
 Email = Covenant.Scalar(:email, Covenant.Validate.coerce(:string))
 
 # Using props to create a struct
-User = Covenant.Struct(:user, Id + Name + Email)
+User = Covenant.Schema(:user, Id + Name + Email)
 
 # Using Structs to create a Contract with Id is the input and User is the output
 GetUserByIdContract = Covenant.Contract(:GetUserById, ID.struct, User)

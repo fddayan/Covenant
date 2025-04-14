@@ -82,7 +82,7 @@ module Covenant
     Types::Scalar.new(*args)
   end
 
-  def self.Struct(*args) # rubocop:disable Naming/MethodName
+  def self.Schema(*args) # rubocop:disable Naming/MethodName
     Types::Schema.new(*args)
   end
 

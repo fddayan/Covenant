@@ -3,7 +3,7 @@ RSpec.describe Covenant::Ast::Ast do
     it "should return a valid AST for a schema" do
       id = Covenant.Scalar(:id, Covenant.Validate.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant.Validate.coerce(:string))
-      user = Covenant.Struct(:user, id + name)
+      user = Covenant.Schema(:user, id + name)
 
       ast = Covenant::Ast::Ast.new(user).to_ast
 
@@ -14,7 +14,7 @@ RSpec.describe Covenant::Ast::Ast do
     it "should return a valid AST for a contract" do
       id = Covenant.Scalar(:id, Covenant.Validate.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant.Validate.coerce(:string))
-      user = Covenant.Struct(:user, id + name)
+      user = Covenant.Schema(:user, id + name)
       contract = Covenant.Contract(:GetUser, id.struct, user)
 
       ast = Covenant::Ast::Ast.new(contract).to_ast

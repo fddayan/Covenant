@@ -4,7 +4,7 @@ RSpec.describe Covenant::Types::Schema do
       id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
-      struct = Covenant.Struct(:user, id + name)
+      struct = Covenant.Schema(:user, id + name)
 
       result = struct.call({ id: "1", name: "John Doe" })
       expect(result).to be_success
@@ -17,7 +17,7 @@ RSpec.describe Covenant::Types::Schema do
       id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string).and_then(Covenant::Validator::Validation.length(min: 5, max: 8)))
 
-      user = Covenant.Struct(:user, id + name)
+      user = Covenant.Schema(:user, id + name)
 
       result = user.call({ id: "1", name: "Jo" })
 
@@ -32,8 +32,8 @@ RSpec.describe Covenant::Types::Schema do
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
       price = Covenant.Scalar(:price, Covenant::Validator::Validation.coerce(:float))
       
-      user = Covenant.Struct(:user, id + name)
-      order = Covenant.Struct(:order, id + user + price)
+      user = Covenant.Schema(:user, id + name)
+      order = Covenant.Schema(:order, id + user + price)
 
       expect(order.prop?(:id)).to be true
       expect(order.prop?(:user)).to be true
@@ -64,8 +64,8 @@ RSpec.describe Covenant::Types::Schema do
       id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
-      struct1 = Covenant.Struct(:user, id + name)
-      struct2 = Covenant.Struct(:user, id + name)
+      struct1 = Covenant.Schema(:user, id + name)
+      struct2 = Covenant.Schema(:user, id + name)
 
       expect(struct1 == struct2).to be true
     end
@@ -74,8 +74,8 @@ RSpec.describe Covenant::Types::Schema do
       id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
-      struct1 = Covenant.Struct(:user, id + name)
-      struct2 = Covenant.Struct(:user, id + name + Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer)))
+      struct1 = Covenant.Schema(:user, id + name)
+      struct2 = Covenant.Schema(:user, id + name + Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer)))
 
       expect(struct2 == struct1).to be false
     end
@@ -86,8 +86,8 @@ RSpec.describe Covenant::Types::Schema do
       id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
-      struct1 = Covenant.Struct(:user, id + name)
-      struct2 = Covenant.Struct(:user, id + name + Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer)))
+      struct1 = Covenant.Schema(:user, id + name)
+      struct2 = Covenant.Schema(:user, id + name + Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer)))
 
       result = struct2.compare(struct1)
 
@@ -101,9 +101,9 @@ RSpec.describe Covenant::Types::Schema do
       id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
       price = Covenant.Scalar(:price, Covenant::Validator::Validation.coerce(:float))
-      user = Covenant.Struct(:user, id + name)
-      order = Covenant.Struct(:order, id + user + price)
-      order2 = Covenant.Struct(:order, id + user + price)
+      user = Covenant.Schema(:user, id + name)
+      order = Covenant.Schema(:order, id + user + price)
+      order2 = Covenant.Schema(:order, id + user + price)
       result = order.compare(order2)
 
       expect(result.success?).to be true
@@ -116,11 +116,11 @@ RSpec.describe Covenant::Types::Schema do
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
       price = Covenant.Scalar(:price, Covenant::Validator::Validation.coerce(:float))
       
-      user1 = Covenant.Struct(:user, id + name + Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer)))
-      user2 = Covenant.Struct(:user, id + name)
+      user1 = Covenant.Schema(:user, id + name + Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer)))
+      user2 = Covenant.Schema(:user, id + name)
       
-      order = Covenant.Struct(:order, id + user1 + price)
-      order2 = Covenant.Struct(:order, id + user2 + price)
+      order = Covenant.Schema(:order, id + user1 + price)
+      order2 = Covenant.Schema(:order, id + user2 + price)
       
       result = order.compare(order2)
 
@@ -134,9 +134,9 @@ RSpec.describe Covenant::Types::Schema do
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
       price = Covenant.Scalar(:price, Covenant::Validator::Validation.coerce(:float))
       
-      user = Covenant.Struct(:user, id + name)
-      order = Covenant.Struct(:order, id + user + price)
-      order2 = Covenant.Struct(:order2, id + user + price + Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer)))
+      user = Covenant.Schema(:user, id + name)
+      order = Covenant.Schema(:order, id + user + price)
+      order2 = Covenant.Schema(:order2, id + user + price + Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer)))
       
       result = order2.compare(order)
 
@@ -151,7 +151,7 @@ RSpec.describe Covenant::Types::Schema do
       id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
-      struct = Covenant.Struct(:user, id + name)
+      struct = Covenant.Schema(:user, id + name)
 
       expect(struct.pick(:id)).to be_kind_of(Covenant::Types::Schema)
       expect(struct.pick(:name)).to be_kind_of(Covenant::Types::Schema)
@@ -169,8 +169,8 @@ RSpec.describe Covenant::Types::Schema do
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
       price = Covenant.Scalar(:price, Covenant::Validator::Validation.coerce(:float))
       
-      user = Covenant.Struct(:user, id + name)
-      order = Covenant.Struct(:order, id + user + price)
+      user = Covenant.Schema(:user, id + name)
+      order = Covenant.Schema(:order, id + user + price)
 
       expect(order.pick(:user)).to be_kind_of(Covenant::Types::Schema)
       expect(order.pick(:user).pick(:name)).to be_kind_of(Covenant::Types::Schema)
@@ -197,7 +197,7 @@ RSpec.describe Covenant::Types::Schema do
       id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
-      struct = Covenant.Struct(:user, id + name)
+      struct = Covenant.Schema(:user, id + name)
 
       expect(struct.omit(:id)).to be_kind_of(Covenant::Types::Schema)
       expect(struct.omit(:name)).to be_kind_of(Covenant::Types::Schema)
@@ -219,8 +219,8 @@ RSpec.describe Covenant::Types::Schema do
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
       price = Covenant.Scalar(:price, Covenant::Validator::Validation.coerce(:float))
       
-      user = Covenant.Struct(:user, id + name)
-      order = Covenant.Struct(:order, id + user + price)
+      user = Covenant.Schema(:user, id + name)
+      order = Covenant.Schema(:order, id + user + price)
 
       expect(order.omit(:user)).to be_kind_of(Covenant::Types::Schema)
       expect(order.omit(:user).omit(:name)).to be_kind_of(Covenant::Types::Schema)
@@ -233,7 +233,7 @@ RSpec.describe Covenant::Types::Schema do
     it "should let me use a struct with an array" do
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
       names = name.array
-      user = Covenant.Struct(:user, names.to_props)
+      user = Covenant.Schema(:user, names.to_props)
 
       result = user.call({ name_array: ["John Doe", "Jane Doe"] })
 
@@ -249,7 +249,7 @@ RSpec.describe Covenant::Types::Schema do
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
       email = Covenant.Scalar(:email, Covenant::Validator::Validation.coerce(:string))
 
-      struct = Covenant.Struct(:user, id + name)
+      struct = Covenant.Schema(:user, id + name)
 
       result = struct + email
       expect(result).to be_kind_of(Covenant::Types::Schema)
@@ -262,7 +262,7 @@ RSpec.describe Covenant::Types::Schema do
       id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
-      struct = Covenant.Struct(:user, id + name)
+      struct = Covenant.Schema(:user, id + name)
 
       result = struct + id
       expect(result).to be_kind_of(Covenant::Types::Schema)
@@ -275,8 +275,8 @@ RSpec.describe Covenant::Types::Schema do
       id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
 
-      struct1 = Covenant.Struct(:user, id + name)
-      struct2 = Covenant.Struct(:user2, id + name)
+      struct1 = Covenant.Schema(:user, id + name)
+      struct2 = Covenant.Schema(:user2, id + name)
 
       result = struct1 + struct2
       
@@ -295,7 +295,7 @@ RSpec.describe Covenant::Types::Schema do
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
       email = Covenant.Scalar(:email, Covenant::Validator::Validation.coerce(:string))
 
-      struct = Covenant.Struct(:user, id + name + email)
+      struct = Covenant.Schema(:user, id + name + email)
 
       result = struct - email
       expect(result).to be_kind_of(Covenant::Types::Schema)
@@ -311,7 +311,7 @@ RSpec.describe Covenant::Types::Schema do
       id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string).and_then(Covenant::Validator::Validation.length(min: 10)))
 
-      struct1 = Covenant.Struct(:user, id + name.optional)
+      struct1 = Covenant.Schema(:user, id + name.optional)
 
       result1 = struct1.call({ id: "1" })
 
@@ -319,7 +319,7 @@ RSpec.describe Covenant::Types::Schema do
       expect(result1.value[:id]).to be_success
       expect(result1.value[:name]).to be_nil
 
-      struct2 = Covenant.Struct(:user2, id + name)
+      struct2 = Covenant.Schema(:user2, id + name)
 
       result2 = struct2.call({ id: "1" })
 

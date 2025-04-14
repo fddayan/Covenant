@@ -26,7 +26,7 @@ end
 module MySchemas
   include MyProps
   Any = Covenant.Scalar(:any, Covenant::Validator::Validator.any)
-  User = Covenant.Struct(:user, ID + Name + Email)
+  User = Covenant.Schema(:user, ID + Name + Email)
 end
 
 module MyContracts
