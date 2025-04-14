@@ -1,6 +1,6 @@
 
 
-RSpec.describe Covenant::Types::Prop do
+RSpec.describe Covenant::Types::Scalar do
   describe "#call" do 
     it "should parse a value" do 
       id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
@@ -36,7 +36,7 @@ RSpec.describe Covenant::Types::Prop do
 
       expect(result).to be_a(Covenant::Types::Props)
       expect(result.props.size).to eq(2)
-      expect(result.props).to all(be_a(Covenant::Types::Prop))
+      expect(result.props).to all(be_a(Covenant::Types::Scalar))
       expect(result.props.map(&:tag)).to contain_exactly(:id, :name)
     end
   end
@@ -50,7 +50,7 @@ RSpec.describe Covenant::Types::Prop do
 
       expect(result).to be_a(Covenant::Types::Props)
       expect(result.props.size).to eq(1)
-      expect(result.props).to all(be_a(Covenant::Types::Prop))
+      expect(result.props).to all(be_a(Covenant::Types::Scalar))
       expect(result.props.map(&:tag)).to contain_exactly(:id)
     end
     

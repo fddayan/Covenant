@@ -8,14 +8,29 @@ module Covenant
 
       attr_reader :command, :input, :output
 
+      def Result(handler, input_result, output_result = nil) # rubocop:disable Naming/MethodName
+        Runtime::ExecutionResult.new(self, handler, input_result, output_result)
+      end
+
       def initialize(command, input, output)
         Covenant.assert_type(command, Symbol)
-        Covenant.assert_any_type_of(input, [Types::Prop, Types::Props, Types::Struct])
-        Covenant.assert_any_type_of(output, [Types::Prop, Types::Props, Types::Struct])
+        Covenant.assert_any_type_of(input, [Types::Scalar, Types::Props, Types::Schema])
+        Covenant.assert_any_type_of(output, [Types::Scalar, Types::Props, Types::Schema])
 
         @command = command
         @input = input
         @output = output
+      end
+
+      def call(handler, args)
+        input_result = input.call(args)
+
+        return Result(handler, input_result) if input_result.failure?
+
+        result = handler.call(input_result.unwrap)
+        output_result = output.call(result)
+
+        Result(handler, input_result, output_result)
       end
 
       def can_chain_to?(other_contract)

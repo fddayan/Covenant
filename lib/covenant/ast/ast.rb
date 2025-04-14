@@ -39,7 +39,7 @@ module Covenant
             success: contract.success?,
             errors: contract.unwrap
           }
-        when Types::Struct
+        when Types::Schema
           {
             type: :struct,
             tag: contract.tag,

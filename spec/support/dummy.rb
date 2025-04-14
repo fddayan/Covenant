@@ -15,7 +15,10 @@
 
 module MyProps
   ID    = Covenant.Prop(:id, Covenant.Validate.coerce(:integer))
-  Token = Covenant.Prop(:token, Covenant.Validate.coerce(:string).and_then(Covenant.Validate.length(min: 4)))
+  Token = Covenant.Prop(:token, 
+    Covenant.Validate
+    .coerce(:string)
+    .and_then(Covenant.Validate.length(min: 4)))
   Name  = Covenant.Prop(:name, Covenant.Validate.coerce(:string))
   Email = Covenant.Prop(:email, Covenant.Validate.coerce(:string))
 end

@@ -2,38 +2,36 @@
 
 module Covenant
   module Types
-    class Struct < BaseType
+    class Schema < BaseType
       attr_reader :props
 
       def initialize(tag, props, parent = nil)
-        super(tag, parent)
+        super(tag, parent, props)
         @props = props.brand_to(self)
+        @validator = yield if block_given?
       end
 
       def brand_to(other_tag)
-        Struct.new(@tag, @props, other_tag)
+        Schema.new(@tag, @props, other_tag)
       end
 
       def call(values)
         return Validator::ValidationResult.success(values) if %i[any void].include?(tag)
 
-        props_validation = _validate_props(values)
+        props_validation = @props.validate(values)
         _validate_struct(props_validation)
       end
 
-      def -(other)
-        case other
-        when Prop
-          @props - Props.new(other)
-        when Struct
-          @props - other.props
-        when Props
-          @props - other
-        end
+      def tags
+        [@tag, @props.tags]
       end
 
       def empty?
         @props.empty?
+      end
+
+      def [](key)
+        @props[key]
       end
 
       def ==(other)
@@ -48,18 +46,32 @@ module Covenant
         Comparable.check_struct.call(self, other)
       end
 
+      def -(other)
+        case other
+        when Scalar, Props
+          clone(@props - other)
+        when Schema
+          @props - other.props
+        end
+      end
+
       def +(other)
         case other
-        when Prop, Struct
-          Props.new([self, other])
-        when Props
-          Props.new([self] + other.props)
+        when Scalar, Props
+          clone(@props + other)
+        when Schema
+          new_tag = :"#{@tag}_#{other.tag}"
+          Schema.new(new_tag, Props.new([self, other]))
         end
+      end
+
+      def clone(props)
+        Schema.new(@tag, props, @parent)
       end
 
       def compositions
         @props.props.each_with_object([]) do |prop, acc|
-          next unless prop.is_a?(Struct)
+          next unless prop.is_a?(Schema)
 
           acc << prop
         end
@@ -80,11 +92,11 @@ module Covenant
       end
 
       def pick(*tag)
-        @props.pick(*tag)
+        Schema.new(@tag, @props.pick(*tag), @parent)
       end
 
       def omit(*tags)
-        Struct.new(@tag, @props.omit(*tags))
+        Schema.new(@tag, @props.omit(*tags), @parent)
       end
 
       def size
@@ -102,10 +114,12 @@ module Covenant
       private
 
       def _validate_props(values)
-        values.each_with_object({}) do |(key, value), acc|
-          prop = @props[key]
-          acc[key] = prop.call(value) unless prop.nil?
-        end
+        # values.each_with_object({}) do |(key, value), acc|
+        #   ap "#{key} => #{value}"
+        #   prop = @props[key]
+        #   acc[key] = prop.call(value) unless prop.nil?
+        # end
+        @props.validate(values)
       end
 
       def _validate_struct(props_validation)
@@ -117,9 +131,13 @@ module Covenant
             .reject(&:empty?)
         )
       end
+
+      def _validate_all
+        @validator.call(self)
+      end
     end
 
-    Any = Prop.new(:any, :any).struct
-    Void = Prop.new(:void, :void).struct
+    Any = Scalar.new(:any, :any).struct
+    Void = Scalar.new(:void, :void).struct
   end
 end

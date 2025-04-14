@@ -2,6 +2,7 @@
 
 require 'awesome_print'
 require 'colorize'
+require 'set'
 require 'zeitwerk'
 
 loader = Zeitwerk::Loader.for_gem
@@ -78,11 +79,11 @@ module Covenant
   end
 
   def self.Prop(*args) # rubocop:disable Naming/MethodName
-    Types::Prop.new(*args)
+    Types::Scalar.new(*args)
   end
 
   def self.Struct(*args) # rubocop:disable Naming/MethodName
-    Types::Struct.new(*args)
+    Types::Schema.new(*args)
   end
 
   def self.Validate # rubocop:disable Naming/MethodName

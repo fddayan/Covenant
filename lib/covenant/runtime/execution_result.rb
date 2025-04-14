@@ -5,11 +5,15 @@ module Covenant
     class ExecutionResult
       attr_reader :contract, :handler, :input_validation_result, :output_validation_result
 
-      def initialize(contract, handler, input_validation_result, output_validation_result)
+      def initialize(contract, handler, input_validation_result, output_validation_result = nil)
         @contract = contract
         @handler = handler
         @input_validation_result = input_validation_result
         @output_validation_result = output_validation_result
+      end
+
+      def self.value(input)
+        input.is_a?(ExecutionResult) ? input.value : input
       end
 
       def value
@@ -17,7 +21,15 @@ module Covenant
       end
 
       def success?
-        @output_validation_result.success? && @input_validation_result.success?
+        input_success? && output_success?
+      end
+
+      def input_success?
+        @input_validation_result.success?
+      end
+
+      def output_success?
+        @output_validation_result.success?
       end
 
       def failure?

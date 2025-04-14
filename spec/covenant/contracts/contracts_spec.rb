@@ -12,16 +12,16 @@ RSpec.describe Covenant::Contracts do
   let(:runtime) do 
     Covenant.runtime.layer do |l|
       l.register(:GetToken, ->(input) { { token: "Token123" } })
-      l.register(:GetUser, ->(input) { {  name:"Fede", email: "fede@gmail.com"  }})
+      l.register(:GetUser, ->(input) { { id: 1,  name:"Fede", email: "fede@gmail.com"  }})
     end
   end
 
   describe "Simple" do
     it 'run succeesfull contract' do
       expect(get_token_contract.command).to eq(:GetToken)
-      expect(get_token_contract.input).to be_a(Covenant::Types::Struct)
+      expect(get_token_contract.input).to be_a(Covenant::Types::Schema)
       expect(get_token_contract.input.name).to eq(:id)
-      expect(get_token_contract.output).to be_a(Covenant::Types::Struct)
+      expect(get_token_contract.output).to be_a(Covenant::Types::Schema)
       expect(get_token_contract.output.name).to eq(:token)
 
       result = runtime.call(get_token_contract, { id: '1' })
@@ -32,16 +32,27 @@ RSpec.describe Covenant::Contracts do
       expect(result.value[:token].value).to eq("Token123")
     end
 
-     it 'run failure contract' do
+    it "run failure contract in input" do 
+      runtime = Covenant.runtime.layer do |l|
+        l.register(:GetUser, ->(input) { {  name:"Fede", email: "fede@gmail.com"  }})
+      end
+
+      result = runtime.call(get_user_contract,{ toklen: "1" })
+
+      expect(result).to be_a(Covenant::Runtime::ExecutionResult)
+      expect(result).to be_failure
+    end
+
+    it 'runs failure contract in output' do
        wrong_runtime = Covenant.runtime.layer do |l|
         l.register(:GetToken, ->(input) { { token: "To" } })
         l.register(:GetUser, ->(input) { {  name:"Fede", email: "fede@gmail.com"  }})
       end
       
       expect(get_token_contract.command).to eq(:GetToken)
-      expect(get_token_contract.input).to be_a(Covenant::Types::Struct)
+      expect(get_token_contract.input).to be_a(Covenant::Types::Schema)
       expect(get_token_contract.input.name).to eq(:id)
-      expect(get_token_contract.output).to be_a(Covenant::Types::Struct)
+      expect(get_token_contract.output).to be_a(Covenant::Types::Schema)
       expect(get_token_contract.output.name).to eq(:token)
 
       result = wrong_runtime.call(get_token_contract, { id: '1' })
@@ -60,9 +71,9 @@ RSpec.describe Covenant::Contracts do
       contract = get_token_contract.map(get_user_contract)
 
       expect(contract).to be_a(Covenant::Contracts::Map)
-      expect(contract.input).to be_a(Covenant::Types::Struct)
+      expect(contract.input).to be_a(Covenant::Types::Schema)
       expect(contract.input.name).to eq(:id)
-      expect(contract.output).to be_a(Covenant::Types::Struct)
+      expect(contract.output).to be_a(Covenant::Types::Schema)
       expect(contract.output.name).to eq(:user)
       expect(contract.verify).to be_success
 
@@ -73,7 +84,7 @@ RSpec.describe Covenant::Contracts do
       runtime.call(contract, { id: '1' }).tap do |result|
         expect(result).to be_a(Covenant::Runtime::ExecutionResult) 
         expect(result).to be_success
-        expect(result.unwrap).to eq({ name:"Fede", email: "fede@gmail.com" })
+        expect(result.unwrap).to eq({ id: 1, name:"Fede", email: "fede@gmail.com" })
       end
     end
 

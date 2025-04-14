@@ -8,24 +8,40 @@ module Covenant
       attr_reader :props
 
       def initialize(props, parent = nil)
-        super(props.map(&:tag), parent)
-        @props = if parent
-                   props.map { |prop| prop.brand_to(parent) }
-                 else
-                   props
-                 end
+        super(props.map(&:tag), parent, props)
+        @props = parent ? props.map { |prop| prop.brand_to(parent) } : props
+        @props = @props.to_set
       end
 
       def brand_to(struct)
         Props.new(@props, struct)
       end
 
+      def map(&block)
+        @props.map(&block)
+      end
+
+      def tags
+        @props.map(&:tags)
+      end
+
       def +(other)
         case other
-        when Prop, Struct
+        when Scalar, Schema
           Props.new(props + [other])
         when Props
           Props.new(props + other.props)
+        end
+      end
+
+      def -(other)
+        case other
+        when Scalar
+          omit other.tag
+        when Props
+          omit(*other.props.map(&:tag))
+        else
+          raise ArgumentError, "Expected Prop, Struct or Props got #{other.class}"
         end
       end
 
@@ -37,12 +53,27 @@ module Covenant
         Props.new(@props.reject { |r| tags.include?(r.tag) }, @parent)
       end
 
-      def include?(tag)
-        @props.any? { |r| r.tag == tag }
+      alias except omit
+      alias select pick
+      alias filter pick
+      alias reject omit
+
+      def validate(values)
+        return Validator::ValidationResult.success(values) if %i[any void].include?(tag)
+
+        validate_all(values).reject do |key, result|
+          !values.key?(key) && result.success?
+        end
       end
 
-      def reject(tags)
-        Props.new(@props.reject { |r| tags.include?(r.tag) })
+      def validate_all(values)
+        @props.each_with_object({}) do |prop, acc|
+          acc[prop.tag] = prop.call(values[prop.tag])
+        end
+      end
+
+      def include?(tag)
+        @props.any? { |r| r.tag == tag }
       end
 
       def each(&block)
@@ -50,18 +81,7 @@ module Covenant
       end
 
       def prop?(other_prop)
-        other.is_a?(Prop) && !@props.props.detect { |p| p.tag == other_prop.tag }.nil?
-      end
-
-      def -(other)
-        case other
-        when Prop
-          reject [other.tag]
-        when Props
-          reject other.props.map(&:tag)
-        else
-          raise ArgumentError, "Expected Prop, Struct or Props got #{other.class}"
-        end
+        other.is_a?(Scalar) && !@props.props.detect { |p| p.tag == other_prop.tag }.nil?
       end
 
       def [](key)
@@ -85,11 +105,11 @@ module Covenant
       end
 
       def struct_props
-        @struct_props ||= @props.select { |prop| prop.is_a?(Struct) }
+        @struct_props ||= @props.select { |prop| prop.is_a?(Schema) }
       end
 
       def prop_props
-        @prop_props ||= @props.select { |prop| prop.is_a?(Prop) }
+        @prop_props ||= @props.select { |prop| prop.is_a?(Scalar) }
       end
 
       def size

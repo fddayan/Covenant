@@ -2,7 +2,7 @@
 
 module Covenant
   module Validator
-    module Validation
+    module Validation # rubocop:disable Metrics/ModuleLength
       # Type coercion
       def self.coerce(type) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength
         Validator.new do |value| # rubocop:disable Metrics/BlockLength
@@ -35,6 +35,17 @@ module Covenant
             end
           else
             ValidationResult.new(value, ["Unknown type '#{type}' for coercion"])
+          end
+        end
+      end
+
+      # Create an optional validator that skips validation if the value is nil or empty
+      def self.optional(validator)
+        Validator.new do |value|
+          if value.nil? || (value.respond_to?(:empty?) && value.empty?)
+            ValidationResult.new(value)
+          else
+            validator.call(value)
           end
         end
       end

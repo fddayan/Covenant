@@ -50,8 +50,8 @@ module Covenant
 
     def self.check_struct
       StructureComparator.new do |left, right|
-        next Result.failure(left.tag, 'is not a struct') unless left.is_a?(Types::Struct)
-        next Result.failure(right.tag, 'is not a struct') unless right.is_a?(Types::Struct)
+        next Result.failure(left.tag, 'is not a struct') unless left.is_a?(Types::Schema)
+        next Result.failure(right.tag, 'is not a struct') unless right.is_a?(Types::Schema)
 
         Result.from_array(left.tag) do
           left.props.props.flat_map do |prop|
@@ -64,11 +64,11 @@ module Covenant
     def self.compare_prop_to_struct(prop, right)
       other_prop = right.props[prop.tag]
       case prop
-      when Types::Prop
+      when Types::Scalar
         return Result.success(prop.tag) if other_prop
 
         Result.failure(prop.tag, 'missing prop')
-      when Types::Struct
+      when Types::Schema
         if other_prop.nil?
           Result.failure(prop.tag, 'Missing struct')
         else

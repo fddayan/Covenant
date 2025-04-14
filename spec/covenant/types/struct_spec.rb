@@ -1,4 +1,4 @@
-RSpec.describe Covenant::Types::Struct do
+RSpec.describe Covenant::Types::Schema do
   describe "#call" do 
     it "should parse a valid value and succeed" do 
       id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
@@ -153,8 +153,8 @@ RSpec.describe Covenant::Types::Struct do
 
       struct = Covenant.Struct(:user, id + name)
 
-      expect(struct.pick(:id)).to be_kind_of(Covenant::Types::Props)
-      expect(struct.pick(:name)).to be_kind_of(Covenant::Types::Props)
+      expect(struct.pick(:id)).to be_kind_of(Covenant::Types::Schema)
+      expect(struct.pick(:name)).to be_kind_of(Covenant::Types::Schema)
       expect(struct.pick(:age)).to be_empty
 
       expect(struct.pick(:id) == id).to be false
@@ -172,14 +172,19 @@ RSpec.describe Covenant::Types::Struct do
       user = Covenant.Struct(:user, id + name)
       order = Covenant.Struct(:order, id + user + price)
 
-      expect(order.pick(:user)).to be_kind_of(Covenant::Types::Props)
-      expect(order.pick(:user).pick(:name)).to be_kind_of(Covenant::Types::Props)
+      expect(order.pick(:user)).to be_kind_of(Covenant::Types::Schema)
+      expect(order.pick(:user).pick(:name)).to be_kind_of(Covenant::Types::Schema)
       expect(order.pick(:user).pick(:age)).to be_empty
 
-      expect(order.pick(:user).tag_chain).to eq([[:user], [:id, :user, :price], :order])
-      expect(order.pick(:user)[:user].tag_chain).to eq([[:id, :name], :user])
+      expect(order.pick(:user).tags).to eq([:order, [[:user, [[:user, :id], [:user, :name]]]]])
+      expect(order.pick(:user)[:user].pick(:name).tags).to eq([:user, [[:user,:name]]])
+      expect(order.pick(:user)[:user].pick(:name)[:name].tags).to eq([:user, :name])
 
-      expect(order.pick(:user)[:user].pick(:name).tag_chain).to eq([[:name], [:id, :name], :user])
+
+      user_name = order.pick(:user)[:user].pick(:name)
+      expect(user_name).to be_kind_of(Covenant::Types::Schema)
+      expect(user_name.tags).to eq([:user, [[:user, :name]]])
+      expect(user_name[:name].tags).to eq([:user, :name])
 
       expect(order.pick(:user)[:user].pick(:name) == order.pick(:user)[:user].pick(:name)).to be true
       expect(order.pick(:user)[:user].pick(:name) == order.pick(:user)[:user].pick(:id)).to be false
@@ -194,8 +199,8 @@ RSpec.describe Covenant::Types::Struct do
 
       struct = Covenant.Struct(:user, id + name)
 
-      expect(struct.omit(:id)).to be_kind_of(Covenant::Types::Struct)
-      expect(struct.omit(:name)).to be_kind_of(Covenant::Types::Struct)
+      expect(struct.omit(:id)).to be_kind_of(Covenant::Types::Schema)
+      expect(struct.omit(:name)).to be_kind_of(Covenant::Types::Schema)
       expect(struct.omit(:age)).not_to be_empty
 
       new_struct = struct.omit(:id)
@@ -217,13 +222,12 @@ RSpec.describe Covenant::Types::Struct do
       user = Covenant.Struct(:user, id + name)
       order = Covenant.Struct(:order, id + user + price)
 
-      expect(order.omit(:user)).to be_kind_of(Covenant::Types::Struct)
-      expect(order.omit(:user).omit(:name)).to be_kind_of(Covenant::Types::Struct)
+      expect(order.omit(:user)).to be_kind_of(Covenant::Types::Schema)
+      expect(order.omit(:user).omit(:name)).to be_kind_of(Covenant::Types::Schema)
       expect(order.omit(:user).omit(:age)).not_to be_empty
       expect(order.omit(:user).tag_chain).to eq([[:id, :price],:order])
     end
   end
-  
 
   describe "with an array" do
     it "should let me use a struct with an array" do
@@ -238,5 +242,90 @@ RSpec.describe Covenant::Types::Struct do
       expect(result.unwrap).to eq({ name_array: ["John Doe", "Jane Doe"] })
     end
   end
-  
+
+  describe "#+" do
+    it "should add a prop to the struct and produce a new struct" do
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      email = Covenant.Prop(:email, Covenant::Validator::Validation.coerce(:string))
+
+      struct = Covenant.Struct(:user, id + name)
+
+      result = struct + email
+      expect(result).to be_kind_of(Covenant::Types::Schema)
+      expect(result.props.size).to eq(3)
+      expect(result.props.map(&:tag)).to contain_exactly(:id, :name, :email)
+      expect(result.tags).to eq([:user, [[:user, :id], [:user, :name], [:user, :email]]])
+    end
+
+    it "should replace a property with same tag" do
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+
+      struct = Covenant.Struct(:user, id + name)
+
+      result = struct + id
+      expect(result).to be_kind_of(Covenant::Types::Schema)
+      expect(result.props.size).to eq(2)
+      expect(result.props.map(&:tag)).to contain_exactly(:id, :name)
+      expect(result.tags).to eq([:user, [[:user, :id], [:user, :name]]])
+    end
+
+    it "should combien two structs and create a new struct with the tag of the first" do 
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+
+      struct1 = Covenant.Struct(:user, id + name)
+      struct2 = Covenant.Struct(:user2, id + name)
+
+      result = struct1 + struct2
+      
+      expect(result).to be_kind_of(Covenant::Types::Schema)
+      expect(result.tag).to eq(:user_user2)
+      expect(result.props.size).to eq(2)
+      expect(result.props.map(&:tag)).to contain_exactly(:user, :user2)
+      # expect(result.tags).to eq([:user, [[:user, :id], [:user, :name]]])
+      # expect(result.tags).not_to eq([:user2, [[:user2, :id], [:user2, :name]]])
+    end
+  end
+
+  describe "#-" do 
+    it "should remove a prop from the struct and produce a new struct" do
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string))
+      email = Covenant.Prop(:email, Covenant::Validator::Validation.coerce(:string))
+
+      struct = Covenant.Struct(:user, id + name + email)
+
+      result = struct - email
+      expect(result).to be_kind_of(Covenant::Types::Schema)
+      expect(result.props.size).to eq(2)
+      expect(result.tag?(:emaik)).to be false
+      expect(result.props.map(&:tag)).to contain_exactly(:id, :name)
+      expect(result.tags).to eq([:user, [[:user, :id], [:user, :name]]])
+    end
+  end
+
+  describe "optional values" do 
+    it "should let me use a struct with optional values" do
+      id = Covenant.Prop(:id, Covenant::Validator::Validation.coerce(:integer))
+      name = Covenant.Prop(:name, Covenant::Validator::Validation.coerce(:string).and_then(Covenant::Validator::Validation.length(min: 10)))
+
+      struct1 = Covenant.Struct(:user, id + name.optional)
+
+      result1 = struct1.call({ id: "1" })
+
+      expect(result1).to be_success
+      expect(result1.value[:id]).to be_success
+      expect(result1.value[:name]).to be_nil
+
+      struct2 = Covenant.Struct(:user2, id + name)
+
+      result2 = struct2.call({ id: "1" })
+
+      expect(result2).to be_failure
+      expect(result2.value[:id]).to be_success
+      expect(result2.value[:name]).to be_failure
+    end
+  end
 end

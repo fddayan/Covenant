@@ -3,7 +3,7 @@
 module Covenant
   module Types
     # Prop is a blueprint for a property
-    class Prop < BaseProp
+    class Scalar < BaseProp
       include Taggable
 
       def initialize(tag, validator, parent = nil)
@@ -12,11 +12,17 @@ module Covenant
       end
 
       def brand_to(struct)
-        Prop.new(@tag, @validator, struct)
+        Scalar.new(@tag, @validator, struct)
       end
 
       def array
         PropArray.new(self)
+      end
+
+      def optional
+        wrapped = Validator::Validation.optional(@validator)
+
+        Scalar.new(@tag, wrapped, @parent)
       end
 
       def to_s
@@ -25,16 +31,35 @@ module Covenant
 
       def +(other)
         case other
-        when Prop, Struct
+        when Scalar, Schema
           Props.new([self, other])
         when Props
           Props.new([self] + other.props)
         end
       end
 
-      def ==(other)
-        tag_chain == other.tag_chain
+      def tags
+        return [@parent.tag, @tag] if @parent
+
+        @tag
       end
+
+      def ==(other)
+        eql?(other)
+      end
+
+      def hash
+        :tag.hash
+      end
+
+      def eql?(other)
+        tags == other.tags
+      end
+
+      # # (Optional but often recommended) Make == behave the same as eql?
+      # def ==(other)
+      #   eql?(other)
+      # end
 
       def call(value)
         raise ArgumentError, 'Expected NOT a hash' if value.is_a?(Hash)
