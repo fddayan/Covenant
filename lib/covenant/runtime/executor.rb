@@ -17,7 +17,7 @@ module Covenant
       def call(input)
         return input if input.is_a?(ExecutionResult) && input.failure?
 
-        contract.call(fetch_handler, ExecutionResult.value(input))
+        contract.call(fetch_handler, ExecutionResult.unwrap(input))
       end
     end
   end

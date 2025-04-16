@@ -1,0 +1,7 @@
+additional_workspace_folders:
+  - spec
+  - lib
+  - dev
+log_level: debug
+disable_plugins:
+  - SorbetPlugin

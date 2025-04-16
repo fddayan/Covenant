@@ -30,7 +30,11 @@ module Covenant
           else
             call(contract.failure_contract, prev_result)
           end
-          # prev_result
+        when Contracts::Timeout
+          call_with_timeout(contract, input)
+        when Covenant::Contracts::Transformer
+          prev_result = call(contract.prev_contract, input)
+          contract.call(prev_result)
         else
           raise "Unknown effect type: #{contract.class}"
         end

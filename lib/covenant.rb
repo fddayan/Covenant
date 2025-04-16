@@ -74,7 +74,7 @@ module Covenant
     Covenant::Contracts::Contract.new(*args)
   end
 
-  def self.transformer(input_schema, output_schema, &block)
+  def self.Transform(input_schema, output_schema, &block) # rubocop:disable Naming/MethodName
     Covenant::Contracts::Transformer.new(input_schema, output_schema, &block)
   end
 

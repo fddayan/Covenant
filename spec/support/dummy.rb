@@ -42,7 +42,7 @@ end
 module MyTransformers
   include MySchemas
   
-  GetUserIdFromUserTransformer = Covenant::Contracts::Transformer.new(User, ID) do |user|
-    user[:id]
-  end
+  # GetUserIdFromUserTransformer = Covenant::Contracts::Transformer.new(User, ID) do |user|
+  #   user[:id]
+  # end
 end

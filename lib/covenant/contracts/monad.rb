@@ -19,6 +19,10 @@ module Covenant
         end
       end
 
+      def transform(input_schema, output_schema, &block)
+        Transformer.new(self, input_schema, output_schema, &block)
+      end
+
       def or_else(next_contract)
         OrElse.new(self, next_contract)
       end

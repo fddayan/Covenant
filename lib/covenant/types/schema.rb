@@ -20,6 +20,7 @@ module Covenant
 
         props_validation = @props.validate(values)
         _validate_struct(props_validation)
+        # @props.validate(values)
       end
 
       def tags
@@ -114,11 +115,6 @@ module Covenant
       private
 
       def _validate_props(values)
-        # values.each_with_object({}) do |(key, value), acc|
-        #   ap "#{key} => #{value}"
-        #   prop = @props[key]
-        #   acc[key] = prop.call(value) unless prop.nil?
-        # end
         @props.validate(values)
       end
 

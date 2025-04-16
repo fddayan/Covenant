@@ -16,6 +16,10 @@ module Covenant
         input.is_a?(ExecutionResult) ? input.value : input
       end
 
+      def self.unwrap(input)
+        input.is_a?(ExecutionResult) ? input.unwrap : input
+      end
+
       def value
         @output_validation_result.value
       end
@@ -59,8 +63,20 @@ module Covenant
         raise 'Cannot unwrap a failed result'
       end
 
+      def output_errors
+        return [] unless @output_validation_result
+
+        @output_validation_result.errors
+      end
+
+      def input_errors
+        return [] unless @input_validation_result
+
+        @input_validation_result.errors
+      end
+
       def errors
-        @output_validation_result.errors + @input_validation_result.errors
+        input_errors + output_errors
       end
     end
   end
