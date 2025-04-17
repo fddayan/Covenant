@@ -20,25 +20,15 @@ module Covenant
         input.is_a?(ExecutionResult) ? input.unwrap : input
       end
 
-      def value
-        @output_validation_result.value
-      end
+      def value = @output_validation_result.value
 
-      def success?
-        input_success? && output_success?
-      end
+      def success? = input_success? && output_success?
 
-      def input_success?
-        @input_validation_result.success?
-      end
+      def input_success? = @input_validation_result.success?
 
-      def output_success?
-        @output_validation_result.success?
-      end
+      def output_success? = @output_validation_result.success?
 
-      def failure?
-        !success?
-      end
+      def failure? = !success?
 
       def blame
         return if success?
@@ -75,9 +65,7 @@ module Covenant
         @input_validation_result.errors
       end
 
-      def errors
-        input_errors + output_errors
-      end
+      def errors = input_errors + output_errors
     end
   end
 end

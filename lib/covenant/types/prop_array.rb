@@ -26,9 +26,7 @@ module Covenant
         )
       end
 
-      def brand_to(struct)
-        PropArray.new(@prop.brand_to(struct))
-      end
+      def brand_to(struct) = PropArray.new(@prop.brand_to(struct))
 
       private
 

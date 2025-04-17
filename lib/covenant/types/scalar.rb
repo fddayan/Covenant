@@ -11,13 +11,9 @@ module Covenant
         @validator = validator
       end
 
-      def brand_to(struct)
-        Scalar.new(@tag, @validator, struct)
-      end
+      def brand_to(struct) = Scalar.new(@tag, @validator, struct)
 
-      def array
-        PropArray.new(self)
-      end
+      def array = PropArray.new(self)
 
       def optional
         wrapped = Validator::Validation.optional(@validator)
@@ -25,9 +21,7 @@ module Covenant
         Scalar.new(@tag, wrapped, @parent)
       end
 
-      def to_s
-        "Prop(:#{@tag})"
-      end
+      def to_s = "Prop(:#{@tag})"
 
       def +(other)
         case other
@@ -44,17 +38,11 @@ module Covenant
         @tag
       end
 
-      def ==(other)
-        eql?(other)
-      end
+      def ==(other) = eql?(other)
 
-      def hash
-        :tag.hash
-      end
+      def hash = :tag.hash
 
-      def eql?(other)
-        tags == other.tags
-      end
+      def eql?(other) = tags == other.tags
 
       # # (Optional but often recommended) Make == behave the same as eql?
       # def ==(other)

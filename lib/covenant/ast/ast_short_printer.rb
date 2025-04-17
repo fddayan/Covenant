@@ -38,9 +38,7 @@ module Covenant
         # @lines << "\n"
       end
 
-      def print_map(node, _indent)
-        print_struct_compare_ast(node[:result])
-      end
+      def print_map(node, _indent) = print_struct_compare_ast(node[:result])
 
       def print_tee(node, indent)
         @lines << "#{' ' * indent}Tee:"
@@ -48,13 +46,9 @@ module Covenant
         @lines << "#{' ' * (indent + 2)}Output: #{node[:output][:tag]}"
       end
 
-      def print_or_else(_node, indent)
-        @lines << "#{' ' * indent}OrElse:"
-      end
+      def print_or_else(_node, indent) = @lines << "#{' ' * indent}OrElse:"
 
-      def print_retry(_node, indent)
-        @lines << "#{' ' * indent}Retry:"
-      end
+      def print_retry(_node, indent) = @lines << "#{' ' * indent}Retry:"
     end
   end
 end

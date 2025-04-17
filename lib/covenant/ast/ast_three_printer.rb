@@ -5,9 +5,7 @@ module Covenant
     class AstThreePrinter < AstVisitor
       using ColorAliasRefinement
 
-      def indent_text(indent, text)
-        "#{' ' * indent}#{text}"
-      end
+      def indent_text(indent, text) = "#{' ' * indent}#{text}"
 
       def puts_indent(indent, text_or_arr)
         text = text_or_arr.is_a?(Array) ? text_or_arr.join : text_or_arr
@@ -23,9 +21,7 @@ module Covenant
         end
       end
 
-      def print_contract(node, indent)
-        puts_indent indent + 2, format_contract(node)
-      end
+      def print_contract(node, indent) = puts_indent indent + 2, format_contract(node)
 
       def format_contract(node)
         Contracts::Contract.format(
@@ -54,13 +50,9 @@ module Covenant
         @lines << "#{' ' * (indent + 2)}Output: #{node[:output][:tag]}"
       end
 
-      def print_or_else(_node, indent)
-        @lines << "#{' ' * indent}OrElse:"
-      end
+      def print_or_else(_node, indent) = @lines << "#{' ' * indent}OrElse:"
 
-      def print_retry(_node, indent)
-        @lines << "#{' ' * indent}Retry:"
-      end
+      def print_retry(_node, indent) = @lines << "#{' ' * indent}Retry:"
     end
   end
 end

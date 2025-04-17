@@ -20,9 +20,7 @@ module Covenant
         end
       end
 
-      def call(left, right)
-        @block.call(left, right)
-      end
+      def call(left, right) = @block.call(left, right)
     end
   end
 end

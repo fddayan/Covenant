@@ -21,9 +21,7 @@ module Covenant
         @lines << "#{' ' * indent}#{text}"
       end
 
-      def indent_text(indent, text)
-        "#{' ' * indent}#{text}"
-      end
+      def indent_text(indent, text) = "#{' ' * indent}#{text}"
 
       def print_ast(node, indent = 0) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
         case node[:type]

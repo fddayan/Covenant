@@ -11,13 +11,9 @@ module Covenant
         @next_contract = next_contract
       end
 
-      def verify
-        Contract.can_chain?(@prev_contract, @next_contract)
-      end
+      def verify = Contract.can_chain?(@prev_contract, @next_contract)
 
-      def to_s
-        "OrElse(#{prev_contract} -> #{next_contract})"
-      end
+      def to_s = "OrElse(#{prev_contract} -> #{next_contract})"
     end
   end
 end

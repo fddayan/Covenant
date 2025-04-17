@@ -13,13 +13,9 @@ module Covenant
         @max_attempts = max_attempts
       end
 
-      def verify
-        true
-      end
+      def verify = true
 
-      def to_s
-        "Retry(#{contract} -> #{max_attempts})"
-      end
+      def to_s = "Retry(#{contract} -> #{max_attempts})"
     end
   end
 end

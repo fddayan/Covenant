@@ -17,13 +17,9 @@ module Covenant
         @tags[tag] = type
       end
 
-      def get(tag)
-        @tags[tag]
-      end
+      def get(tag) = @tags[tag]
 
-      def tag?(tag)
-        @tags.key?(tag)
-      end
+      def tag?(tag) = @tags.key?(tag)
     end
   end
 end

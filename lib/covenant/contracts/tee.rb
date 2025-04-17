@@ -14,13 +14,9 @@ module Covenant
         verify
       end
 
-      def verify
-        Contract.can_chain?(@prev_contract, @next_contract)
-      end
+      def verify = Contract.can_chain?(@prev_contract, @next_contract)
 
-      def to_s
-        "Tee(#{prev_contract} -> #{next_contract})"
-      end
+      def to_s = "Tee(#{prev_contract} -> #{next_contract})"
     end
   end
 end

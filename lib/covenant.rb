@@ -12,9 +12,7 @@ module Covenant
   class HandlerNotFoundError < Error; end
 
   class System
-    def command_registry
-      @command_registry ||= Container::CommandRegistry.new
-    end
+    def command_registry = @command_registry ||= Container::CommandRegistry.new
 
     def layer
       layer = Container::CommandLayer.new
@@ -74,8 +72,8 @@ module Covenant
     Covenant::Contracts::Contract.new(*args)
   end
 
-  def self.Transform(input_schema, output_schema, &block) # rubocop:disable Naming/MethodName
-    Covenant::Contracts::Transformer.new(input_schema, output_schema, &block)
+  def self.Transform(input_schema, output_schema, &) # rubocop:disable Naming/MethodName
+    Covenant::Contracts::Transformer.new(input_schema, output_schema, &)
   end
 
   def self.Scalar(*args) # rubocop:disable Naming/MethodName

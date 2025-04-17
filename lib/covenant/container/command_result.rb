@@ -18,13 +18,9 @@ module Covenant
         @error = error
       end
 
-      def success?
-        !error
-      end
+      def success? = !error
 
-      def error?
-        !!error
-      end
+      def error? = !!error
 
       def to_s
         if success?

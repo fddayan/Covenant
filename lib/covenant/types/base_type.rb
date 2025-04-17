@@ -43,31 +43,17 @@ module Covenant
       attr_reader :tag, :parent
       alias name tag
 
-      def initialize(tag, parent, child = nil)
-        super
-        # tag! tag
-        # parent! parent if parent
-      end
+      def initialize(tag, parent, child = nil) = super
 
-      def ==(other)
-        self.class == other.class && tag == other.tag
-      end
+      def ==(other) = self.class == other.class && tag == other.tag
 
-      def same?(other)
-        self == other
-      end
+      def same?(other) = self == other
 
-      def call(_values)
-        raise NotImplementedError, 'You must implement the call method'
-      end
+      def call(_values) = raise NotImplementedError, 'You must implement the call method'
 
-      def empty?
-        raise NotImplementedError, 'You must implement the call method'
-      end
+      def empty? = raise NotImplementedError, 'You must implement the call method'
 
-      def compare(other)
-        raise NotImplementedError, 'You must implement the compare method'
-      end
+      def compare(other) = raise NotImplementedError, 'You must implement the compare method'
     end
   end
 end

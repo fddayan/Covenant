@@ -15,17 +15,11 @@ module Covenant
         @next_contract = next_contract
       end
 
-      def command
-        "#{@prev_contract.command}  ->  #{@next_contract.command}"
-      end
+      def command = "#{@prev_contract.command}  ->  #{@next_contract.command}"
 
-      def verify
-        Contract.can_chain?(@prev_contract, @next_contract)
-      end
+      def verify = Contract.can_chain?(@prev_contract, @next_contract)
 
-      def valid?
-        verify.valid?
-      end
+      def valid? = verify.valid?
 
       def self.format(input, output)
         [

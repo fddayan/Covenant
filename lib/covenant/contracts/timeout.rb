@@ -13,13 +13,9 @@ module Covenant
         @seconds = seconds
       end
 
-      def verify
-        true
-      end
+      def verify = true
 
-      def to_s
-        "Timeout(#{contract} -> #{seconds})"
-      end
+      def to_s = "Timeout(#{contract} -> #{seconds})"
     end
   end
 end

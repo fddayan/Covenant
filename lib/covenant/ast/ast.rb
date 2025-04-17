@@ -3,13 +3,9 @@
 module Covenant
   module Ast
     class Ast
-      def initialize(contract)
-        @contract = contract
-      end
+      def initialize(contract) = @contract = contract
 
-      def to_ast
-        build_ast(@contract)
-      end
+      def to_ast = build_ast(@contract)
 
       private
 

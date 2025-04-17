@@ -33,17 +33,11 @@ module Covenant
         Result(handler, input_result, output_result)
       end
 
-      def can_chain_to?(other_contract)
-        self.class.can_chain?(self, other_contract)
-      end
+      def can_chain_to?(other_contract) = self.class.can_chain?(self, other_contract)
 
-      def can_chain_from?(other_contract)
-        self.class.can_chain?(other_contract, self)
-      end
+      def can_chain_from?(other_contract) = self.class.can_chain?(other_contract, self)
 
-      def to_s
-        self.class.format(input, command, output)
-      end
+      def to_s = self.class.format(input, command, output)
 
       def self.format(input, command, output)
         [

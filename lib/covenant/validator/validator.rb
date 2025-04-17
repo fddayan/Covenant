@@ -8,13 +8,9 @@ module Covenant
     class Validator
       include Covenant::Types::Taggable
 
-      def initialize(&validation)
-        @validation = validation
-      end
+      def initialize(&validation) = @validation = validation
 
-      def call(value)
-        @validation.call(value)
-      end
+      def call(value) = @validation.call(value)
 
       def and_then(other_validator)
         Validator.new do |value|
@@ -23,9 +19,7 @@ module Covenant
         end
       end
 
-      def to_s
-        'Validator'
-      end
+      def to_s = 'Validator'
 
       # Chain multiple validators and run all of them regardless of failures
       def self.chain(*validators)

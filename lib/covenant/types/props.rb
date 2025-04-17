@@ -13,17 +13,11 @@ module Covenant
         @props = @props.to_set
       end
 
-      def brand_to(struct)
-        Props.new(@props, struct)
-      end
+      def brand_to(struct) = Props.new(@props, struct)
 
-      def map(&block)
-        @props.map(&block)
-      end
+      def map(&) = @props.map(&)
 
-      def tags
-        @props.map(&:tags)
-      end
+      def tags = @props.map(&:tags)
 
       def +(other)
         case other
@@ -45,13 +39,9 @@ module Covenant
         end
       end
 
-      def pick(*tags)
-        Props.new(@props.select { |r| tags.include?(r.tag) }, @parent)
-      end
+      def pick(*tags) = Props.new(@props.select { |r| tags.include?(r.tag) }, @parent)
 
-      def omit(*tags)
-        Props.new(@props.reject { |r| tags.include?(r.tag) }, @parent)
-      end
+      def omit(*tags) = Props.new(@props.reject { |r| tags.include?(r.tag) }, @parent)
 
       alias except omit
       alias select pick
@@ -72,57 +62,33 @@ module Covenant
         end
       end
 
-      def include?(tag)
-        @props.any? { |r| r.tag == tag }
-      end
+      def include?(tag) = @props.any? { |r| r.tag == tag }
 
-      def each(&block)
-        @props.each(&block)
-      end
+      def each(&) = @props.each(&)
 
       def prop?(other_prop)
         other.is_a?(Scalar) && !@props.props.detect { |p| p.tag == other_prop.tag }.nil?
       end
 
-      def [](key)
-        props_map[key]
-      end
+      def [](key) = props_map[key]
 
-      def tag?(key)
-        props_map.key?(key)
-      end
+      def tag?(key) = props_map.key?(key)
 
-      def to_a
-        @props
-      end
+      def to_a = @props
 
-      def keys
-        @props.map(&:tag)
-      end
+      def keys = @props.map(&:tag)
 
-      def empty?
-        @props.empty?
-      end
+      def empty? = @props.empty?
 
-      def struct_props
-        @struct_props ||= @props.select { |prop| prop.is_a?(Schema) }
-      end
+      def struct_props = @struct_props ||= @props.select { |prop| prop.is_a?(Schema) }
 
-      def prop_props
-        @prop_props ||= @props.select { |prop| prop.is_a?(Scalar) }
-      end
+      def prop_props = @prop_props ||= @props.select { |prop| prop.is_a?(Scalar) }
 
-      def size
-        @props.size
-      end
+      def size = @props.size
 
-      def to_s
-        "Props[#{@props.map(&:to_s).join(', ')}]"
-      end
+      def to_s = "Props[#{@props.map(&:to_s).join(', ')}]"
 
-      def props_map
-        @props_map ||= @props.to_h { |prop| [prop.tag, prop] }
-      end
+      def props_map = @props_map ||= @props.to_h { |prop| [prop.tag, prop] }
     end
   end
 end

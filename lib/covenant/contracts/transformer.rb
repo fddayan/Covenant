@@ -49,13 +49,9 @@ module Covenant
         Runtime::ExecutionResult.new(self, self, input_schema_result, output_schema_result)
       end
 
-      def to_s
-        'Transformer'
-      end
+      def to_s = 'Transformer'
 
-      def command
-        'Transformer'
-      end
+      def command = 'Transformer'
 
       # def call(input)
       #   input_result = input_schema.call(input)

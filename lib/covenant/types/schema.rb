@@ -11,9 +11,7 @@ module Covenant
         @validator = yield if block_given?
       end
 
-      def brand_to(other_tag)
-        Schema.new(@tag, @props, other_tag)
-      end
+      def brand_to(other_tag) = Schema.new(@tag, @props, other_tag)
 
       def call(values)
         return Validator::ValidationResult.success(values) if %i[any void].include?(tag)
@@ -23,29 +21,17 @@ module Covenant
         # @props.validate(values)
       end
 
-      def tags
-        [@tag, @props.tags]
-      end
+      def tags = [@tag, @props.tags]
 
-      def empty?
-        @props.empty?
-      end
+      def empty? = @props.empty?
 
-      def [](key)
-        @props[key]
-      end
+      def [](key) = @props[key]
 
-      def ==(other)
-        compare(other).success?
-      end
+      def ==(other) = compare(other).success?
 
-      def same?(other)
-        compare(other)
-      end
+      def same?(other) = compare(other)
 
-      def compare(other)
-        Comparable.check_struct.call(self, other)
-      end
+      def compare(other) = Comparable.check_struct.call(self, other)
 
       def -(other)
         case other
@@ -66,9 +52,7 @@ module Covenant
         end
       end
 
-      def clone(props)
-        Schema.new(@tag, props, @parent)
-      end
+      def clone(props) = Schema.new(@tag, props, @parent)
 
       def compositions
         @props.props.each_with_object([]) do |prop, acc|
@@ -78,45 +62,27 @@ module Covenant
         end
       end
 
-      def to_a
-        @props.to_a
-      end
+      def to_a = @props.to_a
 
-      def prop?(key)
-        @props.tag?(key)
-      end
+      def prop?(key) = @props.tag?(key)
 
       alias tag? prop?
 
-      def keys
-        @props.keys
-      end
+      def keys = @props.keys
 
-      def pick(*tag)
-        Schema.new(@tag, @props.pick(*tag), @parent)
-      end
+      def pick(*tag) = Schema.new(@tag, @props.pick(*tag), @parent)
 
-      def omit(*tags)
-        Schema.new(@tag, @props.omit(*tags), @parent)
-      end
+      def omit(*tags) = Schema.new(@tag, @props.omit(*tags), @parent)
 
-      def size
-        @props.size
-      end
+      def size = @props.size
 
-      def to_s
-        "Struct(:#{@tag} => #{@props})"
-      end
+      def to_s = "Struct(:#{@tag} => #{@props})"
 
-      def tag_chain
-        [props.tag, @tag]
-      end
+      def tag_chain = [props.tag, @tag]
 
       private
 
-      def _validate_props(values)
-        @props.validate(values)
-      end
+      def _validate_props(values) = @props.validate(values)
 
       def _validate_struct(props_validation)
         Covenant::Validator::ValidationResult.new(
@@ -128,9 +94,7 @@ module Covenant
         )
       end
 
-      def _validate_all
-        @validator.call(self)
-      end
+      def _validate_all = @validator.call(self)
     end
 
     Any = Scalar.new(:any, :any).struct

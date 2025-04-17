@@ -10,9 +10,7 @@ module Covenant
         @contract = contract
       end
 
-      def fetch_handler
-        @command_registry.handler_for(@contract.command)
-      end
+      def fetch_handler = @command_registry.handler_for(@contract.command)
 
       def call(input)
         return input if input.is_a?(ExecutionResult) && input.failure?

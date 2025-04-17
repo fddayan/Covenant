@@ -19,25 +19,17 @@ module Covenant
         end
       end
 
-      def transform(input_schema, output_schema, &block)
-        Transformer.new(self, input_schema, output_schema, &block)
+      def transform(input_schema, output_schema, &)
+        Transformer.new(self, input_schema, output_schema, &)
       end
 
-      def or_else(next_contract)
-        OrElse.new(self, next_contract)
-      end
+      def or_else(next_contract) = OrElse.new(self, next_contract)
 
-      def retry(max_attempts)
-        Retry.new(self, max_attempts)
-      end
+      def retry(max_attempts) = Retry.new(self, max_attempts)
 
-      def timeout(seconds)
-        Timeout.new(self, seconds)
-      end
+      def timeout(seconds) = Timeout.new(self, seconds)
 
-      def match(success:, failure:)
-        Match.new(self, success, failure)
-      end
+      def match(success:, failure:) = Match.new(self, success, failure)
 
       alias and_then map
     end

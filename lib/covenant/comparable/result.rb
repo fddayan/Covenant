@@ -66,9 +66,7 @@ module Covenant
         }
       end
 
-      def success?
-        !failure?
-      end
+      def success? = !failure?
 
       def failure?
         return false if @errors.nil?
@@ -79,9 +77,7 @@ module Covenant
         end
       end
 
-      def to_h
-        { success: @success, errors: @errors }
-      end
+      def to_h = { success: @success, errors: @errors }
     end
   end
 end

@@ -3,13 +3,9 @@
 module Covenant
   module Container
     class CommandRegistry
-      def initialize
-        @layers = []
-      end
+      def initialize = @layers = []
 
-      def register_layer(layer)
-        @layers << layer
-      end
+      def register_layer(layer) = @layers << layer
 
       def handler_for(schema)
         @layers.each do |layer|

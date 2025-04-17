@@ -3,9 +3,7 @@
 module Covenant
   module Runtime
     class Runner
-      def initialize(command_registry)
-        @command_registry = command_registry
-      end
+      def initialize(command_registry) = @command_registry = command_registry
 
       def call(contract, input) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize,Metrics/CyclomaticComplexity
         case contract

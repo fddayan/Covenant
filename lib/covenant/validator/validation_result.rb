@@ -28,9 +28,7 @@ module Covenant
         end
       end
 
-      def unwrap
-        _unwrap(value)
-      end
+      def unwrap = _unwrap(value)
 
       def _unwrap(val)
         case val
@@ -49,13 +47,9 @@ module Covenant
         end
       end
 
-      def success?
-        @errors.empty?
-      end
+      def success? = @errors.empty?
 
-      def failure?
-        !success?
-      end
+      def failure? = !success?
 
       def and_then(validator)
         if failure?
@@ -74,9 +68,7 @@ module Covenant
         ValidationResult.new(func.call(@value), @errors)
       end
 
-      def append_error(error)
-        ValidationResult.new(@value, @errors + [error])
-      end
+      def append_error(error) = ValidationResult.new(@value, @errors + [error])
 
       # Helper method to merge results
       def self.merge(results)

@@ -3,5 +3,5 @@ additional_workspace_folders:
   - lib
   - dev
 log_level: debug
-disable_plugins:
-  - SorbetPlugin
+#disable_plugins:
+#  - SorbetPlugin
