@@ -33,6 +33,8 @@ module Covenant
 
       def compare(other) = Comparable.check_struct.call(self, other)
 
+      alias satisfies compare
+
       def -(other)
         case other
         when Scalar, Props

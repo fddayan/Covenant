@@ -65,6 +65,12 @@ module Covenant
             type: :timeout,
             contract: build_ast(contract.contract)
           }
+        when Contracts::Match
+          {
+            type: :match,
+            success: build_ast(contract.success_contract),
+            failure: build_ast(contract.failure_contract)
+          }
         else
           raise "Unknown contract type: #{contract.class}"
         end

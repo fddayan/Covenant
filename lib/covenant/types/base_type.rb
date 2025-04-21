@@ -38,8 +38,6 @@ module Covenant
     end
 
     class BaseType < Tag
-      # include Taggable
-
       attr_reader :tag, :parent
       alias name tag
 

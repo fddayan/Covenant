@@ -85,16 +85,21 @@ RSpec.describe Covenant::Types::Schema do
     it "should compare two structs with the same values" do
       id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
+      age = Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer))
 
       struct1 = Covenant.Schema(:user, id + name)
-      struct2 = Covenant.Schema(:user, id + name + Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer)))
+      struct2 = Covenant.Schema(:user, id + name + age)
 
-      result = struct2.compare(struct1)
+      result = struct2.satisfies(struct1)
 
       expect(result).to be_kind_of(Covenant::Comparable::Result)
       expect(result.success?).to be false
       expect(result.errors).not_to be_empty
       expect(result.unwrap).to eq(user: [{:id=>[]}, {:name=>[]}, {:age=>["missing prop"]}])
+
+      result2 = struct1.satisfies(struct2)
+
+      expect(result2.success?).to be true
     end
 
     it "should compare nested structs" do
