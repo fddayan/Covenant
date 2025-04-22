@@ -23,6 +23,8 @@ module Covenant
 
       def to_s = "Prop(:#{@tag})"
 
+      def inspect = "Prop(#{@tag})"
+
       def +(other)
         case other
         when Scalar, Schema

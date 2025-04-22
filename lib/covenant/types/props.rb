@@ -62,13 +62,23 @@ module Covenant
         end
       end
 
+      def zip(other_props)
+        # (tags + other_props.tags).uniq.map do |tag|
+        #   ap tag
+        #   [self[tag], other_props[tag]]
+        # end
+        props.map do |prop|
+          [prop, other_props[prop.tag]]
+        end
+      end
+
       def include?(tag) = @props.any? { |r| r.tag == tag }
 
       def each(&) = @props.each(&)
 
-      def prop?(other_prop)
-        other.is_a?(Scalar) && !@props.props.detect { |p| p.tag == other_prop.tag }.nil?
-      end
+      def prop?(other_prop) = other.is_a?(Scalar) && !detect { |p| p.tag == other_prop.tag }.nil?
+
+      def detect(&) = @props.detect(&)
 
       def [](key) = props_map[key]
 

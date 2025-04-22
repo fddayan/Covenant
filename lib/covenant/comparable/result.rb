@@ -33,9 +33,9 @@ module Covenant
         new(tag, errors.is_a?(Array) ? errors : [errors])
       end
 
-      def self.from_array(tag)
-        Result.new(tag, yield)
-      end
+      def self.from_array(tag) = Result.new(tag, yield.reject(&:success?))
+
+      def to_arr = [@tag, self]
 
       def self.from_result(result)
         return result if result.is_a?(Result)
@@ -58,12 +58,19 @@ module Covenant
         @errors = errors == false ? nil : errors
       end
 
-      def unwrap
-        return { @tag => [] } if @errors.nil?
+      def to_s = "#{self.class} tag:#{@tag} errors:#{@errors}"
 
-        {
-          @tag => @errors.map { |e| e.is_a?(Result) ? e.unwrap : e }
-        }
+      def unwrap
+        return {} if @errors.nil? || @errors.empty?
+
+        vals = @errors.each_with_object({}) do |e, acc|
+          next if e.nil?
+          next if e.is_a?(Result) && e.success?
+
+          acc[e.tag] = e.unwrap
+        end
+
+        { @tag => vals }
       end
 
       def success? = !failure?

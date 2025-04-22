@@ -92,10 +92,10 @@ RSpec.describe Covenant::Types::Schema do
 
       result = struct2.satisfies(struct1)
 
-      expect(result).to be_kind_of(Covenant::Comparable::Result)
+      expect(result).to be_kind_of(Covenant::Diff::DiffResult)
       expect(result.success?).to be false
       expect(result.errors).not_to be_empty
-      expect(result.unwrap).to eq(user: [{:id=>[]}, {:name=>[]}, {:age=>["missing prop"]}])
+      expect(result.unwrap).to eq(user: {age: "missing" })
 
       result2 = struct1.satisfies(struct2)
 
@@ -111,17 +111,20 @@ RSpec.describe Covenant::Types::Schema do
       order2 = Covenant.Schema(:order, id + user + price)
       result = order.compare(order2)
 
+      ap result
+
       expect(result.success?).to be true
       expect(result.failure?).to be false
-      expect(result.unwrap).to eq({:order=>[{:id=>[]}, {:user=>[{:id=>[]}, {:name=>[]}]}, {:price=>[]}]})
+      expect(result.unwrap).to eq({})
     end
     
     it "should compare nested structs with different values and fail" do
       id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
       price = Covenant.Scalar(:price, Covenant::Validator::Validation.coerce(:float))
+      age = Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer))
       
-      user1 = Covenant.Schema(:user, id + name + Covenant.Scalar(:age, Covenant::Validator::Validation.coerce(:integer)))
+      user1 = Covenant.Schema(:user, id + name + age)
       user2 = Covenant.Schema(:user, id + name)
       
       order = Covenant.Schema(:order, id + user1 + price)
@@ -131,7 +134,7 @@ RSpec.describe Covenant::Types::Schema do
 
       expect(result.success?).to be false
       expect(result.failure?).to be true
-      expect(result.unwrap).to eq(:order => [{:id=>[]}, {:user=>[{:id=>[]}, {:name=>[]}, {:age=>["missing prop"]}]}, {:price=>[]}])
+      expect(result.unwrap).to eq(:order => {:user => {:age=>"missing"}})
     end
 
     it "should compare nested structs with different values and tags and fail" do

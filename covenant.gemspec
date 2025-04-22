@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.files         = Dir.glob('{bin,lib}/**/*') + %w[LICENSE README.md]
   spec.require_paths = ['lib']
 
-  spec.required_ruby_version = '>= 3.0.0'
+  spec.required_ruby_version = '>= 3.1.0'
 
   spec.add_dependency 'colorize', '~> 0.8.1'
   spec.add_dependency 'zeitwerk', '~> 2.6'

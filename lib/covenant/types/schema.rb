@@ -11,6 +11,8 @@ module Covenant
         @validator = yield if block_given?
       end
 
+      def zip(*tags) = @props.zip(*tags)
+
       def brand_to(other_tag) = Schema.new(@tag, @props, other_tag)
 
       def call(values)
@@ -31,7 +33,19 @@ module Covenant
 
       def same?(other) = compare(other)
 
-      def compare(other) = Comparable.check_struct.call(self, other)
+      # def compare(other) = Comparable.check_struct.call(self, other)
+
+      def compare(other) = Covenant::Diff::SchemaDiff.new(self, other).call
+
+      def inspect = "Schema(:#{@tag} => #{@props})"
+
+      def eql?(other)
+        return false unless other.is_a?(Schema)
+
+        @tag == other.tag && @props == other.props
+      end
+
+      def <=>(other) = compare(other)
 
       alias satisfies compare
 

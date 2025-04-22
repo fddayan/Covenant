@@ -71,6 +71,12 @@ module Covenant
             success: build_ast(contract.success_contract),
             failure: build_ast(contract.failure_contract)
           }
+        when Covenant::Diff::DiffResult
+          {
+            type: :diff,
+            success: contract.success?,
+            errors: contract.unwrap
+          }
         else
           raise "Unknown contract type: #{contract.class}"
         end
