@@ -14,6 +14,11 @@ module Covenant
         @errors
       end
 
+      def check!
+        check
+        raise Covenant::ContractViolation, @errors unless @errors.empty?
+      end
+
       def ast_result(node, result)
         return AstCheckResult.success(node) if result.nil? || result[:success]
 

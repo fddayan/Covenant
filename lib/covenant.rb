@@ -11,6 +11,21 @@ module Covenant
   class Error < StandardError; end
   class HandlerNotFoundError < Error; end
 
+  class ContractViolation < Error
+    attr_reader :errors
+
+    def initialize(errors)
+      super(errors.map(&:to_s).join(','))
+      @errors = errors
+    end
+  end
+
+  def self.enable_check_contracts! = @check_contract = true
+
+  def self.disable_check_contracts! = @check_contract = false
+
+  def self.check_contracts? = !!@check_contract
+
   class System
     def command_registry = @command_registry ||= Container::CommandRegistry.new
 

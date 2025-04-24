@@ -3,35 +3,41 @@
 module Covenant
   module Contracts
     module Monad
-      def map(next_contract)
-        if next_contract.is_a?(Proc)
-          Map.new(self, next_contract.call(self))
-        else
-          Map.new(self, next_contract)
-        end
-      end
+      def map(next_contract) = chain(Map, proc_or_class(next_contract))
 
-      def tee(next_contract)
-        if next_contract.is_a?(Proc)
-          Tee.new(self, next_contract.call(self))
-        else
-          Tee.new(self, next_contract)
-        end
-      end
+      def tee(next_contract) = chain(Tree, proc_or_class(next_contract))
 
-      def transform(input_schema, output_schema, &)
-        Transformer.new(self, input_schema, output_schema, &)
-      end
+      def transform(input, output, &) = Transformer.new(self, input, output, &)
 
-      def or_else(next_contract) = OrElse.new(self, next_contract)
+      def or_else(next_contract) = chain(OrElse, next_contract)
 
-      def retry(max_attempts) = Retry.new(self, max_attempts)
+      def retry(max_attempts) = chain(Retry, max_attempts)
 
-      def timeout(seconds) = Timeout.new(self, seconds)
+      def timeout(seconds) = chain(Timeout, seconds)
 
-      def match(success:, failure:) = Match.new(self, success, failure)
+      def match(success:, failure:) = chain(Match, success, failure)
+
+      def to_ast = Covenant::Ast::Ast.new(self)
+
+      def chequer = Covenant::Ast::AstChecker.new(to_ast.to_ast)
+
+      def check! = chequer.check!
 
       alias and_then map
+
+      def check_if_enable
+        return self unless Covenant.check_contracts?
+
+        check!
+
+        self
+      end
+
+      private
+
+      def chain(clazz, *rest) = clazz.new(self, *rest).check_if_enable
+
+      def proc_or_class(contract) = contract.is_a?(Proc) ? contract.call(self) : contract
     end
   end
 end
