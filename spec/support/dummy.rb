@@ -35,8 +35,8 @@ module MyContracts
   GetTokenContract      = Covenant.Contract(:GetToken, ID.struct, Token.struct)
   GetUserContract       = Covenant.Contract(:GetUser, Token.struct, User)
   GetOwnerContract      = Covenant.Contract(:GetOwner, Token.struct, User)
-  AuthorizeUserContract = Covenant.Contract(:AuthorizeUser, ID.struct, Any)
-  LogMessageContract    = Covenant.Contract(:LogMessage, Any, Any)
+  AuthorizeUserContract = Covenant.Contract(:AuthorizeUser, ID.struct, Any.struct)
+  LogMessageContract    = Covenant.Contract(:LogMessage, Any.struct, Any.struct)
 end
 
 module MyTransformers

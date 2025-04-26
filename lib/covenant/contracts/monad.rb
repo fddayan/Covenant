@@ -5,7 +5,7 @@ module Covenant
     module Monad
       def map(next_contract) = chain(Map, proc_or_class(next_contract))
 
-      def tee(next_contract) = chain(Tree, proc_or_class(next_contract))
+      def tee(next_contract) = chain(Tee, proc_or_class(next_contract))
 
       def transform(input, output, &) = Transformer.new(self, input, output, &)
 

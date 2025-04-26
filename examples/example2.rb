@@ -58,6 +58,19 @@ module Chains
                     failure: NotifyFailureContract
                   )
                 )
+
+  #   GetUserById = Covenant.Pipe(
+  #     GetTokenContract,
+  #     GetUserContract,
+  #     Covenant.Tee(AuthorizeUserContract),
+  #     Covenant.Tee(LogMessageContract),
+  #     Covenant.Tee(
+  #       Covenant::Contracts.match(
+  #         success: NotifySuccessContract,
+  #         failure: NotifyFailureContract
+  #       )
+  #     )
+  #   )
 end
 
 # GetTokenContract
