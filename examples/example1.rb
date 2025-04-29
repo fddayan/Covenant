@@ -59,13 +59,24 @@ module MyBusinessLogic
                       failure: NotifyFailureContract
                     )
                   )
+
+    WrongGetUserById = GetUserContract
+                       .and_then(GetTokenContract)
+                       .tee(AuthorizeUserContract)
+                       .tee(LogMessageContract)
+                       .tee(
+                         Covenant::Contracts.match(
+                           success: NotifySuccessContract,
+                           failure: NotifyFailureContract
+                         )
+                       )
   end
 end
 
 module MyBusinessImplementation
   Layer = Covenant.Layer do |l|
     l.register(:GetToken,       ->(_input) { { token: 'Token123' } })
-    l.register(:GetUser,        ->(_input) { { name: 'Fede', email: 'fede@xxx.com' } })
+    l.register(:GetUser,        ->(_input) { { id: '1', name: 'Fede', email: 'fede@xxx.com' } })
     l.register(:AuthorizeUser,  ->(_input) { true })
     l.register(:LogMessage,     ->(input)  { puts "Log #{input}" })
     l.register(:NotifySuccess,  ->(_input) { puts 'Success!' })
@@ -80,9 +91,20 @@ result = MyBusinessImplementation::Runtime.call(
   { id: '1' }
 )
 
+puts '=> AST:'
+MyBusinessLogic::Chains::GetUserById.print_ast
+
 puts '=> Success:'
 ap result.success?
+puts '=> Blame:'
+puts result.blame
 puts '=> Value:'
 ap result.value
 puts '=> Unwraped:'
 ap result.unwrap
+
+# ap '-' * 100
+
+# puts MyBusinessLogic::Chains::WrongGetUserById.to_yaml
+
+MyBusinessLogic::Chains::WrongGetUserById.print_ast

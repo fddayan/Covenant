@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'yaml'
 module Covenant
   module Contracts
     module Monad
@@ -17,9 +18,22 @@ module Covenant
 
       def match(success:, failure:) = chain(Match, success, failure)
 
-      def to_ast = Covenant::Ast::Ast.new(self)
+      def ast = Covenant::Ast::Ast.new(self)
 
-      def chequer = Covenant::Ast::AstChecker.new(to_ast.to_ast)
+      def to_ast = ast.to_ast
+
+      def to_yaml = to_ast.to_yaml
+
+      # def to_json = ast.to_json
+
+      def to_s = ast.to_s
+
+      def inspect = Covenant::Ast::AstShortPrinter.new(to_ast).print
+      # puts Covenant::Ast::AstShortPrinter.new(to_ast).print
+
+      # def print_ast = puts Covenant::Ast::AstShortPrinter.new(to_ast).print
+
+      def chequer = Covenant::Ast::AstChecker.new(to_ast)
 
       def check! = chequer.check!
 
@@ -32,6 +46,8 @@ module Covenant
 
         self
       end
+
+      def print_ast = puts Covenant::Ast::AstShortPrinter.new(to_ast).print
 
       private
 

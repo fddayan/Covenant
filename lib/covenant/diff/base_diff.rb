@@ -14,6 +14,8 @@ module Covenant
       protected
 
       def result(msg) = DiffResult.new(@left, msg)
+
+      def result_success = DiffResult.new(@left, '')
     end
   end
 end

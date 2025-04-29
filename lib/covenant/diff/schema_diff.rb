@@ -5,11 +5,11 @@ module Covenant
     class SchemaDiff < BaseDiff
       def call
         return result('missing') if @right.nil?
+        return result_success if @left.tag == :any || @right.tag == :any
         if @left.tag != @right.tag
-          return result("tag mismatch: expected :#{@left.tag} got :#{right.tag}")
+          return result("tag mismatch: expected :#{@right.tag} got :#{@left.tag}")
         end
 
-        # result PropsDiff.new(@left.props, @right.props).call
         result(diff_props(left, right))
       end
 

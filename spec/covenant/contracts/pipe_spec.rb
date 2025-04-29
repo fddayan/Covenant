@@ -50,9 +50,23 @@ RSpec.describe Covenant::Contracts::Pipe do
       expect(result).to be_success
       expect(result.unwrap).to eq({ :id => 1, :name => "Fede", :email => "fede@gmail.com" })
       expect(result.value).to include(:id, :name, :email)
+    end
 
-      # expect(result.value.size).to eq(1)
-      # expect(result.value[:token].value).to eq('Token123')
+    it "build contract chain using DSL" do
+      contract1 = MyContracts::GetTokenContract
+      contract2 = MyContracts::GetUserContract
+      contract3 = MyContracts::LogMessageContract
+      
+      contracts = Covenant::Contracts.pipe(contract1, contract2, Covenant::Contracts.tee(contract3))
+
+      expect(contracts).to be_a(Covenant::Contracts::Map)
+
+      result = runtime.call(contracts, { id: '1' })
+
+      expect(result).to be_a(Covenant::Runtime::ExecutionResult)
+      expect(result).to be_success
+      expect(result.unwrap).to eq({ :id => 1, :name => "Fede", :email => "fede@gmail.com" })
+      expect(result.value).to include(:id, :name, :email)
     end
   end
 end

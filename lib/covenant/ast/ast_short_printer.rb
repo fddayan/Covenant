@@ -5,50 +5,61 @@ module Covenant
     class AstShortPrinter < AstVisitor
       using ColorAliasRefinement
 
-      def print_schema(node, indent)
-        @lines << "#{' ' * indent}Schema:"
-        @lines << "#{' ' * (indent + 2)}Name: #{node[:name]}"
-        @lines << "#{' ' * (indent + 2)}Properties:"
-        node[:properties].each do |key, value|
-          @lines << "#{' ' * (indent + 4)}#{key}: #{value}"
-        end
+      def print_contract(node, indent) = add_line(format_contract(node), indent)
+
+      def format_contract(node)
+        format(
+          '%<command>s(:%<input>s -> :%<output>s)',
+          command: node[:command].to_s.colorize(:cyan),
+          input: node.dig(:input, :tag).to_s.colorize(:magenta),
+          output: node.dig(:output, :tag).to_s.colorize(:light_blue)
+        )
       end
 
-      def print_contract(node, indent) # rubocop:disable Metrics/AbcSize
-        contract = [
-          node[:command].to_s.command_text,
-          '('.symbols_text,
-          # ' -> '.symbols_text,
-          node[:input][:tag].to_s.input_text,
-          ' -> '.symbols_text,
-          node[:output][:tag].to_s.output_text,
-          ')'.symbols_text
-        ].join { "\n" }
-
-        contract = contract.red unless node[:opts][:success]
-
-        puts_indent indent + 2, contract
+      def print_map(node, indent)
+        print_composition node, indent
+        print_result(node, indent)
       end
 
-      def print_struct_compare_ast(node)
-        return if node[:success]
+      def print_result(node, indent)
+        return if node[:result].nil?
+        return if node.dig(:result, :success) == true
 
-        @lines << indent_text(0, '⚠️ Type mismatch').symbols_text
-        @lines << node[:errors].map { |s| "* #{s}" }.join("- \n").symbols_text
-        # @lines << "\n"
+        add_line '⚠️ Error'.colorize(:red), indent
+        add_line hash_to_sentence(node[:result][:errors]).colorize(:red), indent
       end
-
-      def print_map(node, _indent) = print_struct_compare_ast(node[:result])
 
       def print_tee(node, indent)
-        @lines << "#{' ' * indent}Tee:"
-        @lines << "#{' ' * (indent + 2)}Input: #{node[:input][:tag]}"
-        @lines << "#{' ' * (indent + 2)}Output: #{node[:output][:tag]}"
+        print_composition node, indent
+        print_result(node, indent)
       end
 
-      def print_or_else(_node, indent) = @lines << "#{' ' * indent}OrElse:"
+      def print_match(node, indent)
+        print_composition node, indent
+        add_line 'success'.colorize(:yellow), indent + 2
+        print_ast(node[:success], indent + 4)
+        add_line 'failure'.colorize(:yellow), indent + 2
+        print_ast(node[:failure], indent + 4)
+      end
 
-      def print_retry(_node, indent) = @lines << "#{' ' * indent}Retry:"
+      def print_or_else(node, indent) = print_composition node, indent
+
+      def print_retry(node, indent) = print_composition node, indent
+
+      private
+
+      def hash_to_sentence(hash) = hash.values.join(', ')
+
+      def print_composition(node, indent) = add_line(format_composition(node), indent)
+
+      def format_composition(node)
+        format(
+          '%<type>s(%<input>s -> %<output>s)',
+          type: node[:type].to_s.colorize(:yellow),
+          input: node.dig(:input, :tag).to_s.colorize(:magenta),
+          output: node.dig(:output, :tag).to_s.colorize(:blue)
+        )
+      end
     end
   end
 end

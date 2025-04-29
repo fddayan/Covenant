@@ -29,7 +29,7 @@ RSpec.describe Covenant::Ast::Ast do
     res = Covenant::Ast::AstChecker.new(ast.to_ast).check
 
     expect(res).to be_a(Array)
-    expect(res.first.to_s.uncolorize).to eq('map[(:token -> GetUser -> :user) -> (:id -> GetToken -> :token)] ! {:user=>"tag mismatch: expected :user got :id"}')
+    expect(res.first.to_s.uncolorize).to eq('map[(:token -> GetUser -> :user) -> (:id -> GetToken -> :token)] ! {:user=>"tag mismatch: expected :id got :user"}')
   end
 
   it 'throw exception on contract violation' do

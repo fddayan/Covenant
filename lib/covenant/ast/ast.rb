@@ -42,12 +42,14 @@ module Covenant
             properties: contract.keys
           }
         when Contracts::Tee
+          result = contract.verify
           {
             type: :tee,
             prev_contract: build_ast(contract.prev_contract),
             next_contract: build_ast(contract.next_contract),
             input: build_ast(contract.input),
-            output: build_ast(contract.output)
+            output: build_ast(contract.output),
+            result: build_ast(result)
           }
         when Contracts::OrElse
           {
@@ -69,7 +71,9 @@ module Covenant
           {
             type: :match,
             success: build_ast(contract.success_contract),
-            failure: build_ast(contract.failure_contract)
+            failure: build_ast(contract.failure_contract),
+            input: build_ast(contract.input),
+            output: build_ast(contract.output)
           }
         when Covenant::Diff::DiffResult
           {

@@ -31,8 +31,7 @@ module Contracts
   GetUserContract       = Covenant.Contract(:GetUser, Token.struct, User)
   GetOwnerContract      = Covenant.Contract(:GetOwner, Token.struct, User)
   AuthorizeUserContract = Covenant.Contract(:AuthorizeUser, ID.struct, Covenant::Types::Void)
-  LogMessageContract    = Covenant.Contract(:LogMessage,
-                                            Covenant::Types::Any,
+  LogMessageContract    = Covenant.Contract(:LogMessage, Covenant::Types::Any,
                                             Covenant::Types::Void)
 
   NotifySuccessContract = Covenant.Contract(:NotifySuccess,
@@ -59,18 +58,18 @@ module Chains
                   )
                 )
 
-  #   GetUserById = Covenant.Pipe(
-  #     GetTokenContract,
-  #     GetUserContract,
-  #     Covenant.Tee(AuthorizeUserContract),
-  #     Covenant.Tee(LogMessageContract),
-  #     Covenant.Tee(
-  #       Covenant::Contracts.match(
-  #         success: NotifySuccessContract,
-  #         failure: NotifyFailureContract
-  #       )
+  # GetUserById2 = Covenant::Contracts.pipe(
+  #   GetTokenContract,
+  #   GetUserContract,
+  #   Covenant::Contracts.tee(AuthorizeUserContract),
+  #   Covenant::Contracts.tee(LogMessageContract),
+  #   Covenant::Contracts.tee(
+  #     Covenant::Contracts.match(
+  #       success: NotifySuccessContract,
+  #       failure: NotifyFailureContract
   #     )
   #   )
+  # )
 end
 
 # GetTokenContract
