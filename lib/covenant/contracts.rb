@@ -2,16 +2,26 @@
 
 module Covenant
   module Contracts
-    def self.pipe(*contracts)
-      Pipe.new(contracts).build
+    module ClassMethods
+      def pipe(*contracts) = Pipe.new(contracts).build
+
+      def match(success:, failure:) = ->(prev) { Match.new(prev, success, failure) }
+
+      def tee(contract) = ->(prev) { Tee.new(prev, contract) }
+
+      def map(contract) = ->(prev) { Map.new(prev, contract) }
+
+      def and_then(contract) = ->(prev) { Map.new(prev, contract) }
+
+      def if_then(condition, contract) = ->(prev) { IfThen.new(prev, condition, contract) }
+
+      def unless_then(condition, contract) = ->(prev) { UnlessThen.new(prev, condition, contract) }
     end
 
-    def self.match(success:, failure:)
-      ->(prev) { Match.new(prev, success, failure) }
-    end
+    extend ClassMethods
 
-    def self.tee(contract)
-      ->(prev) { Tee.new(prev, contract) }
+    def self.included(base)
+      base.extend(ClassMethods)
     end
   end
 end

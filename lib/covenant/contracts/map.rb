@@ -15,6 +15,8 @@ module Covenant
         @next_contract = next_contract
       end
 
+      def requirements = [@prev_contract, @next_contract].map(&:requirements).flatten
+
       def command = "#{@prev_contract.command}  ->  #{@next_contract.command}"
 
       def verify = Contract.can_chain?(@prev_contract, @next_contract)

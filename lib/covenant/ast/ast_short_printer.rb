@@ -18,20 +18,12 @@ module Covenant
 
       def print_map(node, indent)
         print_composition node, indent
-        print_result(node, indent)
-      end
-
-      def print_result(node, indent)
-        return if node[:result].nil?
-        return if node.dig(:result, :success) == true
-
-        add_line '⚠️ Error'.colorize(:red), indent
-        add_line hash_to_sentence(node[:result][:errors]).colorize(:red), indent
+        print_result node, indent * 3
       end
 
       def print_tee(node, indent)
         print_composition node, indent
-        print_result(node, indent)
+        print_result node, indent * 3
       end
 
       def print_match(node, indent)
@@ -48,6 +40,14 @@ module Covenant
 
       private
 
+      def print_result(node, indent)
+        return if node[:result].nil?
+        return if node.dig(:result, :success) == true
+
+        add_line '⚠️ Error'.colorize(:red), indent
+        add_line hash_to_sentence(node[:result][:errors]).colorize(:red), indent
+      end
+
       def hash_to_sentence(hash) = hash.values.join(', ')
 
       def print_composition(node, indent) = add_line(format_composition(node), indent)
@@ -58,7 +58,7 @@ module Covenant
           type: node[:type].to_s.colorize(:yellow),
           input: node.dig(:input, :tag).to_s.colorize(:magenta),
           output: node.dig(:output, :tag).to_s.colorize(:blue)
-        )
+        ).colorize(:black)
       end
     end
   end

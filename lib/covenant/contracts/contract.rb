@@ -22,6 +22,8 @@ module Covenant
         @output = output
       end
 
+      def requirements = [@command]
+
       def call(handler, args)
         input_result = input.call(args)
 

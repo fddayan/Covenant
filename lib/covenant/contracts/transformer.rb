@@ -17,6 +17,8 @@ module Covenant
         @block = block
       end
 
+      def requirements = @prev_contract.requirements
+
       def call(input)
         return input if input.is_a?(Runtime::ExecutionResult) && input.failure?
 

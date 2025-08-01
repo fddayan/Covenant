@@ -30,12 +30,12 @@ module Covenant
           print_contract(node, indent)
         when :map
           print_ast(node[:prev_contract], indent)
-          print_map(node, indent)
-          print_ast(node[:next_contract], indent + INCR)
+          print_map(node, indent + INCR)
+          print_ast(node[:next_contract], indent + (INCR * 3))
         when :tee
           print_ast(node[:prev_contract], indent)
-          print_tee(node, indent)
-          print_ast(node[:next_contract], indent + INCR)
+          print_tee(node, indent + INCR)
+          print_ast(node[:next_contract], indent + (INCR * 3))
         when :or_else
           print_ast(node[:prev_contract], indent)
           print_or_else(node, indent)

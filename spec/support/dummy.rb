@@ -37,6 +37,35 @@ module MyContracts
   GetOwnerContract      = Covenant.Contract(:GetOwner, Token.struct, User)
   AuthorizeUserContract = Covenant.Contract(:AuthorizeUser, ID.struct, Any.struct)
   LogMessageContract    = Covenant.Contract(:LogMessage, Any.struct, Any.struct)
+  MetricMessageContract = Covenant.Contract(:MetricMessage, Any.struct, Any.struct)
+
+  VerifyUserContract   = AuthorizeUserContract.and_then(MetricMessageContract)
+
+  NotifySuccessContract = Covenant.Contract(:NotifySuccess,
+                                              Covenant::Types::Any,
+                                              Covenant::Types::Void)
+  NotifyFailureContract = Covenant.Contract(:NotifyFailure,
+                                            Covenant::Types::Any,
+                                            Covenant::Types::Void)
+
+  HasBalance = Covenant.Contract(:HasBalance, User, Covenant::Types::Bool)
+
+  ChargeUserContract = Covenant.Contract(:ChargeUser, User, Covenant::Types::Void)
+
+  HasMinBalance = Covenant.Contract(:HasMinBalance, User, Covenant::Types::Bool)
+
+  NotifyNoBalanceContract = Covenant.Contract(:NotifyNoBalance, User, Covenant::Types::Void)
+
+  GetUserById = GetTokenContract
+              .and_then(GetUserContract)
+              .tee(VerifyUserContract)
+              .tee(LogMessageContract)
+              # .tee(
+              #   Covenant::Contracts.match(
+              #     success: NotifySuccessContract,
+              #     failure: NotifyFailureContract
+              #   )
+              # )
 end
 
 module MyTransformers

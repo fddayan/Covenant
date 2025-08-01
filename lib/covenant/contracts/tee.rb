@@ -14,6 +14,8 @@ module Covenant
         verify
       end
 
+      def requirements = [@prev_contract, @next_contract].map(&:requirements).flatten
+
       def verify = Contract.can_chain?(@prev_contract, @next_contract)
 
       def to_s = "Tee(#{prev_contract} -> #{next_contract})"

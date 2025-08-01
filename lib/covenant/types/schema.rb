@@ -115,5 +115,6 @@ module Covenant
 
     Any = Scalar.new(:any, :any).struct
     Void = Scalar.new(:void, :void).struct
+    Bool = Scalar.new(:void, :void).struct
   end
 end

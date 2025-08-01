@@ -67,6 +67,44 @@ RSpec.describe Covenant::Contracts do
     end
   end
 
+  describe "Complex" do 
+    it "requirments returns all commands from the entire chain" do
+        runtime = Covenant.runtime.layer do |l|
+          l.register(:GetToken, ->(input) { { token: 'To' } })
+          l.register(:GetUser, ->(input) { { name: 'Fede', email: 'fede@gmail.com' } })
+        end
+        contract = MyContracts::GetUserById 
+
+        expect(contract.requirements).to include(:GetToken, :GetUser, :AuthorizeUser, :MetricMessage, :LogMessage)
+        expect(contract.requirements.size).to eq(5)
+
+        expect do
+          runtime.call(contract, { id: '1' })
+        end.to raise_error(Covenant::Error, /missing handlers: AuthorizeUser, MetricMessage, LogMessage/)
+      end
+
+      pending "build with functions" do 
+         GetUserById2 = Covenant.pipe(
+            MyContracts::GetTokenContract,
+            Covenant.and_then(MyContracts::GetUserContract),
+            Covenant.tee(MyContracts::AuthorizeUserContract),
+            Covenant.tee(MyContracts::LogMessageContract),
+            Covenant.tee(
+              Covenant.match(
+                success: MyContracts::NotifySuccessContract,
+                failure: MyContracts::NotifyFailureContract
+              )
+            ),
+            # Covenant.tee(
+            #   Covenant.if_then(MyContracts::HasBalance, MyContracts::ChargeUserContract),
+            # ),
+            # Covenant.tee(
+            #   Covenant.unless_then(MyContracts::HasMinBalance, MyContracts::NotifyNoBalanceContract)
+            # ),
+          )
+      end
+  end
+
   describe 'Map' do
     it 'run a two contracts mapped' do
       contract = get_token_contract.map(get_user_contract)

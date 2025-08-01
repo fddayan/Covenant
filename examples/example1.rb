@@ -31,7 +31,7 @@ module MyBusinessLogic
     GetTokenContract      = Covenant.Contract(:GetToken, ID.struct, Token.struct)
     GetUserContract       = Covenant.Contract(:GetUser, Token.struct, User)
     GetOwnerContract      = Covenant.Contract(:GetOwner, Token.struct, User)
-    AuthorizeUserContract = Covenant.Contract(:AuthorizeUser, ID.struct, Covenant::Types::Void)
+    AuthorizeUserContract = Covenant.Contract(:AuthorizeUser, User, Covenant::Types::Void)
     LogMessageContract    = Covenant.Contract(:LogMessage,
                                               Covenant::Types::Any,
                                               Covenant::Types::Void)

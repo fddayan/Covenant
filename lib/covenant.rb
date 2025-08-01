@@ -8,6 +8,8 @@ require 'zeitwerk'
 loader = Zeitwerk::Loader.for_gem
 loader.setup
 module Covenant
+  include Covenant::Contracts
+
   class Error < StandardError; end
   class HandlerNotFoundError < Error; end
 
@@ -49,6 +51,13 @@ module Covenant
 
     def call(contract, input)
       raise 'No command registry found' unless @command_registry
+
+      missing = @command_registry.assert_handlers(contract.requirements)
+
+      if missing.any?
+        raise Covenant::Error,
+              "Cannot start run, missing handlers: #{missing.join(', ')}"
+      end
 
       Runtime::Runner.new(@command_registry).call(contract, input)
     end
