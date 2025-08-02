@@ -19,7 +19,7 @@ module Covenant
             output: build_ast(contract.output),
             opts: opts
           }
-        when Contracts::Map
+        when Compositions::Map
           result = contract.verify
           {
             type: :map,
@@ -41,7 +41,7 @@ module Covenant
             tag: contract.tag,
             properties: contract.keys
           }
-        when Contracts::Tee
+        when Compositions::Tee
           result = contract.verify
           {
             type: :tee,
@@ -51,23 +51,23 @@ module Covenant
             output: build_ast(contract.output),
             result: build_ast(result)
           }
-        when Contracts::OrElse
+        when Compositions::OrElse
           {
             type: :or_else,
             prev_contract: build_ast(contract.prev_contract),
             next_contract: build_ast(contract.next_contract)
           }
-        when Contracts::Retry
+        when Compositions::Retry
           {
             type: :retry,
             contract: build_ast(contract.contract)
           }
-        when Contracts::Timeout
+        when Compositions::Timeout
           {
             type: :timeout,
             contract: build_ast(contract.contract)
           }
-        when Contracts::Match
+        when Compositions::Match
           {
             type: :match,
             success: build_ast(contract.success_contract),

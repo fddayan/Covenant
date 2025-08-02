@@ -21,12 +21,16 @@ module MyBusinessLogic
     include Props
 
     User = Covenant.Schema(:user, ID + Name + Email)
+    User2 = Covenant.Schema(:user2, id: ID, name: Name, email: Email)
   end
 
   # With your structs now you can create your contracts.
   # What goes in and what goes out
   module Contracts
     include Structs
+
+    GetTokenContract2     = Covenant.Contract(:GetToken, { id: ID }, { token: Token })
+    LogMessageContract2   = Covenant.Contract(:LogMessage, :any, :void)
 
     GetTokenContract      = Covenant.Contract(:GetToken, ID.struct, Token.struct)
     GetUserContract       = Covenant.Contract(:GetUser, Token.struct, User)

@@ -2,7 +2,7 @@
 
 require_relative "../../support/dummy"
 
-RSpec.describe Covenant::Contracts::Transformer do
+RSpec.describe Covenant::Compositions::Transformer do
   let(:get_token_contract) {  MyContracts::GetTokenContract }
   let(:get_user_contract) {  MyContracts::GetUserContract }
 

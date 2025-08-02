@@ -9,28 +9,28 @@ module Covenant
         case contract
         when Contracts::Contract
           Executor.new(@command_registry, contract).call(input)
-        when Contracts::Map
+        when Compositions::Map
           prev_result = call(contract.prev_contract, input)
           call(contract.next_contract, prev_result)
-        when Contracts::Tee
+        when Compositions::Tee
           prev_result = call(contract.prev_contract, input)
           call(contract.next_contract, prev_result)
           prev_result
-        when Contracts::OrElse
+        when Compositions::OrElse
           prev_result = call(contract.prev_contract, input)
           call(contract.next_contract, input) if prev_result.failure?
-        when Contracts::Retry
+        when Compositions::Retry
           call_with_retry(contract, input)
-        when Contracts::Match
+        when Compositions::Match
           prev_result = call(contract.prev_contract, input)
           if prev_result.success?
             call(contract.success_contract, prev_result)
           else
             call(contract.failure_contract, prev_result)
           end
-        when Contracts::Timeout
+        when Compositions::Timeout
           call_with_timeout(contract, input)
-        when Covenant::Contracts::Transformer
+        when Compositions::Transformer
           prev_result = call(contract.prev_contract, input)
           contract.call(prev_result)
         else

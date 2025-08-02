@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_relative '../../support/dummy'
 
-RSpec.describe Covenant::Contracts::Pipe do
+RSpec.describe Covenant::Compositions::Pipe do
   let(:runtime) do
     Covenant.runtime.layer do |l|
       l.register(:GetToken, ->(input) { { token: 'Token123' } })
@@ -18,7 +18,7 @@ RSpec.describe Covenant::Contracts::Pipe do
       pipe = described_class.new([contract1, contract2])
       contracts = pipe.build
 
-      expect(contracts).to be_a(Covenant::Contracts::Map)
+      expect(contracts).to be_a(Covenant::Compositions::Map)
       
       result = runtime.call(contracts, { id: '1' })
 
@@ -42,7 +42,7 @@ RSpec.describe Covenant::Contracts::Pipe do
       )
       contracts = pipe.build
 
-      expect(contracts).to be_a(Covenant::Contracts::Map)
+      expect(contracts).to be_a(Covenant::Compositions::Map)
 
       result = runtime.call(contracts, { id: '1' })
 
@@ -57,9 +57,9 @@ RSpec.describe Covenant::Contracts::Pipe do
       contract2 = MyContracts::GetUserContract
       contract3 = MyContracts::LogMessageContract
       
-      contracts = Covenant::Contracts.pipe(contract1, contract2, Covenant::Contracts.tee(contract3))
+      contracts =  Covenant::Compositions::Pipe.pipe(contract1, contract2, Covenant::Compositions::Pipe.tee(contract3))
 
-      expect(contracts).to be_a(Covenant::Contracts::Map)
+      expect(contracts).to be_a(Covenant::Compositions::Map)
 
       result = runtime.call(contracts, { id: '1' })
 

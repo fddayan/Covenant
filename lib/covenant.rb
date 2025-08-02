@@ -96,6 +96,34 @@ module Covenant
     Covenant::Contracts::Contract.new(*args)
   end
 
+  def self.Compose(*args) # rubocop:disable Naming/MethodName
+  end
+
+  class Composeable
+    def initialize(command, signatures, contracts, &block)
+      @command = command
+      @signatures = signatures
+      @contracts = contracts
+      @block = block
+    end
+
+    def input = @signatures.to_a.first
+
+    def output = @signatures.to_a.last
+
+    def requirements = @contracts.flat_map(&:requirements).uniq
+
+    def call(handlers, args)
+      input_result = input.call(args)
+      return Result(handler, input_result) if input_result.failure?
+
+      result = @block.call(handlers, args)
+      output_result = output.call(result)
+
+      Contracts::Contract::Result(handler, input_result, output_result)
+    end
+  end
+
   def self.Transform(input_schema, output_schema, &) # rubocop:disable Naming/MethodName
     Covenant::Contracts::Transformer.new(input_schema, output_schema, &)
   end

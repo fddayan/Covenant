@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Covenant
-  module Contracts
+  module Compositions
     class Transformer < BaseComposition
       attr_reader :input_schema, :output_schema, :block, :prev_contract
 

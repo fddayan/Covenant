@@ -40,8 +40,8 @@ module Covenant
 
       def print_map(node, indent)
         puts_indent indent,
-                    Contracts::Map.format(node[:input][:tag],
-                                          node[:output][:tag])
+                    Compositions::Map.format(node[:input][:tag],
+                                             node[:output][:tag])
       end
 
       def print_tee(node, indent)

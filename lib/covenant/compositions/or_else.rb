@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Covenant
-  module Contracts
+  module Compositions
     class OrElse < BaseComposition
       attr_reader :prev_contract, :next_contract
 

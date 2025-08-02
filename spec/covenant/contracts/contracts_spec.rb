@@ -83,18 +83,16 @@ RSpec.describe Covenant::Contracts do
         end.to raise_error(Covenant::Error, /missing handlers: AuthorizeUser, MetricMessage, LogMessage/)
       end
 
-      pending "build with functions" do 
-         GetUserById2 = Covenant.pipe(
+      it "build with functions" do 
+         GetUserById2 = Covenant::Compositions::Pipe.pipe(
             MyContracts::GetTokenContract,
-            Covenant.and_then(MyContracts::GetUserContract),
-            Covenant.tee(MyContracts::AuthorizeUserContract),
-            Covenant.tee(MyContracts::LogMessageContract),
-            Covenant.tee(
-              Covenant.match(
-                success: MyContracts::NotifySuccessContract,
-                failure: MyContracts::NotifyFailureContract
-              )
-            ),
+            Covenant::Compositions::Pipe.and_then(MyContracts::GetUserContract),
+            Covenant::Compositions::Pipe.tee(MyContracts::AuthorizeUserContract),
+            Covenant::Compositions::Pipe.tee(MyContracts::LogMessageContract),
+            # Covenant::Compositions::Pipe.teeMatch(
+            #   success: MyContracts::NotifySuccessContract,
+            #   failure: MyContracts::NotifyFailureContract
+            # ),
             # Covenant.tee(
             #   Covenant.if_then(MyContracts::HasBalance, MyContracts::ChargeUserContract),
             # ),
@@ -102,6 +100,33 @@ RSpec.describe Covenant::Contracts do
             #   Covenant.unless_then(MyContracts::HasMinBalance, MyContracts::NotifyNoBalanceContract)
             # ),
           )
+
+        ####
+
+        # Covenant.pipe(
+        #   GetTokenContract,
+        #   Covenant.and_then(GetUserContract),
+        #   Covenant.tee(AuthorizeUserContract),
+        #   Covenant.tee(LogMessageContract)
+        # )
+
+        # Covenant.pipe(
+        #   Covenant.and_then(GetTokenContract, GetUserContract),
+        #   Covenant.tee(AuthorizeUserContract, LogMessageContract),
+        # )
+
+        # GetTokenContract.and_then(GetUserContract).tee(AuthorizeUserContract).tee(LogMessageContract)
+        # GetTokenContract.and_then(GetUserContract).tee(AuthorizeUserContract, LogMessageContract)
+
+        # Covenant.and_then(GetTokenContract, GetUserContract).tee(AuthorizeUserContract, LogMessageContract)
+
+        # Covenant.pipe(GetTokenContract, Covenant.and_then(GetUserContract))
+        # Covenant.and_then(GetTokenContract, GetUserContract)
+        # GetTokenContract.pipe(Covenant.and_then(GetUserContract))
+
+        # # expect(GetUserById2).to be_a(Covenant::Compositions::Map)
+
+        # ap GetUserById2.requirements.uniq
       end
   end
 
@@ -109,7 +134,7 @@ RSpec.describe Covenant::Contracts do
     it 'run a two contracts mapped' do
       contract = get_token_contract.map(get_user_contract)
 
-      expect(contract).to be_a(Covenant::Contracts::Map)
+      expect(contract).to be_a(Covenant::Compositions::Map)
       expect(contract.input).to be_a(Covenant::Types::Schema)
       expect(contract.input.name).to eq(:id)
       expect(contract.output).to be_a(Covenant::Types::Schema)
@@ -131,17 +156,17 @@ RSpec.describe Covenant::Contracts do
       contract1 = get_user_contract.map(get_token_contract)
       contract2 = get_user_contract.map(get_token_contract)
 
-      expect(contract1).to be_a(Covenant::Contracts::Map)
+      expect(contract1).to be_a(Covenant::Compositions::Map)
       expect(contract1.verify).to be_failure
 
-      expect(contract2).to be_a(Covenant::Contracts::Map)
+      expect(contract2).to be_a(Covenant::Compositions::Map)
       expect(contract2.verify).to be_failure
 
       contract3 = contract2.map(contract1)
                            .map(get_user_contract.timeout(1))
                            .map(get_user_contract.retry(1))
 
-      expect(contract3).to be_a(Covenant::Contracts::Map)
+      expect(contract3).to be_a(Covenant::Compositions::Map)
       expect(contract3.verify).to be_failure
 
       Covenant::Ast::Ast.new(contract2).to_ast.tap do |ast|

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Covenant
-  module Contracts
+  module Compositions
     class Tee < BaseComposition
       attr_reader :prev_contract, :next_contract
 
@@ -16,7 +16,7 @@ module Covenant
 
       def requirements = [@prev_contract, @next_contract].map(&:requirements).flatten
 
-      def verify = Contract.can_chain?(@prev_contract, @next_contract)
+      def verify = Covenant::Contract.can_chain?(@prev_contract, @next_contract)
 
       def to_s = "Tee(#{prev_contract} -> #{next_contract})"
     end

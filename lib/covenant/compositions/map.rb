@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Covenant
-  module Contracts
+  module Compositions
     class Map < BaseComposition
       using ColorAliasRefinement
       attr_reader :prev_contract, :next_contract
@@ -19,7 +19,7 @@ module Covenant
 
       def command = "#{@prev_contract.command}  ->  #{@next_contract.command}"
 
-      def verify = Contract.can_chain?(@prev_contract, @next_contract)
+      def verify = Covenant::Contract.can_chain?(@prev_contract, @next_contract)
 
       def valid? = verify.valid?
 

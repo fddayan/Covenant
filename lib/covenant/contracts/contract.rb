@@ -8,6 +8,16 @@ module Covenant
 
       attr_reader :command, :input, :output
 
+      # def self.run(contract, args)
+      #   input_result = contract.input.call(args)
+      #   return Result(handler, input_result) if input_result.failure?
+
+      #   result = yield input_result.unwrap
+      #   output_result = contract.output.call(result)
+
+      #   Runtime::ExecutionResult.new(contract, contract.command, input_result, output_result)
+      # end
+
       def Result(handler, input_result, output_result = nil) # rubocop:disable Naming/MethodName
         Runtime::ExecutionResult.new(self, handler, input_result, output_result)
       end
@@ -34,6 +44,8 @@ module Covenant
 
         Result(handler, input_result, output_result)
       end
+
+      # def call(handler, args) = Contract.run(self, args) { |value| handler.call(value) }
 
       def can_chain_to?(other_contract) = self.class.can_chain?(self, other_contract)
 

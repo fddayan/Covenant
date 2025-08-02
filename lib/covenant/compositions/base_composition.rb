@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Covenant
-  module Contracts
+  module Compositions
     class BaseComposition
-      include Monad
+      include Contracts::Monad
 
       def self.delegate(*methods, to:)
         methods.each do |method|

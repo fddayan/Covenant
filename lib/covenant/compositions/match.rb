@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Covenant
-  module Contracts
+  module Compositions
     class Match < BaseComposition
       attr_reader :prev_contract, :success_contract, :failure_contract
 

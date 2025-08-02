@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Covenant
-  module Contracts
+  module Compositions
     class Retry < BaseComposition
       attr_reader :contract, :max_attempts
 
