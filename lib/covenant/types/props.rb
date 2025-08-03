@@ -5,7 +5,7 @@ module Covenant
     class Props < BaseType
       include Taggable
 
-      attr_reader :props
+      attr_reader :_props
 
       def self.smart_new(props, parent = nil)
         case props
@@ -24,11 +24,11 @@ module Covenant
         new(hash, parent)
       end
 
-      def merge_props_with_scalar(scalar) = @props.merge(scalar.tag => scalar)
+      def merge_props_with_scalar(scalar) = @_props.merge(scalar.tag => scalar)
 
-      def merge_props_with_schema(schema) = @props.merge(schema.props.props)
+      def merge_props_with_schema(schema) = @_props.merge(schema.tag => schema)
 
-      def merge_props_with_props(other_props) = @props.merge(other_props.props)
+      def merge_props_with_props(other_props) = @_props.merge(other_props._props)
 
       def merge(other)
         case other
@@ -48,18 +48,34 @@ module Covenant
 
         raise 'props must be a hash' unless props.is_a?(Hash)
 
-        @props = props
+        @_props = props
         # @props = parent ? props.map { |prop| prop.brand_to(parent) } : props
         # @props = @props.to_set
       end
 
-      def brand_to(struct) = Props.new(@props, struct)
+      def values = @_props.values
+      alias_method :props, :values
 
-      def map(&) = @props.map(&)
+      def brand_to(struct) = Props.new(@_props, struct)
 
-      def tags = @props.values.map(&:tags)
+      def map(&) = @_props.values.map(&)
 
-      def +(other) = Props.new(merge(other))
+      def tags
+        if @parent
+          @_props.values.map do |prop|
+            if prop.is_a?(Schema)
+              # For nested Schemas, include their internal tag structure
+              [prop.tag, prop.props.tags]
+            else
+              [@parent, prop.tag]
+            end
+          end
+        else
+          @_props.values.map(&:tags)
+        end
+      end
+
+      def +(other) = Props.new(merge(other), @parent)
 
       def -(other)
         case other
@@ -72,9 +88,9 @@ module Covenant
         end
       end
 
-      def pick(*tags) = Props.new(@props.select { |_name, v| tags.include?(v.tag) }, @parent)
+      def pick(*tags) = Props.new(@_props.select { |_name, v| tags.include?(v.tag) }, @parent)
 
-      def omit(*tags) = Props.new(@props.reject { |_name, v| tags.include?(v.tag) }, @parent)
+      def omit(*tags) = Props.new(@_props.reject { |_name, v| tags.include?(v.tag) }, @parent)
 
       alias except omit
       alias select pick
@@ -90,49 +106,47 @@ module Covenant
       end
 
       def validate_all(values)
-        @props.values.each_with_object({}) do |prop, acc|
+        return {} unless values
+
+        @_props.values.each_with_object({}) do |prop, acc|
           acc[prop.tag] = prop.call(values[prop.tag])
         end
       end
 
       def zip(other_props)
-        # (tags + other_props.tags).uniq.map do |tag|
-        #   ap tag
-        #   [self[tag], other_props[tag]]
-        # end
-        props.map do |prop|
+        @_props.values.map do |prop|
           [prop, other_props[prop.tag]]
         end
       end
 
-      def include?(tag) = @props.any? { |r| r.tag == tag }
+      def include?(tag) = @_props.any? { |r| r.tag == tag }
 
-      def each(&) = @props.each(&)
+      def each(&) = @_props.each(&)
 
       def prop?(other_prop) = other.is_a?(Scalar) && !detect { |p| p.tag == other_prop.tag }.nil?
 
-      def detect(&) = @props.detect(&)
+      def detect(&) = @_props.detect(&)
 
       def [](key) = props_map[key]
 
       def tag?(key) = props_map.key?(key)
 
-      def to_a = @props.to_a
+      def to_a = @_props.to_a
 
-      def keys = @props.values.map(&:tag)
+      def keys = @_props.values.map(&:tag)
 
-      def empty? = @props.empty?
+      def empty? = @_props.empty?
 
-      def struct_props = @struct_props ||= @props.values.select { |prop| prop.is_a?(Schema) }
+      def struct_props = @struct_props ||= @_props.values.select { |prop| prop.is_a?(Schema) }
 
-      def prop_props = @prop_props ||= @props.values.select { |prop| prop.is_a?(Scalar) }
+      def prop_props = @prop_props ||= @_props.values.select { |prop| prop.is_a?(Scalar) }
 
-      def size = @props.size
+      def size = @_props.size
 
-      def to_s = "Props[#{@props.map(&:to_s).join(', ')}]"
+      def to_s = "Props[#{@_props.map(&:to_s).join(', ')}]"
 
-      # def props_map = @props_map ||= @props.to_h { |prop| [prop.tag, prop] }
-      def props_map = @props
+      # def props_map = @props_map ||= @_props.to_h { |prop| [prop.tag, prop] }
+      def props_map = @_props
     end
   end
 end

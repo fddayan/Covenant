@@ -29,6 +29,8 @@ module Covenant
     end
 
     class SimpleContract < IContract
+      attr_reader :command
+
       def initialize(command, input, output)
         super(input, output)
         Covenant.assert_type(command, Symbol)
@@ -37,8 +39,9 @@ module Covenant
 
       def requirements = [@command]
 
-      def call(args, handlers = nil, &)
-        return handlers[@command].call(args) if handlers
+      def call(args, handler = nil, &)
+        # return handlers[@command].call(args) if handlers
+        return handler.call(args) if handler
 
         return input.call(args) if block_given?
 
@@ -47,8 +50,11 @@ module Covenant
     end
 
     class ComposableContract < IContract
-      def initialize(signatures, contracts, &block)
+      attr_reader :signatures, :contracts, :block, :command
+
+      def initialize(command, signatures, contracts, &block)
         super(signatures.first.first, signatures.first.last)
+        @command = command
         @signatures = signatures
         @contracts = contracts
         @block = block
@@ -59,39 +65,7 @@ module Covenant
       def call(handlers, args) = @block.call(handlers, args)
 
       def to_s = "ComposableContract(#{requirements.map(&:to_s).join(', ')})#{super}"
-
-      # "ComposableContract(#{@signatures.map { |s| s.join(' -> ') }.join(', ')})"
     end
-
-    # class FunctorContract < IContract
-    #   def initialize(input, output, &block)
-    #     super(input, output)
-    #     @block = block
-    #   end
-
-    #   def next_run(runner) = raise NotImplementedError, "#{self.class} must implement #next_run"
-    # end
-
-    # class ContractExec
-    #   def initialize(command_registry, icontract)
-    #     @command_registry = command_registry
-    #     @icontract = icontract
-    #   end
-
-    #   def handlers_for_requirements
-    #     @icontract.requirements.to_h do |requirement|
-    #       [requirement, @command_registry.handler_for(requirement)]
-    #     end
-    #   end
-
-    #   def call(args)
-    #     input_result = @icontract.input.call(args)
-    #     return input_result if input_result.failure?
-
-    #     output_value = @icontract.call(handlers_for_requirements, input_result.unwrap)
-    #     @icontract.output.call(output_value)
-    #   end
-    # end
 
     class ContractRunner
       def initialize(command_registry) = @command_registry = command_registry
@@ -102,7 +76,6 @@ module Covenant
           execute_contract(icontract, args)
         when Compositions::BaseComposition
           execute_functor(icontract, args)
-          # icontract.next_run(self, args)
         else
           raise ArgumentError, "Unsupported contract type: #{icontract.class}"
         end
@@ -146,9 +119,23 @@ module Covenant
       end
 
       def handlers_for_requirements(icontract)
-        icontract.requirements.to_h do |requirement|
-          [requirement, @command_registry.handler_for(requirement)]
+        case icontract
+        when SimpleContract
+          { icontract.command => @command_registry.handler_for(icontract.command) }
+        when ComposableContract
+          handlers = icontract.contracts.map do |contract|
+            handlers_for_requirements(contract)
+          end.reduce({}, &:merge)
+
+          handlers.merge({ icontract.command => ->(args) { icontract.call(handlers, args) } })
+        else
+          raise ArgumentError, "Unsupported contract type: #{icontract.class}"
         end
+      end
+
+      def build_composable_contract_handler(contract)
+        handlers = handlers_for_requirements(contract)
+        ->(args) { contract.call(handlers, args) }
       end
     end
   end

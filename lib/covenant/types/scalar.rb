@@ -26,9 +26,9 @@ module Covenant
 
       def merge_scalar_with_scalar(other) = { @tag => self }.merge(other.tag => other)
 
-      def merge_scalar_with_schema(other) = { @tag => self }.merge(other.props.props)
+      def merge_scalar_with_schema(other) = { @tag => self }.merge(other.tag => other)
 
-      def merge_scalar_with_props(other) = { @tag => self }.merge(other.props)
+      def merge_scalar_with_props(other) = { @tag => self }.merge(other._props)
 
       def merge(other)
         case other

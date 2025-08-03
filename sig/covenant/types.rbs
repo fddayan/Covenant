@@ -225,6 +225,8 @@ module Covenant
 
       def tag_chain: () -> Array[untyped]
 
+      def zip: (Schema other) -> Array[[Scalar | Schema | nil, Scalar | Schema | nil]]
+
       private
 
       def _validate_props: (Hash[Symbol, untyped] values) -> Hash[Symbol, Validator::ValidationResult]

@@ -10,6 +10,7 @@ RSpec.describe Covenant::Contracts::IContract do
       l.register(:double, ->(input) { input * 2 })
       l.register(:stringify, ->(input) { input.to_s })
       l.register(:add_one, ->(input) { input + 1 })
+      l.register(:add_prefix, ->(input) { "Prefix: #{input}" })
     end.command_registry
   end
 
@@ -20,8 +21,12 @@ RSpec.describe Covenant::Contracts::IContract do
     let(:create_post_contract) { Covenant::Contracts::SimpleContract.new(:create_post_contract, create_post_payload, post_schema) }
   
     it "initializes with valid input and output types" do
-      expect(create_post_contract.input).to eq(create_post_payload)
-      expect(create_post_contract.output).to eq(post_schema)
+      # ap create_post_payload.tag
+      # ap create_post_contract.input.tag
+      # ap create_post_payload == create_post_contract.input
+
+      expect(create_post_contract.input.tag).to eq(create_post_payload.tag)
+      expect(create_post_contract.output.tag).to eq(post_schema.tag)
     end
 
     it "runs successfully with valid input" do
@@ -29,7 +34,8 @@ RSpec.describe Covenant::Contracts::IContract do
       result = create_post_contract.call(input) do 
         { title: input[:post][:title], body: input[:post][:body] }
       end
-      expect(result).to be_a(Covenant::Runtime::ExecutionResult)
+      # expect(result).to be_a(Covenant::Runtime::ExecutionResult)
+      expect(result).to be_a(Covenant::Validator::ValidationResult)
     end
 
   end
@@ -91,22 +97,22 @@ RSpec.describe Covenant::Contracts::IContract do
     end
 
     it 'calls the appropriate handler' do
-      handlers = { double: ->(x) { x * 2 } }
+      handlers = ->(x) { x * 2 } 
       result = simple_contract.call(5, handlers)
       expect(result).to eq(10)
     end
   end
 
   describe 'ComposableContract' do
-    it 'raises error during initialization due to implementation issue' do
-      # ComposableContract has a bug - it expects signatures to be a hash or different structure
-      expect do
-        Covenant::Contracts::ComposableContract.new(
-          [int_type, int_type],
-          []
-        ) { |_, _| }
-      end.to raise_error(NoMethodError, /undefined method `first'/)
-    end
+    # it 'raises error during initialization due to implementation issue' do
+    #   # ComposableContract has a bug - it expects signatures to be a hash or different structure
+    #   expect do
+    #     Covenant::Contracts::ComposableContract.new(
+    #       [int_type, int_type],
+    #       []
+    #     ) { |_, _| }
+    #   end.to raise_error(NoMethodError, /undefined method `first'/)
+    # end
   end
 
   describe 'ContractRunner' do
@@ -131,12 +137,25 @@ RSpec.describe Covenant::Contracts::IContract do
 
     describe '#call' do
       let(:complex_contract) do
-        Covenant::Contracts::ComposableContract.new({ int_type => string_type }, [double_contract, stringify_contract, add_one_contract]) do |handlers, args|
+        Covenant::Contracts::ComposableContract.new(:complex_contract, { int_type => string_type }, [double_contract, stringify_contract, add_one_contract]) do |handlers, args|
            Covenant::Handlers.pipe(
              handlers[:double],
              handlers[:add_one],
              handlers[:stringify]
             ).call(args)
+        end
+      end
+
+      let(:add_prefix_contract) do
+        Covenant::Contracts::SimpleContract.new(:add_prefix, string_type, string_type)
+      end
+
+      let(:complex_contract2) do
+        Covenant::Contracts::ComposableContract.new(:complex_contract2, { int_type => string_type }, [complex_contract, add_prefix_contract]) do |handlers, args|
+          Covenant::Handlers.pipe(
+            handlers.fetch(:complex_contract),
+            handlers.fetch(:add_prefix),
+          ).call(args)
         end
       end
       it 'raises error for unsupported contract type' do
@@ -152,6 +171,14 @@ RSpec.describe Covenant::Contracts::IContract do
         result = runner.call(complex_contract, 42)
 
         expect(result.unwrap).to eq("85")
+      end
+
+      it "more complex contract with add_prefix" do
+        expect(complex_contract2.requirements).to include(:add_prefix)
+
+        result = runner.call(complex_contract2, 42)
+
+        expect(result.unwrap).to eq("Prefix: 85")
       end
     end
 

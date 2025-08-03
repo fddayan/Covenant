@@ -7,7 +7,14 @@ module Covenant
 
       def initialize(tag, props, parent = nil)
         super(tag, parent, nil)
-        @props = Props.smart_new(props)
+        @props = case props
+                 when Props
+                   # If it's already a Props object, preserve its parent if it has one
+                   props_parent = props.instance_variable_get(:@parent) || tag
+                   Props.new(props._props, props_parent)
+                 else
+                   Props.smart_new(props, tag)
+                 end
         @validator = yield if block_given?
       end
 
@@ -16,7 +23,7 @@ module Covenant
       #   new(props.tag, props, parent)
       # end
 
-      # def zip(*tags) = @props.zip(tags)
+      def zip(other) = @props.zip(other.props)
 
       def brand_to(other_tag) = Schema.new(@tag, @props, other_tag)
 
@@ -76,7 +83,8 @@ module Covenant
         return self if other.empty?
 
         new_tag = :"#{@tag}_#{other.tag}"
-        Schema.new(new_tag, @props + other.props, @parent)
+        new_props = { @tag => self, other.tag => other }
+        Schema.new(new_tag, new_props, @parent)
       end
 
       def clone(props) = Schema.new(@tag, props, @parent)
