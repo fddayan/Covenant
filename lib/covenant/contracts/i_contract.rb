@@ -15,15 +15,17 @@ module Covenant
 
       def requirements = raise NotImplementedError, "#{self.class} must implement #requirements"
 
-      def self.run(contract, args)
-        input_result = contract.input.call(args)
-        return Runtime::ExecutionResult.new(contract, input_result) if input_result.failure?
+      def to_s = "(#{input} -> #{output})"
 
-        result = yield input_result.unwrap
-        output_result = contract.output.call(result)
+      # def self.run(contract, args)
+      #   input_result = contract.input.call(args)
+      #   return Runtime::ExecutionResult.new(contract, input_result) if input_result.failure?
 
-        Runtime::ExecutionResult.new(contract, input_result, output_result)
-      end
+      #   result = yield input_result.unwrap
+      #   output_result = contract.output.call(result)
+
+      #   Runtime::ExecutionResult.new(contract, input_result, output_result)
+      # end
     end
 
     class SimpleContract < IContract
@@ -35,12 +37,18 @@ module Covenant
 
       def requirements = [@command]
 
-      def call(handlers, args) = handlers[@command].call(args)
+      def call(args, handlers = nil, &)
+        return handlers[@command].call(args) if handlers
+
+        return input.call(args) if block_given?
+
+        raise ArgumentError, 'Handlers must be provided if no block is given'
+      end
     end
 
     class ComposableContract < IContract
       def initialize(signatures, contracts, &block)
-        super(@signatures.to_a.first, @signatures.to_a.last)
+        super(signatures.first.first, signatures.first.last)
         @signatures = signatures
         @contracts = contracts
         @block = block
@@ -49,37 +57,41 @@ module Covenant
       def requirements = @contracts.flat_map(&:requirements).uniq
 
       def call(handlers, args) = @block.call(handlers, args)
+
+      def to_s = "ComposableContract(#{requirements.map(&:to_s).join(', ')})#{super}"
+
+      # "ComposableContract(#{@signatures.map { |s| s.join(' -> ') }.join(', ')})"
     end
 
-    class FunctorContract < IContract
-      def initialize(input, output, &block)
-        super(input, output)
-        @block = block
-      end
+    # class FunctorContract < IContract
+    #   def initialize(input, output, &block)
+    #     super(input, output)
+    #     @block = block
+    #   end
 
-      def next_run(runner) = raise NotImplementedError, "#{self.class} must implement #next_run"
-    end
+    #   def next_run(runner) = raise NotImplementedError, "#{self.class} must implement #next_run"
+    # end
 
-    class ContractExec
-      def initialize(command_registry, icontract)
-        @command_registry = command_registry
-        @icontract = icontract
-      end
+    # class ContractExec
+    #   def initialize(command_registry, icontract)
+    #     @command_registry = command_registry
+    #     @icontract = icontract
+    #   end
 
-      def handlers_for_requirements
-        @icontract.requirements.to_h do |requirement|
-          [requirement, @command_registry.handler_for(requirement)]
-        end
-      end
+    #   def handlers_for_requirements
+    #     @icontract.requirements.to_h do |requirement|
+    #       [requirement, @command_registry.handler_for(requirement)]
+    #     end
+    #   end
 
-      def call(args)
-        input_result = @icontract.input.call(args)
-        return input_result if input_result.failure?
+    #   def call(args)
+    #     input_result = @icontract.input.call(args)
+    #     return input_result if input_result.failure?
 
-        output_value = @icontract.call(handlers_for_requirements, input_result.unwrap)
-        @icontract.output.call(output_value)
-      end
-    end
+    #     output_value = @icontract.call(handlers_for_requirements, input_result.unwrap)
+    #     @icontract.output.call(output_value)
+    #   end
+    # end
 
     class ContractRunner
       def initialize(command_registry) = @command_registry = command_registry
@@ -87,11 +99,55 @@ module Covenant
       def call(icontract, args)
         case icontract
         when SimpleContract, ComposableContract
-          ContractExec.new(@command_registry, icontract).call(args)
-        when FunctorContract
-          icontract.next_run(self, args)
+          execute_contract(icontract, args)
+        when Compositions::BaseComposition
+          execute_functor(icontract, args)
+          # icontract.next_run(self, args)
         else
           raise ArgumentError, "Unsupported contract type: #{icontract.class}"
+        end
+      end
+
+      def execute_contract(icontract, args)
+        input_result = icontract.input.call(args)
+        return input_result if input_result.failure?
+
+        output_value = icontract.call(handlers_for_requirements(icontract), input_result.unwrap)
+        icontract.output.call(output_value)
+      end
+
+      def execute_functor(contract, input) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength
+        case contract
+        when Compositions::Map
+          prev_result = call(contract.prev_contract, input)
+          call(contract.next_contract, prev_result)
+        when Compositions::Tee
+          prev_result = call(contract.prev_contract, input)
+          call(contract.next_contract, prev_result)
+          prev_result
+        when Compositions::OrElse
+          prev_result = call(contract.prev_contract, input)
+          call(contract.next_contract, input) if prev_result.failure?
+        when Compositions::Retry
+          call_with_retry(contract, input)
+        when Compositions::Match
+          prev_result = call(contract.prev_contract, input)
+          if prev_result.success?
+            call(contract.success_contract, prev_result)
+          else
+            call(contract.failure_contract, prev_result)
+          end
+        when Compositions::Timeout
+          call_with_timeout(contract, input)
+        when Compositions::Transformer
+          prev_result = call(contract.prev_contract, input)
+          contract.call(prev_result)
+        end
+      end
+
+      def handlers_for_requirements(icontract)
+        icontract.requirements.to_h do |requirement|
+          [requirement, @command_registry.handler_for(requirement)]
         end
       end
     end

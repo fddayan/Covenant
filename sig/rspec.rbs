@@ -1,0 +1,89 @@
+# sig/rspec.rbs
+
+module RSpec
+  def self.describe: (String | Class any) { () -> void } -> void
+  def self.configure: () { (untyped) -> void } -> void
+  
+  class ExampleGroup
+    def it: (String) { () -> void } -> void
+    def let: (Symbol) { () -> untyped } -> void
+    def before: () { () -> void } -> void
+    def after: () { () -> void } -> void
+    def context: (String) { () -> void } -> void
+    def describe: (String | Class) { () -> void } -> void
+  end
+end
+
+module Kernel
+  def describe: (String | Class) { () -> void } -> void
+  def it: (String) { () -> void } -> void
+  def let: (Symbol) { () -> untyped } -> void
+  def before: () { () -> void } -> void
+  def after: () { () -> void } -> void
+  def context: (String) { () -> void } -> void
+  def expect: (untyped actual) -> RSpec::Expectations::ExpectationTarget
+  
+  # Helper methods that appear to be used in tests
+  def int_type: () -> untyped
+  def string_type: () -> untyped
+  def bool_type: () -> untyped
+  def hash_type: () -> untyped
+  def array_type: () -> untyped
+  def any_schema: () -> untyped
+  def void_schema: () -> untyped
+  def bool_schema: () -> untyped
+  def user_schema: () -> untyped
+  def post_schema: () -> untyped
+  def create_post_payload: () -> untyped
+  def create_post_contract: () -> untyped
+  def ap: (untyped) -> void
+            
+  # Matchers
+  def be: (untyped actual) -> RSpec::Matchers::_Matcher
+  def eq: (untyped expected) -> RSpec::Matchers::_Matcher
+  def be_truthy: () -> RSpec::Matchers::_Matcher
+  def be_falsey: () -> RSpec::Matchers::_Matcher
+  def be_nil: () -> RSpec::Matchers::_Matcher
+  def include: (untyped expected) -> RSpec::Matchers::_Matcher
+  def match: (String | Regexp) -> RSpec::Matchers::_Matcher
+  def raise_error: (?Class | String | nil) -> RSpec::Matchers::_Matcher
+  def respond_to: (String | Symbol) -> RSpec::Matchers::_Matcher
+  def change: (Proc) -> RSpec::Matchers::_Matcher
+  def have_key: (untyped key) -> RSpec::Matchers::_Matcher
+  def have_value: (untyped value) -> RSpec::Matchers::_Matcher
+  def be_a: (Class) -> RSpec::Matchers::_Matcher
+  def be_an: (Class) -> RSpec::Matchers::_Matcher
+  def be_instance_of: (Class) -> RSpec::Matchers::_Matcher
+  def be_kind_of: (Class) -> RSpec::Matchers::_Matcher
+  def be_within: (Numeric) -> RSpec::Matchers::_Matcher
+  def have_length: (Integer) -> RSpec::Matchers::_Matcher
+  def be_success: () -> RSpec::Matchers::_Matcher
+  def be_failure: () -> RSpec::Matchers::_Matcher
+  def be_empty: () -> RSpec::Matchers::_Matcher
+  def start_with: (String | Array[untyped]) -> RSpec::Matchers::_Matcher
+  def end_with: (String | Array[untyped]) -> RSpec::Matchers::_Matcher
+  def all: (RSpec::Matchers::_Matcher) -> RSpec::Matchers::_Matcher
+  def contain_exactly: (*untyped) -> RSpec::Matchers::_Matcher
+  def satisfy: () { (untyped) -> bool } -> RSpec::Matchers::_Matcher
+  def have_attributes: (Hash[Symbol, untyped]) -> RSpec::Matchers::_Matcher
+end
+
+module RSpec::Expectations
+  class ExpectationTarget
+    def to: (RSpec::Matchers::_Matcher) -> void
+    def not_to: (RSpec::Matchers::_Matcher) -> void
+  end
+end
+
+module RSpec::Matchers
+  interface _Matcher
+    def matches?: (untyped actual) -> bool
+    def failure_message: () -> String
+    def failure_message_when_negated: () -> String
+    def description: () -> String
+  end
+  
+  class BuiltIn
+    include _Matcher
+  end
+end

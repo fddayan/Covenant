@@ -1,0 +1,147 @@
+# frozen_string_literal: true
+
+module Covenant
+  module Compositions
+    class BaseComposition
+      include Contracts::Monad
+
+      def to_instruction: () -> Array[untyped]
+    end
+
+    class Map < BaseComposition
+      attr_reader prev_contract: untyped
+      attr_reader next_contract: untyped
+
+      def initialize: (untyped prev_contract, untyped next_contract) -> void
+
+      def requirements: () -> Array[Symbol]
+
+      def command: () -> String
+
+      def verify: () -> Comparable::Result
+
+      def valid?: () -> bool
+
+      def to_s: () -> String
+
+      def to_instruction: () -> Array[untyped]
+
+      def self.format: (untyped input, untyped output) -> String
+    end
+
+    class Tee < BaseComposition
+      attr_reader prev_contract: untyped
+      attr_reader next_contract: untyped
+
+      def initialize: (untyped prev_contract, untyped next_contract) -> void
+
+      def requirements: () -> Array[Symbol]
+
+      def verify: () -> Comparable::Result
+
+      def to_s: () -> String
+
+      def to_instruction: () -> Array[untyped]
+    end
+
+    class OrElse < BaseComposition
+      attr_reader prev_contract: untyped
+      attr_reader next_contract: untyped
+
+      def initialize: (untyped prev_contract, untyped next_contract) -> void
+
+      def verify: () -> Comparable::Result
+
+      def to_s: () -> String
+
+      def to_instruction: () -> Array[untyped]
+    end
+
+    class Match < BaseComposition
+      attr_reader prev_contract: untyped
+      attr_reader success_contract: untyped
+      attr_reader failure_contract: untyped
+
+      def initialize: (untyped prev_contract, untyped success_contract, untyped failure_contract) -> void
+
+      def command: () -> String
+
+      def to_instruction: () -> Array[untyped]
+    end
+
+    class Retry < BaseComposition
+      attr_reader contract: untyped
+      attr_reader max_attempts: Integer
+
+      def initialize: (untyped contract, Integer max_attempts) -> void
+
+      def verify: () -> bool
+
+      def to_s: () -> String
+
+      def to_instruction: () -> Array[untyped]
+    end
+
+    class Timeout < BaseComposition
+      attr_reader contract: untyped
+      attr_reader seconds: Numeric
+
+      def initialize: (untyped contract, Numeric seconds) -> void
+
+      def verify: () -> bool
+
+      def to_s: () -> String
+
+      def to_instruction: () -> Array[untyped]
+    end
+
+    class Transformer < BaseComposition
+      attr_reader input_schema: untyped
+      attr_reader output_schema: untyped
+      attr_reader block: (Proc | nil)
+      attr_reader prev_contract: untyped
+
+      def initialize: (untyped prev_contract, untyped input_schema, untyped output_schema) ?{ (untyped) -> untyped } -> void
+
+      def self.new: (untyped prev_contract, untyped input_schema, untyped output_schema) { (untyped) -> untyped } -> Transformer
+
+      def requirements: () -> Array[Symbol]
+
+      def call: (untyped input) -> Runtime::ExecutionResult
+
+      def to_s: () -> String
+
+      def command: () -> String
+
+      def to_instruction: () -> Array[untyped]
+    end
+
+    class Pipe < BaseComposition
+      attr_reader contracts: Array[untyped]
+
+      def initialize: (Array[untyped] contracts) -> void
+
+      def build: () -> untyped
+
+      def call: (untyped input) -> untyped
+
+      module ClassMethods
+        def pipe: (*untyped contracts) -> untyped
+
+        def match: (success: untyped, failure: untyped) -> Proc
+
+        def tee: (untyped contract) -> Proc
+
+        def map: (untyped contract) -> Proc
+
+        def and_then: (untyped contract) -> Proc
+
+        def if_then: (untyped condition, untyped contract) -> Proc
+
+        def unless_then: (untyped condition, untyped contract) -> Proc
+      end
+
+      extend ClassMethods
+    end
+  end
+end

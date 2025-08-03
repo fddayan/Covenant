@@ -1,0 +1,138 @@
+# frozen_string_literal: true
+
+module Covenant
+  module Contracts
+    class IContract
+      attr_reader input: Types::Scalar | Types::Props | Types::Schema
+      attr_reader output: Types::Scalar | Types::Props | Types::Schema
+
+      def initialize: (Types::Scalar | Types::Props | Types::Schema input, Types::Scalar | Types::Props | Types::Schema output) -> void
+
+      def requirements: () -> Array[Symbol]
+
+      def to_s: () -> String
+    end
+
+    class SimpleContract < IContract
+      attr_reader command: Symbol
+
+      def initialize: (Symbol command, Types::Scalar | Types::Props | Types::Schema input, Types::Scalar | Types::Props | Types::Schema output) -> void
+
+      def requirements: () -> Array[Symbol]
+
+      def call: (untyped args, ?Hash[Symbol, Proc]? handlers) ?{ (untyped) -> untyped } -> untyped
+    end
+
+    class ComposableContract < IContract
+      def initialize: (untyped signatures, Array[untyped] contracts) { (Hash[Symbol, Proc], untyped) -> untyped } -> void
+
+      def requirements: () -> Array[Symbol]
+
+      def call: (Hash[Symbol, Proc] handlers, untyped args) -> untyped
+
+      def to_s: () -> String
+    end
+
+    class Contract
+      include Monad
+
+      attr_reader command: Symbol
+      attr_reader input: Types::Scalar | Types::Props | Types::Schema
+      attr_reader output: Types::Scalar | Types::Props | Types::Schema
+
+      def initialize: (Symbol command, Types::Scalar | Types::Props | Types::Schema input, Types::Scalar | Types::Props | Types::Schema output) -> void
+
+      def requirements: () -> Array[Symbol]
+
+      def call: (untyped handler, untyped args) -> Runtime::ExecutionResult
+
+      def can_chain_to?: (Contract other_contract) -> (bool | Diff::DiffResult)
+
+      def can_chain_from?: (Contract other_contract) -> (bool | Diff::DiffResult)
+
+      def to_s: () -> String
+
+      def to_instruction: () -> Array[untyped]
+
+      def self.format: (untyped input, Symbol command, untyped output) -> String
+
+      def self.can_chain?: (Contract contract_a, Contract contract_b) -> (bool | Diff::DiffResult)
+
+      private
+
+      def Result: (untyped handler, untyped input_result, ?untyped output_result) -> Runtime::ExecutionResult
+    end
+
+    class ContractRunner
+      def initialize: (Container::CommandRegistry command_registry) -> void
+
+      def call: (IContract | Compositions::BaseComposition icontract, untyped args) -> Runtime::ExecutionResult
+
+      def execute_contract: (IContract icontract, untyped args) -> Runtime::ExecutionResult
+
+      def execute_functor: (Compositions::BaseComposition contract, untyped input) -> untyped
+
+      def handlers_for_requirements: (IContract icontract) -> Hash[Symbol, Proc]
+
+      private
+
+      def call_with_retry: (untyped contract, untyped input) -> untyped
+
+      def call_with_timeout: (untyped contract, untyped input) -> untyped
+    end
+
+    module Monad
+      module ClassMethodsMonadicCompositions
+        def match: (success: untyped, failure: untyped) -> Compositions::Match
+      end
+
+      module InstanceMethodsMonadicCompositions
+        def map: (untyped other) -> Compositions::Map
+
+        def and_then: (untyped other) -> Compositions::Map
+
+        def tee: (untyped other) -> Compositions::Tee
+
+        def or_else: (untyped other) -> Compositions::OrElse
+
+        def retry: (Integer max_attempts) -> Compositions::Retry
+
+        def timeout: (Numeric seconds) -> Compositions::Timeout
+
+        def match: (success: untyped, failure: untyped) -> Compositions::Match
+
+        def transform: (untyped input, untyped output) { (untyped) -> untyped } -> Compositions::Transformer
+
+        private
+
+        def chain: (untyped clazz, *untyped rest) -> untyped
+
+        def proc_or_class: (untyped contract) -> untyped
+      end
+
+      module AST
+        def ast: () -> Ast::Ast
+
+        def to_ast: () -> Hash[Symbol, untyped]
+
+        def to_yaml: () -> String
+
+        def to_s: () -> String
+
+        def inspect: () -> String
+
+        def chequer: () -> untyped
+
+        def check!: () -> untyped
+
+        def print_ast: () -> untyped
+      end
+
+      def check_if_enable: () -> self
+
+      include InstanceMethodsMonadicCompositions
+      include AST
+      extend ClassMethodsMonadicCompositions
+    end
+  end
+end

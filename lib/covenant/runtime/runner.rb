@@ -50,6 +50,7 @@ module Covenant
       end
 
       def call_with_timeout(contract, input)
+        # @type var result: ::Covenant::Runtime::ExecutionResult | nil
         result = nil
         Timeout.timeout(contract.seconds) do
           result = call(contract.contract, input)

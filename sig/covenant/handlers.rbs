@@ -1,0 +1,17 @@
+# frozen_string_literal: true
+
+module Covenant
+  module Handlers
+    class PipeHandler
+      def initialize: (*Proc handlers) -> void
+
+      def call: (untyped input) -> untyped
+
+      private
+
+      attr_reader handlers: Array[Proc]
+    end
+
+    def self.pipe: (*Proc handlers) -> PipeHandler
+  end
+end

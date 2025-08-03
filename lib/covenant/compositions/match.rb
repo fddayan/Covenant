@@ -18,6 +18,11 @@ module Covenant
       def command
         "#{@prev_contract.command} -> #{@success_contract.command} || #{@failure_contract.command}"
       end
+
+      def to_instruction
+        [:match, prev_contract.to_instruction, success_contract.to_instruction,
+         failure_contract.to_instruction]
+      end
     end
   end
 end

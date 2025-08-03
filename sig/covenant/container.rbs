@@ -1,0 +1,40 @@
+# frozen_string_literal: true
+
+module Covenant
+  module Container
+    class CommandRegistry
+      def initialize: () -> void
+
+      def register_layer: (CommandLayer layer) -> void
+
+      def assert_handlers: (Array[Symbol] requirements) -> Array[Symbol]
+
+      def handler_for: (Symbol schema) -> Proc
+    end
+
+    class CommandLayer
+      def initialize: () -> void
+
+      def register: (Symbol command, Proc handler) -> void
+
+      def handler?: (Symbol command) -> bool
+
+      def handler_for: (Symbol command) -> Proc?
+
+      def commands: () -> Array[Symbol]
+    end
+
+    class CommandResult
+      attr_reader command: (Symbol | nil)
+      attr_reader result: untyped
+
+      def initialize: ((Symbol | nil) command, untyped result) -> void
+
+      def success?: () -> bool
+
+      def failure?: () -> bool
+
+      def to_s: () -> String
+    end
+  end
+end

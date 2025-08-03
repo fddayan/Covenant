@@ -1,0 +1,53 @@
+module MyProps
+  ID: untyped
+
+  Token: untyped
+
+  Name: untyped
+
+  Email: untyped
+end
+
+module MySchemas
+  include MyProps
+
+  Any: untyped
+
+  User: untyped
+end
+
+module MyContracts
+  include MySchemas
+
+  GetTokenContract: Covenant::Contracts::Contract
+
+  GetUserContract: Covenant::Contracts::Contract
+
+  GetOwnerContract: Covenant::Contracts::Contract
+
+  AuthorizeUserContract: Covenant::Contracts::Contract
+
+  LogMessageContract: Covenant::Contracts::Contract
+
+  MetricMessageContract: Covenant::Contracts::Contract
+
+  VerifyUserContract: Covenant::Contracts::Contract
+
+  NotifySuccessContract: Covenant::Contracts::Contract
+
+  NotifyFailureContract: Covenant::Contracts::Contract
+
+  HasBalance: Covenant::Contracts::Contract
+
+  ChargeUserContract: Covenant::Contracts::Contract
+
+  HasMinBalance: Covenant::Contracts::Contract
+
+  NotifyNoBalanceContract: Covenant::Contracts::Contract
+
+  GetUserById: Covenant::Contracts::Contract
+end
+
+module MyTransformers
+  include MySchemas
+end

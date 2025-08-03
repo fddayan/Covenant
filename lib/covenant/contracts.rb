@@ -15,7 +15,8 @@ module Covenant
 
     #   def if_then(condition, contract) = ->(prev) { IfThen.new(prev, condition, contract) }
 
-    #   def unless_then(condition, contract) = ->(prev) { UnlessThen.new(prev, condition, contract) }
+    #   def unless_then(condition, contract) =
+    #     ->(prev) { UnlessThen.new(prev, condition, contract) }
     # end
 
     # extend ClassMethods

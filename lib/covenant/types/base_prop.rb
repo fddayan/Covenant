@@ -5,7 +5,7 @@ module Covenant
     class BaseProp < BaseType
       def struct = Types::Schema.new(tag, to_props)
 
-      def to_props = Types::Props.new([self])
+      def to_props = Types::Props.new({ @tag => self })
 
       def name = tag
     end

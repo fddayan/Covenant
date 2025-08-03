@@ -6,12 +6,17 @@ module Covenant
       attr_reader :props
 
       def initialize(tag, props, parent = nil)
-        super(tag, parent, props)
-        @props = props.brand_to(self)
+        super(tag, parent, nil)
+        @props = Props.smart_new(props)
         @validator = yield if block_given?
       end
 
-      def zip(*tags) = @props.zip(*tags)
+      # def self.from_hash(hash, parent = nil)
+      #   props = Props.from_hash(hash, parent)
+      #   new(props.tag, props, parent)
+      # end
+
+      # def zip(*tags) = @props.zip(tags)
 
       def brand_to(other_tag) = Schema.new(@tag, @props, other_tag)
 
@@ -63,9 +68,15 @@ module Covenant
         when Scalar, Props
           clone(@props + other)
         when Schema
-          new_tag = :"#{@tag}_#{other.tag}"
-          Schema.new(new_tag, Props.new([self, other]))
+          merge_schema(other)
         end
+      end
+
+      def merge_schema(other)
+        return self if other.empty?
+
+        new_tag = :"#{@tag}_#{other.tag}"
+        Schema.new(new_tag, @props + other.props, @parent)
       end
 
       def clone(props) = Schema.new(@tag, props, @parent)

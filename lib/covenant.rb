@@ -39,10 +39,10 @@ module Covenant
     end
 
     def add_layer(layer)
-      unless layer.is_a?(Container::CommandLayer)
-        raise ArgumentError,
-              "Expected CommandLayer, got #{layer.class}"
-      end
+      # unless layer.is_a?(Container::CommandLayer)
+      #   raise ArgumentError,
+      #         "Expected CommandLayer, got #{layer.class}"
+      # end
 
       command_registry.register_layer(layer)
 
@@ -85,12 +85,12 @@ module Covenant
     System.new
   end
 
-  def self.run(layer, command)
-    raise 'No command registry found' unless layer
-    raise 'No command found' unless command
+  # def self.run(layer, command)
+  #   # raise 'No command registry found' unless layer
+  #   raise 'No command found' unless command
 
-    runtime.add_layer(layer).call(command)
-  end
+  #   runtime.add_layer(layer).call(command)
+  # end
 
   def self.Contract(*args) # rubocop:disable Naming/MethodName
     Covenant::Contracts::Contract.new(*args)

@@ -1,0 +1,33 @@
+# frozen_string_literal: true
+
+module Covenant
+  module Formatter
+    class Format
+      def self.format: (untyped input, ?Symbol? format_type) -> String
+
+      def initialize: () -> void
+
+      def register_formatter: (untyped type) { (untyped) -> String } -> void
+    end
+
+    module Formatters
+      def self.json: (untyped input) -> String
+
+      def self.yaml: (untyped input) -> String
+
+      def self.table: (untyped input) -> String
+
+      def self.tree: (untyped input) -> String
+
+      def call: () -> Format
+    end
+  end
+end
+
+module Conveant
+  module Formatter
+    module Formatters
+      def call: () -> Covenant::Formatter::Format
+    end
+  end
+end

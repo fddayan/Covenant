@@ -48,6 +48,8 @@ module Covenant
           ')'.symbols_text
         ].join
       end
+
+      def to_instruction = [:sequence, prev_contract.to_instruction, [:map_result, next_contract]]
     end
   end
 end

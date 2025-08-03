@@ -1,0 +1,70 @@
+# frozen_string_literal: true
+
+module Covenant
+  module Validator
+    class ValidationResult
+      attr_reader value: untyped
+      attr_reader errors: Array[String]
+
+      def initialize: (untyped value, ?Array[String] errors) -> void
+
+      def success?: () -> bool
+
+      def failure?: () -> bool
+
+      def unwrap: () -> untyped
+
+      def to_h: () -> Hash[Symbol, untyped]
+
+      def to_s: () -> String
+
+      def ==: (untyped other) -> bool
+    end
+
+    class Validator
+      def initialize: () { (untyped v) -> untyped } -> void
+
+      def call: (untyped input) -> ValidationResult
+              
+      def and_then: (Validator other) -> Validator
+
+      def self.any: () -> Validator
+
+      def self.string: () -> Validator
+
+      def self.integer: () -> Validator
+
+      def self.float: () -> Validator
+
+      def self.boolean: () -> Validator
+
+      def self.array: (?Validator? element_validator) -> Validator
+
+      def self.hash: (?Hash[Symbol, Validator]? schema) -> Validator
+
+      def self.all: (*Validator validators) -> Validator
+    end
+
+    module Validation
+      def self.coerce: (Symbol type) -> Validator
+
+      def self.length: (?min: Integer | nil, ?max: Integer | nil) -> Validator
+
+      def self.range: (Range[Numeric] range) -> Validator
+
+      def self.format: (Regexp pattern) -> Validator
+
+      def self.inclusion: (Array[untyped] values) -> Validator
+
+      def self.exclusion: (Array[untyped] values) -> Validator
+
+      def self.custom: () { (untyped) -> [untyped, untyped] } -> Validator
+
+      def and_then: (Validator other) -> Validator
+
+      # def length: (min: Integer, max: Integer?) -> Validator
+
+      def or: (Validator other) -> Validator
+    end
+  end
+end

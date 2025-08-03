@@ -19,6 +19,8 @@ module Covenant
       def verify = Covenant::Contract.can_chain?(@prev_contract, @next_contract)
 
       def to_s = "Tee(#{prev_contract} -> #{next_contract})"
+
+      def to_instruction = [:tee, prev_contract.to_instruction, next_contract.to_instruction]
     end
   end
 end

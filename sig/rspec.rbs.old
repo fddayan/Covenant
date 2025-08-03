@@ -1,0 +1,82 @@
+# sig/rspec.rbs
+
+module RSpec
+  def self.describe: (String | Class any) { () -> void } -> void
+  
+  class ExampleGroup
+    def it: (String) { () -> void } -> void
+  end
+end
+
+module Kernel
+  def describe: (String) { () -> void } -> void
+  def it:       (String) { () -> void } -> void
+  def expect:   (untyped actual) -> RSpec::Expectations::ExpectationTarget
+            
+   def be: (untyped actual) ->  RSpec::Matchers::_Matcher
+  def eq: (untyped expected) -> RSpec::Matchers::_Matcher
+  def be_truthy: () -> RSpec::Matchers::_Matcher
+  def be_falsey: () -> RSpec::Matchers::_Matcher
+  def be_nil: () -> RSpec::Matchers::_Matcher
+  def include: (untyped expected) -> RSpec::Matchers::_Matcher
+  def match: (String) ->  RSpec::Matchers::_Matcher
+  def raise_error: (Class | String | nil) ->  RSpec::Matchers::_Matcher
+  # def have_attributes: (Hash) -> void
+  # def satisfy: (Proc) -> void
+  def respond_to: (String | Symbol) ->  RSpec::Matchers::_Matcher
+  def change: (Proc) ->  RSpec::Matchers::_Matcher
+  def have_key: (untyped key) ->  RSpec::Matchers::_Matcher
+  def have_value: (untyped value) ->  RSpec::Matchers::_Matcher
+  def be_a: (Class) ->  RSpec::Matchers::_Matcher
+  def be_an: (Class) -> RSpec::Matchers::_Matcher
+  def be_instance_of: (Class) -> RSpec::Matchers::_Matcher
+  def be_kind_of: (Class) -> RSpec::Matchers::_Matcher
+  def be_within: (Numeric) -> RSpec::Matchers::_Matcher
+  def have_length: (Integer) -> RSpec::Matchers::_Matcher
+  def be_success: () -> RSpec::Matchers::_Matcher
+  def be_failure: () -> RSpec::Matchers::_Matcher
+  # def start_with: (String | Array) -> void
+  # def end_with: (String | Array) -> void
+  # def all: (RSpec::Matchers::_Matcher) -> void
+  # def contain_exactly: (*untyped) -> void
+  # def satisfy: (Proc) -> void
+end
+
+module RSpec::Expectations
+  class ExpectationTarget
+    def to:     (RSpec::Matchers::_Matcher) -> void
+    def not_to: (RSpec::Matchers::_Matcher) -> void
+  end
+end
+
+module RSpec::Matchers
+  interface _Matcher
+    def matches?: (untyped actual) -> bool
+    # def be: (untyped actual) -> void
+    # def eq: (untyped expected) -> void
+    # def be_truthy: () -> void
+    # def be_falsey: () -> void
+    # def be_nil: () -> void
+    # def include: (untyped expected) -> void
+    # def match: (String) -> void
+    # def raise_error: (Class | String | nil) -> void
+    # def have_attributes: (Hash) -> void
+    # def satisfy: (Proc) -> void
+    # def respond_to: (String | Symbol) -> void
+    # def change: (Proc) -> void
+    # def have_key: (untyped key) -> void
+    # def have_value: (untyped value) -> void
+    # def be_a: (Class) -> void
+    # def be_an: (Class) -> void
+    # def be_instance_of: (Class) -> void
+    # def be_kind_of: (Class) -> void
+    # def be_within: (Numeric) -> RSpec::Matchers::_Matcher
+    # def have_length: (Integer) -> void
+    # def have_attributes: (Hash) -> void
+    # def start_with: (String | Array) -> void
+    # def end_with: (String | Array) -> void
+    # def all: (RSpec::Matchers::_Matcher) -> void
+    # def contain_exactly: (*untyped) -> void
+    # def satisfy: (Proc) -> void
+  end
+end

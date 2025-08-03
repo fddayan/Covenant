@@ -16,6 +16,10 @@ module Covenant
       # def valid? = raise NotImplementedError, 'Subclasses must implement the verify method'
 
       # def to_s = raise NotImplementedError, 'Subclasses must implement the to_s method'
+
+      def to_instruction
+        raise NotImplementedError, 'Subclasses must implement the to_instruction method'
+      end
     end
   end
 end

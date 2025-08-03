@@ -9,32 +9,7 @@ module Covenant
       def initialize(tag, parent, _child)
         @tag = tag
         @parent = parent
-        # @child = child
       end
-
-      # def tags_upstream
-      #   arr = []
-      #   arr << @tag
-      #   arr += @parent.tags_upstream if @parent
-      #   arr
-      # end
-
-      # def tags_downstream
-      #   arr = []
-      #   arr << @tag
-      #   if @child
-      #     arr += @child.is_a?(Array) ? @child.map(&:tags_downstream) : @child.tags_downstream
-      #   end
-      #   arr
-      # end
-
-      # def tags_chain
-      #   arr = []
-      #   arr << @tag
-      #   arr += @parent.tags_upstream if @parent
-      #   arr += @child.tags_downstream if @child
-      #   arr
-      # end
     end
 
     class BaseType < Tag

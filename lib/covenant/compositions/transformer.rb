@@ -55,6 +55,8 @@ module Covenant
 
       def command = 'Transformer'
 
+      def to_instruction = [:transformer, prev_contract.to_instruction, self]
+
       # def call(input)
       #   input_result = input_schema.call(input)
 

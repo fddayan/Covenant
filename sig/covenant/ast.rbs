@@ -1,0 +1,101 @@
+# frozen_string_literal: true
+
+module Covenant
+  module Ast
+    class Ast
+      def initialize: (untyped contract) -> void
+
+      def to_ast: () -> Hash[Symbol, untyped]
+
+      def check_contract: () -> AstCheckResult
+
+      def self.new: (untyped contract) -> Ast
+    end
+
+    class AstCheckResult
+      attr_reader success: bool
+      attr_reader errors: untyped
+
+      def initialize: (node: untyped, errors: untyped) -> void
+
+      def success?: () -> bool
+
+      def failure?: () -> bool
+
+      def unwrap: () -> untyped
+
+      def to_s: () -> String
+
+      def self.success: (untyped node) -> AstCheckResult
+
+      def self.failure: (untyped node, untyped errors) -> AstCheckResult
+
+      private
+
+      def format_contract: (untyped contract) -> String
+
+      def format_error: () -> String
+    end
+
+    class AstCheckError
+      attr_reader message: String
+      attr_reader contract: untyped
+
+      def initialize: (untyped errors) -> void
+
+      def to_s: () -> String
+    end
+
+    class AstChecker
+      def initialize: (Hash[Symbol, untyped] ast) -> void
+
+      def check: () -> Array[AstCheckResult]
+
+      def check!: () -> void
+
+      def ast_result: (untyped node, untyped result) -> AstCheckResult
+
+      def check_ast_node: (untyped node) -> void
+
+      def check_map: (untyped node) -> void
+
+      def check_tee: (untyped node) -> void
+
+      def check_or_else: (untyped node) -> void
+
+      def check_retry: (untyped node) -> void
+
+      def check_timeout: (untyped node) -> void
+
+      def check_match: (untyped node) -> void
+
+      def self.check: (Hash[Symbol, untyped] ast) -> AstCheckResult
+    end
+
+    class AstShortPrinter
+      def initialize: (Hash[Symbol, untyped] ast) -> void
+
+      def print: () -> String
+    end
+
+    class AstThreePrinter
+      def initialize: (Hash[Symbol, untyped] ast) -> void
+
+      def print: () -> String
+    end
+
+    class AstVisitor
+      def initialize: (Hash[Symbol, untyped] ast) -> void
+
+      def visit: (Hash[Symbol, untyped] ast) -> untyped
+
+      def print: () -> nil
+
+      private
+
+      def visit_contract: (Hash[Symbol, untyped] node) -> untyped
+
+      def visit_composition: (Hash[Symbol, untyped] node) -> untyped
+    end
+  end
+end

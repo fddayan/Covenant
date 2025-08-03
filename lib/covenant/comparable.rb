@@ -4,7 +4,7 @@ module Covenant
   module Comparable
     def self.empty
       SchemaComparator.new do |_left, _right|
-        Result.success
+        Result.success(:empty)
       end
     end
 

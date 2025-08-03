@@ -1,0 +1,273 @@
+# frozen_string_literal: true
+
+module Covenant
+  module Types
+    class TagAlreadyDefinedError < StandardError
+    end
+
+    # Base classes and modules
+    class Tag
+      attr_reader tag: Symbol
+      attr_reader parent: untyped
+      attr_reader child: untyped
+
+      alias name tag
+
+      def initialize: (Symbol tag, untyped parent, untyped _child) -> void
+    end
+
+    module Taggable
+      # Empty module - all methods are commented out in the source
+    end
+
+    class BaseType < Tag
+      attr_reader tag: Symbol
+      attr_reader parent: untyped
+
+      alias name tag
+
+      def initialize: (Symbol | Array[Symbol] tag, untyped parent, ?untyped child) -> void
+
+      def ==: (untyped other) -> bool
+
+      def same?: (untyped other) -> bool
+
+      def call: (untyped _values) -> untyped
+
+      def empty?: () -> bool
+
+      def compare: (untyped other) -> untyped
+    end
+
+    class BaseProp < BaseType
+      def struct: () -> Schema
+
+      def to_props: () -> Props
+
+      def name: () -> Symbol
+    end
+
+    # Core type classes
+    class Scalar < BaseProp
+      include Taggable
+
+      attr_reader validator: Validator::Validator
+
+      def initialize: (Symbol tag, Validator::Validator | Symbol validator, ?untyped parent) -> void
+
+      def brand_to: (untyped struct) -> Scalar
+
+      def array: () -> PropArray
+
+      def optional: () -> Scalar
+
+      def to_s: () -> String
+
+      def inspect: () -> String
+
+      def +: (Scalar | Schema | Props other) -> Props
+
+      def tags: () -> (Array[Symbol] | Symbol)
+
+      def ==: (untyped other) -> bool
+
+      def hash: () -> Integer
+
+      def eql?: (untyped other) -> bool
+
+      def call: (untyped value) -> Validator::ValidationResult
+              
+      def merge_scalar_with_scalar: (Scalar other) -> Hash[Symbol, Scalar | Schema]
+      
+      def merge_scalar_with_schema: (Schema other) -> Hash[Symbol, Scalar | Schema]
+                                  
+      def merge_scalar_with_props: (Props other) -> Hash[Symbol, Scalar | Schema]
+                                 
+      def merge: (Scalar | Schema | Props other) -> Hash[Symbol, Scalar | Schema]
+
+      private
+
+      def to_array: () -> Array[Scalar]
+
+      def props_array_conversion: (Props props) -> Array[Scalar | Schema]
+    end
+
+    class Props < BaseType
+      include Taggable
+      include _ToAry[Scalar | Schema]
+
+      attr_reader props: Hash[Symbol, Scalar | Schema]
+
+      def values: () -> Array[Scalar | Schema]
+                
+      def merge_props_with_scalar: (Scalar scalar) -> Hash[Symbol, Scalar | Schema]
+
+      # def to_ary: () -> Array[Scalar | Schema]
+
+      def self.from_hash: (Hash[Symbol, Scalar | Schema] | Props hash, ?untyped parent) -> Props
+
+      def initialize: (Hash[Symbol, Scalar | Schema] props, ?untyped parent) -> void
+
+      def brand_to: (untyped struct) -> Props
+
+      def map: [T] () { (untyped) -> T } -> Array[T]
+
+      def tags: () -> Array[untyped]
+
+      def +: (Scalar | Schema | Props other) -> Props
+
+      def -: (Scalar | Props other) -> Props
+
+      def props_values: () -> Array[Scalar | Schema]
+
+      def pick: (*Symbol tags) -> Props
+
+      def omit: (*Symbol tags) -> Props
+
+      alias except omit
+      alias select pick
+      alias filter pick
+      alias reject omit
+
+      def validate: (Hash[Symbol, untyped] values) -> Hash[Symbol, Validator::ValidationResult]
+
+      def validate_all: (Hash[Symbol, untyped] values) -> Hash[Symbol, Validator::ValidationResult]
+
+      def zip: (Props other_props) -> Array[[untyped, untyped]]
+
+      def include?: (Symbol tag) -> bool
+
+      def each: [T] () { (untyped) -> T } -> Hash[Symbol,Scalar | Schema]
+
+      def prop?: (Scalar other_prop) -> bool
+
+      def detect: [T] () { (untyped) -> T } -> (untyped | nil)
+
+      def []: (Symbol key) -> (Scalar | Schema | nil)
+
+      def tag?: (Symbol key) -> bool
+
+      def to_a: () -> Array[[Symbol, Scalar | Schema]]
+
+      def keys: () -> Array[Symbol]
+
+      def empty?: () -> bool
+
+      def struct_props: () -> Array[Scalar | Schema]
+
+      def prop_props: () -> Array[Scalar | Schema]
+
+      def size: () -> Integer
+
+      def to_s: () -> String
+
+      def to_array: () -> Array[Scalar | Schema]
+
+      private
+
+      def props_map: () -> Hash[Symbol, untyped]
+    end
+
+    class Schema < BaseType
+      attr_reader props: Props
+
+      def initialize: (Symbol tag, Hash[Symbol, Scalar | Schema ] | Props props, ?untyped parent) ?{ () -> untyped } -> void
+
+      # def zip: (*Symbol tags) -> Array[untyped]
+
+      def brand_to: (Symbol other_tag) -> Schema
+
+      def call: (Hash[Symbol, untyped] values) -> Validator::ValidationResult
+
+      def tags: () -> Array[untyped]
+
+      def empty?: () -> bool
+
+      def []: (Symbol key) -> (Scalar | Schema | nil)
+
+      def ==: (untyped other) -> (bool | nil)
+
+      def same?: (untyped other) -> Diff::DiffResult
+
+      def compare: (untyped other) -> Diff::DiffResult
+
+      def inspect: () -> String
+
+      def eql?: (untyped other) -> bool
+
+      def <=>: (untyped other) -> Diff::DiffResult
+
+      alias satisfies compare
+
+      def -: (Scalar | Props | Schema other) -> (Schema | Props)
+
+      def +: (Scalar | Props | Schema other) -> Schema
+
+      def clone: (Props props) -> Schema
+
+      def compositions: () -> Array[[Symbol, Scalar | Schema]]
+
+      def to_a: () -> Array[[Symbol, Scalar | Schema]]
+
+      def prop?: (Symbol key) -> bool
+
+      alias tag? prop?
+
+      def keys: () -> Array[Symbol]
+
+      def pick: (*Symbol tag) -> Schema
+
+      def omit: (*Symbol tags) -> Schema
+
+      def size: () -> Integer
+
+      def to_s: () -> String
+
+      def tag_chain: () -> Array[untyped]
+
+      private
+
+      def _validate_props: (Hash[Symbol, untyped] values) -> Hash[Symbol, Validator::ValidationResult]
+
+      def _validate_struct: (Hash[Symbol, Validator::ValidationResult] props_validation) -> Validator::ValidationResult
+
+      def _validate_all: () -> untyped
+                       
+      def merge_schema: (Schema other) -> Schema
+    end
+
+    class PropArray < BaseProp
+      include Taggable
+
+      attr_reader prop: Scalar
+
+      def initialize: (Scalar prop) -> void
+
+      def call: (Array[untyped] values) -> Validator::ValidationResult
+
+      def brand_to: (untyped struct) -> PropArray
+
+      private
+
+      def transofome_values: (Array[untyped] values) -> Array[Validator::ValidationResult]
+    end
+
+    class TagsRepository
+      attr_reader name: untyped
+      attr_reader tags: Hash[Symbol, untyped]
+
+      def initialize: (untyped name) -> void
+
+      def add: (Symbol tag, untyped type) -> untyped
+
+      def get: (Symbol tag) -> untyped
+
+      def tag?: (Symbol tag) -> bool
+    end
+
+    # Built-in type constants (currently commented out in source but used throughout codebase)
+    Any: Schema
+    Void: Schema  
+    Bool: Schema
+  end
+end

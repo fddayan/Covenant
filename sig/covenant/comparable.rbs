@@ -1,0 +1,48 @@
+# frozen_string_literal: true
+
+module Covenant
+  module Comparable
+    class Result
+      attr_reader tag: untyped
+      attr_reader errors: (Array[untyped] | nil)
+
+      def initialize: (untyped tag, (Array[untyped] | nil) errors) -> void
+
+      def success?: () -> bool
+
+      def failure?: () -> bool
+
+      def to_s: () -> String
+
+      def unwrap: () -> Hash[untyped, untyped]
+
+      def to_h: () -> Hash[Symbol, untyped]
+
+      def to_arr: () -> Array[untyped]
+
+      def self.success: (untyped tag) -> Result
+
+      def self.failure: (untyped tag, untyped errors) -> Result
+
+      def self.from_array: (untyped tag) { () -> untyped } -> Result
+
+      def self.from_result: (untyped result) -> Result
+    end
+
+    class PropsComparator
+      def initialize: (untyped left, untyped right) -> void
+
+      def call: () -> Array[Result]
+
+      def self.compare: (Types::Props props_a, Types::Props props_b) -> Result
+    end
+
+    class SchemaComparator
+      def initialize: () ?{ (untyped, untyped) -> untyped } -> void
+
+      def self.new: () ?{ (untyped, untyped) -> untyped } -> SchemaComparator
+
+      def self.compare: (Types::Schema schema_a, Types::Schema schema_b) -> Result
+    end
+  end
+end

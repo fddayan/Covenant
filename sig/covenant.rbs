@@ -1,0 +1,71 @@
+# frozen_string_literal: true
+
+module Covenant
+  VERSION: String
+
+  class Error < StandardError
+  end
+
+  class HandlerNotFoundError < Error
+  end
+
+  class ContractViolation < Error
+    attr_reader errors: Array[untyped]
+
+    def initialize: (Array[untyped] errors) -> void
+  end
+
+  class System
+    def command_registry: () -> Container::CommandRegistry
+
+    def layer: () { (Container::CommandLayer) -> void } -> System
+
+    def add_layer: (Container::CommandLayer layer) -> System
+
+    def call: (untyped contract, untyped input) -> (Runtime::ExecutionResult | nil)
+  end
+
+  class Composeable
+    def initialize: (Symbol command, untyped signatures, Array[untyped] contracts) { (untyped, untyped) -> untyped } -> void
+
+    def input: () -> untyped
+
+    def output: () -> untyped
+
+    def requirements: () -> Array[Symbol]
+
+    def call: (Hash[Symbol, Proc] handlers, untyped args) -> Runtime::ExecutionResult
+  end
+
+  def self.enable_check_contracts!: () -> bool
+
+  def self.disable_check_contracts!: () -> bool
+
+  def self.check_contracts?: () -> bool
+
+  def self.Layer: () { (Container::CommandLayer) -> void } -> Container::CommandLayer
+
+  def self.Runtime: (*Container::CommandLayer layers) -> System
+
+  def self.layer: () -> Container::CommandLayer
+
+  def self.runtime: () -> System
+
+  # def self.run: (Container::CommandLayer layer, untyped command) -> untyped
+
+  def self.Contract: (*untyped args) -> Contracts::Contract
+
+  def self.Compose: (*untyped args) -> untyped
+
+  def self.Transform: (untyped input_schema, untyped output_schema) { (untyped) -> untyped } -> Compositions::Transformer
+
+  def self.Scalar: (*untyped args) -> Types::Scalar
+
+  def self.Schema: (*untyped args) -> Types::Schema
+
+  def self.Validate: () -> singleton(Validator::Validation)
+
+  def self.assert_type: (untyped value, Class type) -> void
+
+  def self.assert_any_type_of: (untyped value, Array[Class] types) -> void
+end

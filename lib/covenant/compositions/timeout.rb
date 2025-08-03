@@ -16,6 +16,8 @@ module Covenant
       def verify = true
 
       def to_s = "Timeout(#{contract} -> #{seconds})"
+
+      def to_instruction = [:timeout, contract.to_instruction, seconds]
     end
   end
 end

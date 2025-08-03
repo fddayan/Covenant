@@ -16,3 +16,10 @@ group :development, :test do
   gem 'rubocop-rake'
   gem 'rubocop-rspec'
 end
+
+group :development do
+  gem 'rbs' # Ruby's built-in signature support
+  gem 'ruby-lsp'
+  gem 'steep' # for static type checking
+  gem 'typeprof'
+end

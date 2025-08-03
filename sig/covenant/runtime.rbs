@@ -1,0 +1,75 @@
+# frozen_string_literal: true
+
+module Covenant
+  module Runtime
+    class ExecutionResult
+      attr_reader contract: untyped
+      attr_reader handler: untyped
+      attr_reader input_validation_result: Validator::ValidationResult
+      attr_reader output_validation_result: Validator::ValidationResult?
+
+      def initialize: (untyped contract, untyped handler, Validator::ValidationResult input_validation_result, ?Validator::ValidationResult? output_validation_result) -> void
+
+      def success?: () -> bool
+
+      def failure?: () -> bool
+
+      def input_success?: () -> bool
+
+      def output_success?: () -> bool
+
+      def unwrap: () -> untyped
+
+      def value: () -> untyped
+
+      def errors: () -> Array[String]
+
+      def blame: () -> (String | nil)
+
+      def to_s: () -> String
+    end
+
+    class Executor
+      def initialize: (Container::CommandRegistry command_registry, Contracts::Contract contract) -> void
+
+      def call: (untyped input) -> ExecutionResult
+
+      private
+
+      def handler_for: (Symbol command) -> Proc
+    end
+
+    class Runner
+      def initialize: (Container::CommandRegistry command_registry) -> void
+
+      def call: (untyped contract, untyped input) -> (ExecutionResult | nil)
+
+      private
+
+      def call_with_retry: (untyped contract, untyped input) -> (ExecutionResult | nil)
+
+      def call_with_timeout: (untyped contract, untyped input) -> (ExecutionResult | nil)
+
+      attr_accessor result: (ExecutionResult | nil)
+
+    end
+
+    class StackRunner
+      def initialize: (Container::CommandRegistry command_registry) -> void
+
+      def call: (untyped contract, untyped input) -> (ExecutionResult | nil)
+
+      private
+
+      def execute_instruction: ((Hash[Symbol, untyped] | nil) frame, Array[Hash[Symbol, untyped]] stack) -> (ExecutionResult | nil)
+
+      def call_with_retry: (Array[untyped] contract_instruction, Integer max_attempts, untyped input) -> (ExecutionResult | nil)
+
+      def call_with_timeout: (Array[untyped] contract_instruction, Numeric seconds, untyped input) -> (ExecutionResult | nil)
+
+      def execute_single_instruction: (Array[untyped] instruction, untyped input) -> (ExecutionResult | nil)
+
+      attr_accessor result: (ExecutionResult | nil)
+    end
+  end
+end

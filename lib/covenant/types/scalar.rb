@@ -17,7 +17,6 @@ module Covenant
 
       def optional
         wrapped = Validator::Validation.optional(@validator)
-
         Scalar.new(@tag, wrapped, @parent)
       end
 
@@ -25,14 +24,27 @@ module Covenant
 
       def inspect = "Prop(#{@tag})"
 
-      def +(other)
+      def merge_scalar_with_scalar(other) = { @tag => self }.merge(other.tag => other)
+
+      def merge_scalar_with_schema(other) = { @tag => self }.merge(other.props.props)
+
+      def merge_scalar_with_props(other) = { @tag => self }.merge(other.props)
+
+      def merge(other)
         case other
-        when Scalar, Schema
-          Props.new([self, other])
+        when Scalar
+          merge_scalar_with_scalar(other)
+        when Schema
+          merge_scalar_with_schema(other)
         when Props
-          Props.new([self] + other.props)
+          merge_scalar_with_props(other)
+        else
+          raise ArgumentError,
+                "Expected Scalar, Schema or Props got #{other.class}"
         end
       end
+
+      def +(other) = Props.new(merge(other))
 
       def tags
         return [@parent.tag, @tag] if @parent
@@ -45,11 +57,6 @@ module Covenant
       def hash = :tag.hash
 
       def eql?(other) = tags == other.tags
-
-      # # (Optional but often recommended) Make == behave the same as eql?
-      # def ==(other)
-      #   eql?(other)
-      # end
 
       def call(value)
         raise ArgumentError, 'Expected NOT a hash' if value.is_a?(Hash)

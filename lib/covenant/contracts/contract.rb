@@ -69,6 +69,8 @@ module Covenant
       def self.can_chain?(contract_a, contract_b)
         contract_a.output.same?(contract_b.input)
       end
+
+      def to_instruction = [:execute, self]
     end
   end
 end

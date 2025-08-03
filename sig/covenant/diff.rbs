@@ -1,0 +1,61 @@
+# frozen_string_literal: true
+
+module Covenant
+  module Diff
+    class DiffResult
+      attr_reader schema: untyped
+      attr_reader errors: untyped
+
+      def initialize: (untyped schema, untyped errors) -> void
+
+      def tag: () -> untyped
+
+      def empty?: () -> bool
+
+      def success?: () -> (bool | nil)
+
+      def failure?: () -> bool
+
+      def unwrap: () -> (Hash[untyped, untyped] | String)
+
+      def unwrapp_errors: () -> (Hash[untyped, untyped] | String)
+
+      def inspect: () -> String
+
+      def to_s: () -> String
+    end
+
+    class BaseDiff
+      attr_reader left: untyped
+      attr_reader right: untyped  
+      attr_reader errors: Array[untyped]
+
+      def initialize: (untyped left, untyped right) -> void
+
+      # def self.diff: (untyped left, untyped right) -> DiffResul
+      
+      private
+
+      def result: (untyped msg) -> DiffResult
+
+      def result_success: () -> DiffResult
+    end
+    
+    class PropsDiff < BaseDiff           
+      def call: -> DiffResult
+      def diff_props: (Types::Props left, Types::Props right) -> Array[DiffResult]
+      def diff_prop: (Types::Scalar | Types::Schema left, Types::Scalar | Types::Schema right) -> (DiffResult | nil)
+    end
+
+    class ScalarDiff < BaseDiff
+      # def diff_props: (Types::Scalar left, Types::Scalar right) -> Array[DiffResult]
+      def call: -> (DiffResult | nil)
+    end
+
+    class SchemaDiff < BaseDiff
+      def diff_props: (Types::Schema left, Types::Schema right) -> Array[DiffResult]
+      def diff_prop: (Types::Schema | Types::Scalar left, Types::Schema | Types::Scalar right) -> (DiffResult | nil)
+      def call: -> DiffResult
+    end
+  end
+end

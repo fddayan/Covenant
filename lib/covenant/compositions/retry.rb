@@ -16,6 +16,8 @@ module Covenant
       def verify = true
 
       def to_s = "Retry(#{contract} -> #{max_attempts})"
+
+      def to_instruction = [:retry, contract.to_instruction, max_attempts]
     end
   end
 end
