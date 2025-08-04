@@ -20,9 +20,9 @@ module Covenant
         Scalar.new(@tag, wrapped, @parent)
       end
 
-      def to_s = "Prop(:#{@tag})"
+      def to_s = "Scalar(:#{@tag})"
 
-      def inspect = "Prop(#{@tag})"
+      def inspect = "Scalar(#{@tag})"
 
       def merge_scalar_with_scalar(other) = { @tag => self }.merge(other.tag => other)
 

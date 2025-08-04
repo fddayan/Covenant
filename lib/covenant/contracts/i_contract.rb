@@ -4,48 +4,83 @@ module Covenant
   module Contracts
     # Abstract base class for all contracts.
     class IContract
-      attr_reader :input, :output
+      attr_reader :input, :output, :dependencies
+      attr_accessor :layers
 
-      def initialize(input, output)
+      def initialize(input, output, dependencies)
+        if self.class == IContract
+          raise NotImplementedError, "#{self.class} is abstract; subclass it instead."
+        end
+
         Covenant.assert_any_type_of(input, [Types::Scalar, Types::Props, Types::Schema])
         Covenant.assert_any_type_of(output, [Types::Scalar, Types::Props, Types::Schema])
         @input = input
         @output = output
+        @dependencies = dependencies
+        @layers ||= []
       end
+
+      def provide(command_layer)
+        case command_layer
+        when Container::CommandLayer
+          @layers << command_layer
+          self
+        when Array
+          command_layer.each { |layer| @layers << layer }
+          self
+        else
+          raise ArgumentError, "Expected CommandLayer or Array got #{command_layer.class}"
+        end
+      end
+
+      def requirements_provided = @layers.flat_map(&:handler_names).uniq
+
+      def handler_for(command) = @layers.lazy.map { |l| l.handler_for(command) }.find(&:itself)
 
       def requirements = raise NotImplementedError, "#{self.class} must implement #requirements"
 
       def to_s = "(#{input} -> #{output})"
-
-      # def self.run(contract, args)
-      #   input_result = contract.input.call(args)
-      #   return Runtime::ExecutionResult.new(contract, input_result) if input_result.failure?
-
-      #   result = yield input_result.unwrap
-      #   output_result = contract.output.call(result)
-
-      #   Runtime::ExecutionResult.new(contract, input_result, output_result)
-      # end
     end
 
     class SimpleContract < IContract
       attr_reader :command
 
       def initialize(command, input, output)
-        super(input, output)
         Covenant.assert_type(command, Symbol)
+        super(input, output, [command])
         @command = command
       end
 
       def requirements = [@command]
 
-      def call(args, handler = nil, &)
+      def handler = @handler ||= handler_for(@command)
+
+      def call(args)
+        raise ArgumentError, "Handler for :#{@command} not found" unless handler
+
+        input_result = @input.call(args)
+        return input_result if input_result.failure?
+
+        output_raw = handler.call(input_result.unwrap)
+
+        @output.call(output_raw)
+
+        # pipe(args, @input, handler, @output)
+
         # return handlers[@command].call(args) if handlers
-        return handler.call(args) if handler
+        # return input.call(args) if block_given?
+      end
 
-        return input.call(args) if block_given?
+      def pipe(*args)
+        args.reduce do |result, arg|
+          next result if result.respond_to?(:failure?) && result.failure?
 
-        raise ArgumentError, 'Handlers must be provided if no block is given'
+          result = result.unwrap if result.respond_to?(:success?) && result.success?
+
+          next arg.call(result) if arg.respond_to?(:call)
+
+          result
+        end
       end
     end
 
@@ -53,16 +88,28 @@ module Covenant
       attr_reader :signatures, :contracts, :block, :command
 
       def initialize(command, signatures, contracts, &block)
-        super(signatures.first.first, signatures.first.last)
+        super(signatures.first.first, signatures.first.last, contracts)
         @command = command
         @signatures = signatures
         @contracts = contracts
         @block = block
       end
 
-      def requirements = @contracts.flat_map(&:requirements).uniq
+      def _requirements = @contracts.flat_map(&:requirements).uniq
 
-      def call(handlers, args) = @block.call(handlers, args)
+      def requirements = _requirements - requirements_provided
+
+      def contracts_with_layer = @contracts.map { |contract| contract.provide(layers) }
+
+      def handlers_for_contracts
+        contracts_with_layer.map do |contract|
+          {
+            contract.command => contract
+          }
+        end.reduce({}, &:merge)
+      end
+
+      def call(args) = @block.call(handlers_for_contracts, args)
 
       def to_s = "ComposableContract(#{requirements.map(&:to_s).join(', ')})#{super}"
     end
@@ -85,7 +132,8 @@ module Covenant
         input_result = icontract.input.call(args)
         return input_result if input_result.failure?
 
-        output_value = icontract.call(handlers_for_requirements(icontract), input_result.unwrap)
+        # handlers_for_requirements(icontract),
+        output_value = icontract.call(input_result.unwrap)
         icontract.output.call(output_value)
       end
 

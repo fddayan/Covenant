@@ -28,9 +28,9 @@ module Covenant
   class Composeable
     def initialize: (Symbol command, untyped signatures, Array[untyped] contracts) { (untyped, untyped) -> untyped } -> void
 
-    def input: () -> untyped
+    def input: () -> (Types::Scalar | Types::Schema)
 
-    def output: () -> untyped
+    def output: () -> (Types::Scalar | Types::Schema)
 
     def requirements: () -> Array[Symbol]
 

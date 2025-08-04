@@ -2,15 +2,24 @@
 
 module Covenant
   module Contracts
+    type ioType = Types::Scalar | Types::Props | Types::Schema
     class IContract
-      attr_reader input: Types::Scalar | Types::Props | Types::Schema
-      attr_reader output: Types::Scalar | Types::Props | Types::Schema
+      
 
-      def initialize: (Types::Scalar | Types::Props | Types::Schema input, Types::Scalar | Types::Props | Types::Schema output) -> void
+      attr_reader input: ioType
+      attr_reader output: ioType
+      attr_reader dependencies: Array[Symbol | IContract]
+      attr_accessor layers: Array[Container::CommandLayer]
+
+      def initialize: (ioType input, ioType output, Array[Symbol | IContract] dependencies) -> void
 
       def requirements: () -> Array[Symbol]
 
       def to_s: () -> String
+
+      def provide: (Container::CommandLayer | Array[Container::CommandLayer] command_layer) -> void
+
+      def handler_for: (Symbol command) -> (Proc | nil)
     end
 
     class SimpleContract < IContract
@@ -20,15 +29,15 @@ module Covenant
 
       def requirements: () -> Array[Symbol]
 
-      def call: (untyped args, ?Hash[Symbol, Proc]? handlers) ?{ (untyped) -> untyped } -> untyped
+      def call: (untyped args) -> untyped
     end
 
     class ComposableContract < IContract
-      def initialize: (untyped signatures, Array[untyped] contracts) { (Hash[Symbol, Proc], untyped) -> untyped } -> void
+      def initialize: (Symbol command, Hash[ioType, ioType] signatures, Array[IContract] contracts) { (Hash[Symbol, Proc], untyped) -> untyped } -> void
 
       def requirements: () -> Array[Symbol]
 
-      def call: (Hash[Symbol, Proc] handlers, untyped args) -> untyped
+      def call: (untyped args) -> untyped
 
       def to_s: () -> String
     end

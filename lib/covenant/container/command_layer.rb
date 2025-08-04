@@ -10,6 +10,8 @@ module Covenant
         self
       end
 
+      def handler_names = @handlers.keys
+
       def handler?(schema) = @handlers.key?(schema)
 
       def handler_for(schema) = @handlers[schema]

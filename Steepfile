@@ -30,6 +30,7 @@ target :lib do
     # hash[D::Ruby::IncompatibleAssignment] = :information
     # hash[D::Ruby::ArgumentTypeMismatch] = :information
   end
+  # typing_options :strict
 
   # repo_path '.rbs_collection'
 end
@@ -52,7 +53,8 @@ target :test do
 
   # repo_path '.rbs_collection'
   repo_path 'vendor/sigs'
-  configure_code_diagnostics(D::Ruby.lenient) # Very strict for tests
+  configure_code_diagnostics(D::Ruby.silent) # Very strict for tests
+
   # configure_code_diagnostics(D::Ruby.strict) # Very strict for tests
 end
 

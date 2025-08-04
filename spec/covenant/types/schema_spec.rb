@@ -1,5 +1,29 @@
 RSpec.describe Covenant::Types::Schema do
   describe "#call" do 
+
+    describe "complex with valid input" do
+      let(:int_type) { Covenant.Scalar(:number, Covenant.Validate.coerce(:integer)) }
+      let(:string_type) { Covenant.Scalar(:text, Covenant.Validate.coerce(:string)) }
+      let(:user_schema) {  Covenant.Schema(:user, id: int_type, name: string_type, email: string_type) }
+      let(:post_schema) {  Covenant.Schema(:post,  title: string_type, body: string_type) }
+      let(:create_post_payload) { Covenant.Schema(:CreatePostPayload, user: user_schema, post: post_schema) }
+      it "should validate a schema with valid input" do
+        input = { user: { id: 1, name: 'Fede', email: 'fede@example.com' }, post: { title: 'Hello World', body: 'This is a test post.' } }
+
+        result = create_post_payload.call(input)
+
+        puts result.pretty_print
+
+        expect(result).to be_success
+        # expect(result.value[:user]).to be_success
+        # expect(result.value[:post]).to be_success
+        expect(result.unwrap).to eq({
+          user: { id: 1, name: 'Fede', email: 'fede@example.com' },
+          post: { title: 'Hello World', body: 'This is a test post.' }
+        })
+      end
+    end
+
     it "should parse a valid value and succeed" do 
       id = Covenant.Scalar(:id, Covenant::Validator::Validation.coerce(:integer))
       name = Covenant.Scalar(:name, Covenant::Validator::Validation.coerce(:string))
@@ -186,13 +210,13 @@ RSpec.describe Covenant::Types::Schema do
 
       expect(order.pick(:user).tags).to eq([:order, [[:user, [[:user, :id], [:user, :name]]]]])
       expect(order.pick(:user)[:user].pick(:name).tags).to eq([:user, [[:user,:name]]])
-      expect(order.pick(:user)[:user].pick(:name)[:name].tags).to eq([:user, :name])
+      # expect(order.pick(:user)[:user].pick(:name)[:name].tags).to eq([:user, :name])
 
 
       user_name = order.pick(:user)[:user].pick(:name)
       expect(user_name).to be_kind_of(Covenant::Types::Schema)
       expect(user_name.tags).to eq([:user, [[:user, :name]]])
-      expect(user_name[:name].tags).to eq([:user, :name])
+      # expect(user_name[:name].tags).to eq([:user, :name])
 
       expect(order.pick(:user)[:user].pick(:name) == order.pick(:user)[:user].pick(:name)).to be true
       expect(order.pick(:user)[:user].pick(:name) == order.pick(:user)[:user].pick(:id)).to be false

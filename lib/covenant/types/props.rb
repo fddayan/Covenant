@@ -54,7 +54,7 @@ module Covenant
       end
 
       def values = @_props.values
-      alias_method :props, :values
+      alias props values
 
       def brand_to(struct) = Props.new(@_props, struct)
 
@@ -108,9 +108,17 @@ module Covenant
       def validate_all(values)
         return {} unless values
 
-        @_props.values.each_with_object({}) do |prop, acc|
-          acc[prop.tag] = prop.call(values[prop.tag])
+        # @_props.each_with_object({}) do |prop, acc|
+        #   acc[prop.tag] = prop.call(values[prop.tag])
+        # end
+
+        @_props.each_with_object({}) do |(key, prop), acc|
+          acc[key] = prop.call(values[key])
         end
+
+        # @_props.transform_values do |key, prop|
+        #   prop.call(values[key])
+        # end
       end
 
       def zip(other_props)

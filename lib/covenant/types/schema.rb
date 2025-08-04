@@ -18,11 +18,6 @@ module Covenant
         @validator = yield if block_given?
       end
 
-      # def self.from_hash(hash, parent = nil)
-      #   props = Props.from_hash(hash, parent)
-      #   new(props.tag, props, parent)
-      # end
-
       def zip(other) = @props.zip(other.props)
 
       def brand_to(other_tag) = Schema.new(@tag, @props, other_tag)
@@ -30,7 +25,13 @@ module Covenant
       def call(values)
         return Validator::ValidationResult.success(values) if %i[any void].include?(tag)
 
+        # ap @tag
+        # ap values
+
         props_validation = @props.validate(values)
+
+        # ap props_validation.class
+
         _validate_struct(props_validation)
         # @props.validate(values)
       end

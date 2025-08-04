@@ -7,7 +7,13 @@ module Covenant
 
       def call(input)
         @handlers.reduce(input) do |current_input, handler|
-          handler.call(current_input)
+          case current_input
+          when Covenant::Validator::ValidationResult
+            handler.call(current_input.unwrap)
+          else
+            handler.call(current_input)
+          end
+          # handler.call(current_input)
         end
       end
     end

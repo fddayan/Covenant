@@ -22,6 +22,8 @@ module Covenant
       def handler_for: (Symbol command) -> Proc?
 
       def commands: () -> Array[Symbol]
+                  
+      def handler_names: () -> Array[Symbol]
     end
 
     class CommandResult

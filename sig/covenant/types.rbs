@@ -51,7 +51,7 @@ module Covenant
     class Scalar < BaseProp
       include Taggable
 
-      attr_reader validator: Validator::Validator
+      attr_reader validator: Validator::Validator | Symbol
 
       def initialize: (Symbol tag, Validator::Validator | Symbol validator, ?untyped parent) -> void
 
@@ -106,7 +106,7 @@ module Covenant
 
       def self.from_hash: (Hash[Symbol, Scalar | Schema] | Props hash, ?untyped parent) -> Props
 
-      def initialize: (Hash[Symbol, Scalar | Schema] props, ?untyped parent) -> void
+      def initialize: (Hash[Symbol, untyped] props, ?untyped parent) -> void
 
       def brand_to: (untyped struct) -> Props
 

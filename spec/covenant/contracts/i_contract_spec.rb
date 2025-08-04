@@ -31,53 +31,50 @@ RSpec.describe Covenant::Contracts::IContract do
 
     it "runs successfully with valid input" do
       input = { user: { id: 1, name: 'Fede', email: 'fede@example.com' }, post: { title: 'Hello World', body: 'This is a test post.' } }
-      result = create_post_contract.call(input) do 
-        { title: input[:post][:title], body: input[:post][:body] }
-      end
+      
+      layer = Covenant::Container::CommandLayer.new
+      layer.register(
+        :create_post_contract, ->(input) { { title: input[:post][:title], body: input[:post][:body] } }
+      )
+      create_post_contract.provide(layer)
+
+      # result = create_post_contract.call(input) do
+      #   { title: input[:post][:title], body: input[:post][:body] }
+      # end
+
+      result = create_post_contract.call(input) 
       # expect(result).to be_a(Covenant::Runtime::ExecutionResult)
       expect(result).to be_a(Covenant::Validator::ValidationResult)
     end
 
   end
 
-  describe 'IContract' do
-    it 'initializes with valid input and output types' do
-      contract = Covenant::Contracts::IContract.new(int_type, string_type)
-      expect(contract.input).to eq(int_type)
-      expect(contract.output).to eq(string_type)
-    end
+  # describe 'IContract' do
+  #   it 'initializes with valid input and output types' do
+  #     contract = Covenant::Contracts::IContract.new(int_type, string_type)
+  #     expect(contract.input).to eq(int_type)
+  #     expect(contract.output).to eq(string_type)
+  #   end
 
-    it 'raises error for invalid input type' do
-      expect do
-        Covenant::Contracts::IContract.new('invalid', string_type)
-      end.to raise_error(ArgumentError, /Expected one of types/)
-    end
+  #   it 'raises error for invalid input type' do
+  #     expect do
+  #       Covenant::Contracts::IContract.new('invalid', string_type)
+  #     end.to raise_error(ArgumentError, /Expected one of types/)
+  #   end
 
-    it 'raises error for invalid output type' do
-      expect do
-        Covenant::Contracts::IContract.new(int_type, 'invalid')
-      end.to raise_error(ArgumentError, /Expected one of types/)
-    end
+  #   it 'raises error for invalid output type' do
+  #     expect do
+  #       Covenant::Contracts::IContract.new(int_type, 'invalid')
+  #     end.to raise_error(ArgumentError, /Expected one of types/)
+  #   end
 
-    it 'raises NotImplementedError for requirements method' do
-      contract = Covenant::Contracts::IContract.new(int_type, string_type)
-      expect do
-        contract.requirements
-      end.to raise_error(NotImplementedError, /must implement #requirements/)
-    end
-
-    # describe '.run' do
-    #   let(:contract) { Covenant::Contracts::IContract.new(int_type, string_type) }
-
-    #   it 'creates an ExecutionResult' do
-    #     result = Covenant::Contracts::IContract.run(contract, 42) do |value|
-    #       value.to_s
-    #     end
-
-    #     expect(result).to be_a(Covenant::Runtime::ExecutionResult)
-    #   end
-    # end
-  end
+  #   it 'raises NotImplementedError for requirements method' do
+  #     contract = Covenant::Contracts::IContract.new(int_type, string_type)
+  #     expect do
+  #       contract.requirements
+  #     end.to raise_error(NotImplementedError, /must implement #requirements/)
+  #   end
+  # end
 
   describe 'SimpleContract' do
     let(:simple_contract) do
@@ -97,9 +94,11 @@ RSpec.describe Covenant::Contracts::IContract do
     end
 
     it 'calls the appropriate handler' do
-      handlers = ->(x) { x * 2 } 
-      result = simple_contract.call(5, handlers)
-      expect(result).to eq(10)
+      handlers = ->(x) { x * 2 }
+      layer = Covenant::Container::CommandLayer.new
+      layer.register(:double, handlers)
+      result = simple_contract.provide(layer).call(5)
+      expect(result.unwrap).to eq(10)
     end
   end
 
@@ -138,10 +137,10 @@ RSpec.describe Covenant::Contracts::IContract do
     describe '#call' do
       let(:complex_contract) do
         Covenant::Contracts::ComposableContract.new(:complex_contract, { int_type => string_type }, [double_contract, stringify_contract, add_one_contract]) do |handlers, args|
-           Covenant::Handlers.pipe(
-             handlers[:double],
-             handlers[:add_one],
-             handlers[:stringify]
+          Covenant::Handlers.pipe(
+             handlers.fetch(:double),
+             handlers.fetch(:add_one),
+             handlers.fetch(:stringify)
             ).call(args)
         end
       end
@@ -168,16 +167,37 @@ RSpec.describe Covenant::Contracts::IContract do
       it "run ComplexContract success" do
         expect(complex_contract.requirements).to include(:double, :stringify, :add_one)
 
-        result = runner.call(complex_contract, 42)
+        layer =  Covenant::Container::CommandLayer.new
 
-        expect(result.unwrap).to eq("85")
+        layer.register(:double, ->(input) { input * 2 })
+        layer.register(:stringify, ->(input) { input.to_s })
+        layer.register(:add_one, ->(input) { input + 1 })
+        layer.register(:add_prefix, ->(input) { "Prefix: #{input}" })
+
+        complex_contract_with_requirments = complex_contract.provide(layer)
+
+        expect(complex_contract_with_requirments.requirements_provided).to include(:double, :stringify, :add_one)
+        expect(complex_contract_with_requirments.requirements).to be_empty
+        res = complex_contract_with_requirments.call(42)
+        expect(res).to be_success
+        expect(res.unwrap).to eq("85")
       end
 
       it "more complex contract with add_prefix" do
-        expect(complex_contract2.requirements).to include(:add_prefix)
+        expect(complex_contract2.requirements).to include(:double, :stringify, :add_one, :add_prefix)
 
-        result = runner.call(complex_contract2, 42)
+        layer =  Covenant::Container::CommandLayer.new
 
+        layer.register(:double, ->(input) { input * 2 })
+        layer.register(:stringify, ->(input) { input.to_s })
+        layer.register(:add_one, ->(input) { input + 1 })
+        layer.register(:add_prefix, ->(input) { "Prefix: #{input}" })
+
+        complex_contract2_with_requirments = complex_contract2.provide(layer)
+
+        result = complex_contract2_with_requirments.call(42)
+
+        expect(result).to be_success
         expect(result.unwrap).to eq("Prefix: 85")
       end
     end
