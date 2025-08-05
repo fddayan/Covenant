@@ -42,6 +42,10 @@ module Covenant
         )
       end
 
+      def requirements_provided = @contract.requirements & @layer.handler_names
+
+      def requirements = @contract.requirements - @layer.handler_names
+
       def pipe(*args)
         initial = args.shift
         args.reduce(initial) do |acc, step|

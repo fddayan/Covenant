@@ -128,8 +128,8 @@ RSpec.describe Covenant::Contracts::IContract do
 
         complex_contract_with_requirments = layer.provide(complex_contract)
 
-        # expect(complex_contract_with_requirments.requirements_provided).to include(:double, :stringify, :add_one)
-        # expect(complex_contract_with_requirments.requirements).to be_empty
+        expect(complex_contract_with_requirments.requirements_provided).to include(:double, :stringify, :add_one)
+        expect(complex_contract_with_requirments.requirements).to be_empty
 
         res = complex_contract_with_requirments.call(42)
         
