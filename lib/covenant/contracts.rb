@@ -2,6 +2,8 @@
 
 module Covenant
   module Contracts
+    class ContractError < StandardError; end
+
     # module ClassMethods
     #   def pipe(*contracts) = Pipe.new(contracts).build
 

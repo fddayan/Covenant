@@ -149,10 +149,53 @@ RSpec.describe Covenant::Contracts::IContract do
 
         complex_contract2_with_requirments = layer.provide(complex_contract2)
 
+        expect(complex_contract2_with_requirments).to be_a(Covenant::Container::RunnableContract)
+
         result = complex_contract2_with_requirments.call(42)
 
         expect(result).to be_success
         expect(result.unwrap).to eq("Prefix: 85")
+      end
+
+
+      it "partal provide should raise error and not let the contract run" do
+        layer = Covenant::Container::CommandLayer.new
+
+        # double_block_spy = double("double_block_spy")
+        # stringify_block_spy = double("stringify_block_spy")
+        
+        # expect(double_block_spy).not_to receive(:call)
+        # expect(stringify_block_spy).not_to receive(:call)
+
+        layer << double_contract.of { |input|  input * 2 }
+        layer << stringify_contract.of { |input| input.to_s }
+
+        complex_contract_with_requirments = layer.provide(complex_contract)
+
+        expect(complex_contract_with_requirments.requirements_provided).to include(:double, :stringify)
+        expect(complex_contract_with_requirments.requirements).to include(:add_one)
+
+        expect do
+          complex_contract_with_requirments.call(42)
+        end.to raise_error(/Missing requirements: add_one/)
+
+        # allow(double_block_spy).to receive(:call)
+        # allow(stringify_block_spy).to receive(:call)
+
+        # double_block_spy.reset
+        # stringify_block_spy.reset
+      
+        layer2 = Covenant::Container::CommandLayer.new
+        layer2 << add_one_contract.of { |input| input + 1 }
+
+        complex_contract_with_requirments2 = layer2.provide(complex_contract_with_requirments)
+
+        expect(complex_contract_with_requirments2.requirements).to be_empty
+
+        result = complex_contract_with_requirments2.call(42)
+
+        expect(result).to be_success
+        expect(result.unwrap).to eq("85")
       end
     end
 

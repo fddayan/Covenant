@@ -3,6 +3,8 @@
 module Covenant
   module Container
     class RunnableContract
+      attr_reader :contract, :layer
+
       def initialize(contract, layer)
         @contract = contract
         @layer = layer
@@ -18,14 +20,16 @@ module Covenant
           hand = handler_for(@contract.tag)
           ->(args) { hand.call(args) }
         when Contracts::ComposableContract
-          # ap "Creating handler for ComposableContract #{@contract.tag}"
-          # ap @layer.handler_names
           runnable_contract_requirements = @contract.contracts.to_h do |c|
-            # ap c.tag
             [c.tag, RunnableContract.new(c, @layer)]
           end
 
           ->(args) { @contract.block.call(runnable_contract_requirements, args) }
+        when RunnableContract
+          combined_layer = CommandLayer.merge(@contract.layer, @layer)
+          runnable = RunnableContract.new(@contract.contract, combined_layer)
+
+          ->(args) { runnable.call(args) }
         else
           raise "Unknown contract type: #{@contract.class}"
         end
@@ -33,13 +37,23 @@ module Covenant
 
       def tag = @contract.tag
 
+      def input = @contract.input
+
+      def output = @contract.output
+
       def call(args)
+        check_requirements!
         pipe(
           Validator::ValidationResult.success(args),
           @contract.input,
           handler,
           @contract.output
         )
+      end
+
+      def check_requirements!
+        missing = requirements - requirements_provided
+        raise "Missing requirements: #{missing.join(', ')}" if missing.any?
       end
 
       def requirements_provided = @contract.requirements & @layer.handler_names
@@ -73,7 +87,7 @@ module Covenant
 
       attr_reader :handlers
 
-      def initialize = @handlers = {}
+      def initialize(handlers = {}) = @handlers = handlers
 
       def register(schema, handler)
         @handlers[schema] = handler
@@ -87,6 +101,8 @@ module Covenant
       def handler?(schema) = @handlers.key?(schema)
 
       def handler_for(schema) = @handlers[schema]
+
+      def merge(other_layer) = CommandLayer.new(@handlers.merge(other_layer.handlers))
 
       def merge!(other_layer)
         @handlers.merge!(other_layer.handlers)
