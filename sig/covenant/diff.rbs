@@ -44,7 +44,7 @@ module Covenant
     class PropsDiff < BaseDiff           
       def call: -> DiffResult
       def diff_props: (Types::Props left, Types::Props right) -> Array[DiffResult]
-      def diff_prop: (Types::Scalar | Types::Schema left, Types::Scalar | Types::Schema right) -> (DiffResult | nil)
+      def diff_prop: (Types::Scalar | Types::Schema | nil left, Types::Scalar | Types::Schema | nil right) -> (DiffResult | nil)
     end
 
     class ScalarDiff < BaseDiff
@@ -54,7 +54,7 @@ module Covenant
 
     class SchemaDiff < BaseDiff
       def diff_props: (Types::Schema left, Types::Schema right) -> Array[DiffResult]
-      def diff_prop: (Types::Schema | Types::Scalar left, Types::Schema | Types::Scalar right) -> (DiffResult | nil)
+      def diff_prop: (Types::Schema | Types::Scalar | nil left, Types::Schema | Types::Scalar | nil right) -> (DiffResult | nil)
       def call: -> DiffResult
     end
   end

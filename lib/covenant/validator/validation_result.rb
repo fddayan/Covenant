@@ -5,13 +5,21 @@ module Covenant
     class ValidationResult
       attr_reader :value, :errors
 
-      def self.success(value)
-        ValidationResult.new(value)
+      def self.merge(results)
+        all_errors = results.flat_map(&:errors)
+
+        # If no errors, return the last valid result
+        if all_errors.empty?
+          results.last
+        else
+          # Return last value with all errors accumulated
+          last_value = results.find(&:success?)&.value || results.last.value
+          ValidationResult.new(last_value, all_errors.uniq)
+        end
       end
 
-      def self.failure(errors)
-        ValidationResult.new(nil, errors)
-      end
+      def self.success(value) = ValidationResult.new(value)
+      def self.failure(errors) = ValidationResult.new(nil, errors)
 
       def initialize(value, errors = [])
         @value = value
@@ -23,7 +31,6 @@ module Covenant
           "Success(#{@value})"
         else
           "Failure(\n #{value_to_s} => #{@errors.join(', ')})"
-          # "Failure(\n\t#{value_to_s})"
         end
       end
 
@@ -93,11 +100,6 @@ module Covenant
 
         lines << "#{prefix}{".light_black if indent.zero?
 
-        # if hash.empty?
-        #   lines << "#{prefix}}".light_black
-        #   return lines.join("\n")
-        # end
-
         hash.each do |key, value|
           case value
           when ValidationResult
@@ -166,20 +168,6 @@ module Covenant
           'nil'.light_black
         else
           value.to_s.white
-        end
-      end
-
-      # Helper method to merge results
-      def self.merge(results)
-        all_errors = results.flat_map(&:errors)
-
-        # If no errors, return the last valid result
-        if all_errors.empty?
-          results.last
-        else
-          # Return last value with all errors accumulated
-          last_value = results.find(&:success?)&.value || results.last.value
-          ValidationResult.new(last_value, all_errors.uniq)
         end
       end
     end

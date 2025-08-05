@@ -4,6 +4,7 @@ module Covenant
   module Contracts
     class Contract
       include Monad
+
       using ColorAliasRefinement
 
       attr_reader :command, :input, :output

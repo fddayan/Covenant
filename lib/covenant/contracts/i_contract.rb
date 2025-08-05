@@ -21,7 +21,7 @@ module Covenant
         @requirements = requirements
       end
 
-      def of(&) = Handlers::ContractHandler.new(self, &)
+      def of(...) = Handlers::ContractHandler.new(self, ...)
 
       # def provide(command_layer)
       #   @layers = command_layer
