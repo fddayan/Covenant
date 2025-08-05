@@ -4,38 +4,33 @@ module Covenant
   module Contracts
     # Abstract base class for all contracts.
     class IContract
-      attr_reader :input, :output, :dependencies
+      attr_reader :tag, :input, :output, :dependencies
       attr_accessor :layers
 
-      def initialize(input, output, dependencies)
+      def initialize(tag, input, output, dependencies)
         if self.class == IContract
           raise NotImplementedError, "#{self.class} is abstract; subclass it instead."
         end
 
         Covenant.assert_any_type_of(input, [Types::Scalar, Types::Props, Types::Schema])
         Covenant.assert_any_type_of(output, [Types::Scalar, Types::Props, Types::Schema])
+        @tag = tag
         @input = input
         @output = output
         @dependencies = dependencies
-        @layers ||= []
+        @layers = nil
       end
+
+      def of(&) = Handlers::ContractHandler.new(self, &)
 
       def provide(command_layer)
-        case command_layer
-        when Container::CommandLayer
-          @layers << command_layer
-          self
-        when Array
-          command_layer.each { |layer| @layers << layer }
-          self
-        else
-          raise ArgumentError, "Expected CommandLayer or Array got #{command_layer.class}"
-        end
+        @layers = command_layer
+        self
       end
 
-      def requirements_provided = @layers.flat_map(&:handler_names).uniq
+      def requirements_provided = @layers&.handler_names || []
 
-      def handler_for(command) = @layers.lazy.map { |l| l.handler_for(command) }.find(&:itself)
+      def handler_for(command) = @layers.handler_for(command)
 
       def requirements = raise NotImplementedError, "#{self.class} must implement #requirements"
 
@@ -47,7 +42,7 @@ module Covenant
 
       def initialize(command, input, output)
         Covenant.assert_type(command, Symbol)
-        super(input, output, [command])
+        super(command, input, output, [command])
         @command = command
       end
 
@@ -85,7 +80,7 @@ module Covenant
       attr_reader :signatures, :contracts, :block, :command
 
       def initialize(command, signatures, contracts, &block)
-        super(signatures.first.first, signatures.first.last, contracts)
+        super(command, signatures.first.first, signatures.first.last, contracts)
         @command = command
         @signatures = signatures
         @contracts = contracts

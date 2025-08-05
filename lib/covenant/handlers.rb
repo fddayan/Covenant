@@ -3,11 +3,14 @@
 module Covenant
   module Handlers
     class ContractHandler
-      def initialize(contract) = @contract = contract
+      def initialize(contract, &block)
+        @contract = contract
+        @block = block
+      end
 
       def tag = @contract.command
 
-      def call(args) = @contract.call(args)
+      def call(args) = @block.call(args)
     end
 
     class PipeHandler

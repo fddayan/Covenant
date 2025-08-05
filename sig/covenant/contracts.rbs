@@ -4,20 +4,21 @@ module Covenant
   module Contracts
     type ioType = Types::Scalar | Types::Props | Types::Schema
     class IContract
+      @layers: Container::CommandLayer | nil
       
-
+      attr_reader tag: Symbol
       attr_reader input: ioType
       attr_reader output: ioType
       attr_reader dependencies: Array[Symbol | IContract]
-      attr_accessor layers: Array[Container::CommandLayer]
+      attr_accessor layers: Container::CommandLayer | nil
 
-      def initialize: (ioType input, ioType output, Array[Symbol | IContract] dependencies) -> void
+      def initialize: (Symbol tag, ioType input, ioType output, Array[Symbol | IContract] dependencies) -> void
 
       def requirements: () -> Array[Symbol]
 
       def to_s: () -> String
 
-      def provide: (Container::CommandLayer | Array[Container::CommandLayer] command_layer) -> void
+      def provide: (Container::CommandLayer command_layer) -> IContract
 
       def handler_for: (Symbol command) -> (Proc | nil)
     end

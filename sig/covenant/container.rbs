@@ -24,6 +24,8 @@ module Covenant
       def commands: () -> Array[Symbol]
                   
       def handler_names: () -> Array[Symbol]
+
+      def self.merge: (*CommandLayer other_layers) -> CommandLayer
     end
 
     class CommandResult

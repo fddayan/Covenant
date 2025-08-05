@@ -38,43 +38,11 @@ RSpec.describe Covenant::Contracts::IContract do
       )
       create_post_contract.provide(layer)
 
-      # result = create_post_contract.call(input) do
-      #   { title: input[:post][:title], body: input[:post][:body] }
-      # end
-
       result = create_post_contract.call(input) 
-      # expect(result).to be_a(Covenant::Runtime::ExecutionResult)
       expect(result).to be_a(Covenant::Validator::ValidationResult)
     end
 
   end
-
-  # describe 'IContract' do
-  #   it 'initializes with valid input and output types' do
-  #     contract = Covenant::Contracts::IContract.new(int_type, string_type)
-  #     expect(contract.input).to eq(int_type)
-  #     expect(contract.output).to eq(string_type)
-  #   end
-
-  #   it 'raises error for invalid input type' do
-  #     expect do
-  #       Covenant::Contracts::IContract.new('invalid', string_type)
-  #     end.to raise_error(ArgumentError, /Expected one of types/)
-  #   end
-
-  #   it 'raises error for invalid output type' do
-  #     expect do
-  #       Covenant::Contracts::IContract.new(int_type, 'invalid')
-  #     end.to raise_error(ArgumentError, /Expected one of types/)
-  #   end
-
-  #   it 'raises NotImplementedError for requirements method' do
-  #     contract = Covenant::Contracts::IContract.new(int_type, string_type)
-  #     expect do
-  #       contract.requirements
-  #     end.to raise_error(NotImplementedError, /must implement #requirements/)
-  #   end
-  # end
 
   describe 'SimpleContract' do
     let(:simple_contract) do
@@ -188,15 +156,10 @@ RSpec.describe Covenant::Contracts::IContract do
 
         layer =  Covenant::Container::CommandLayer.new
 
-        # layer << add_prefix_contract.of { |input| "Prefix: #{input}" }
-        # layer << double_contract.of { |input| input * 2 }
-        # layer << stringify_contract.of { |input| input.to_s }
-        # layer << add_one_contract.of { |input| input + 1 }
-
-        layer.register(:double, ->(input) { input * 2 })
-        layer.register(:stringify, ->(input) { input.to_s })
-        layer.register(:add_one, ->(input) { input + 1 })
-        layer.register(:add_prefix, ->(input) { "Prefix: #{input}" })
+        layer << add_prefix_contract.of { |input| "Prefix: #{input}" }
+        layer << double_contract.of { |input| input * 2 }
+        layer << stringify_contract.of { |input| input.to_s }
+        layer << add_one_contract.of { |input| input + 1 }
 
         complex_contract2_with_requirments = complex_contract2.provide(layer)
 
