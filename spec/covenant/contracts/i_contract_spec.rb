@@ -21,10 +21,6 @@ RSpec.describe Covenant::Contracts::IContract do
     let(:create_post_contract) { Covenant::Contracts::SimpleContract.new(:create_post_contract, create_post_payload, post_schema) }
   
     it "initializes with valid input and output types" do
-      # ap create_post_payload.tag
-      # ap create_post_contract.input.tag
-      # ap create_post_payload == create_post_contract.input
-
       expect(create_post_contract.input.tag).to eq(create_post_payload.tag)
       expect(create_post_contract.output.tag).to eq(post_schema.tag)
     end
@@ -33,12 +29,11 @@ RSpec.describe Covenant::Contracts::IContract do
       input = { user: { id: 1, name: 'Fede', email: 'fede@example.com' }, post: { title: 'Hello World', body: 'This is a test post.' } }
       
       layer = Covenant::Container::CommandLayer.new
-      layer.register(
-        :create_post_contract, ->(input) { { title: input[:post][:title], body: input[:post][:body] } }
-      )
-      create_post_contract.provide(layer)
+      layer << create_post_contract.of{ |input| { title: input[:post][:title], body: input[:post][:body] } }
 
-      result = create_post_contract.call(input) 
+      create_post_contract_with_requirements = layer.provide(create_post_contract)
+
+      result = create_post_contract_with_requirements.call(input) 
       expect(result).to be_a(Covenant::Validator::ValidationResult)
     end
 
@@ -64,22 +59,12 @@ RSpec.describe Covenant::Contracts::IContract do
     it 'calls the appropriate handler' do
       handlers = ->(x) { x * 2 }
       layer = Covenant::Container::CommandLayer.new
-      layer.register(:double, handlers)
-      result = simple_contract.provide(layer).call(5)
+      layer << simple_contract.of(&handlers)
+
+      result = layer.provide(simple_contract).call(5)
+
       expect(result.unwrap).to eq(10)
     end
-  end
-
-  describe 'ComposableContract' do
-    # it 'raises error during initialization due to implementation issue' do
-    #   # ComposableContract has a bug - it expects signatures to be a hash or different structure
-    #   expect do
-    #     Covenant::Contracts::ComposableContract.new(
-    #       [int_type, int_type],
-    #       []
-    #     ) { |_, _| }
-    #   end.to raise_error(NoMethodError, /undefined method `first'/)
-    # end
   end
 
   describe 'ContractRunner' do
@@ -96,7 +81,6 @@ RSpec.describe Covenant::Contracts::IContract do
     let(:add_one_contract) do
       Covenant::Contracts::SimpleContract.new(:add_one, int_type, int_type)
     end
-
 
     it 'initializes with command registry' do
       expect(runner).to be_a(Covenant::Contracts::ContractRunner)
@@ -137,16 +121,18 @@ RSpec.describe Covenant::Contracts::IContract do
 
         layer =  Covenant::Container::CommandLayer.new
 
-        layer.register(:double, ->(input) { input * 2 })
-        layer.register(:stringify, ->(input) { input.to_s })
-        layer.register(:add_one, ->(input) { input + 1 })
-        layer.register(:add_prefix, ->(input) { "Prefix: #{input}" })
+        layer << double_contract.of { |input| input * 2 }
+        layer << stringify_contract.of { |input| input.to_s }
+        layer << add_one_contract.of { |input| input + 1 }
+        layer << add_prefix_contract.of { |input| "Prefix: #{input}" }
 
-        complex_contract_with_requirments = complex_contract.provide(layer)
+        complex_contract_with_requirments = layer.provide(complex_contract)
 
-        expect(complex_contract_with_requirments.requirements_provided).to include(:double, :stringify, :add_one)
-        expect(complex_contract_with_requirments.requirements).to be_empty
+        # expect(complex_contract_with_requirments.requirements_provided).to include(:double, :stringify, :add_one)
+        # expect(complex_contract_with_requirments.requirements).to be_empty
+
         res = complex_contract_with_requirments.call(42)
+        
         expect(res).to be_success
         expect(res.unwrap).to eq("85")
       end
@@ -161,7 +147,7 @@ RSpec.describe Covenant::Contracts::IContract do
         layer << stringify_contract.of { |input| input.to_s }
         layer << add_one_contract.of { |input| input + 1 }
 
-        complex_contract2_with_requirments = complex_contract2.provide(layer)
+        complex_contract2_with_requirments = layer.provide(complex_contract2)
 
         result = complex_contract2_with_requirments.call(42)
 

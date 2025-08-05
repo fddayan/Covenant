@@ -12,6 +12,15 @@ module Covenant
       def handler_for: (Symbol schema) -> Proc
     end
 
+    class RunnableContract
+
+      def initialize: (Contracts::IContract contract, CommandLayer command_layer) -> void
+                    
+      # def handler: () -> Handlers::ContractHandler
+      def handler: () -> Proc
+    end
+
+
     class CommandLayer
       def initialize: () -> void
 

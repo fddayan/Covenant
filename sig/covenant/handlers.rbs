@@ -2,6 +2,18 @@
 
 module Covenant
   module Handlers
+
+    class ContractHandler
+      def initialize: (Contracts::IContract contract) {() -> void} -> void
+
+      def call: (untyped args) -> Runtime::ExecutionResult
+
+      private
+
+      attr_reader contract: Contracts::IContract
+      attr_reader handler: Proc
+    end
+
     class PipeHandler
       def initialize: (*Proc handlers) -> void
 
