@@ -188,6 +188,11 @@ RSpec.describe Covenant::Contracts::IContract do
 
         layer =  Covenant::Container::CommandLayer.new
 
+        # layer << add_prefix_contract.of { |input| "Prefix: #{input}" }
+        # layer << double_contract.of { |input| input * 2 }
+        # layer << stringify_contract.of { |input| input.to_s }
+        # layer << add_one_contract.of { |input| input + 1 }
+
         layer.register(:double, ->(input) { input * 2 })
         layer.register(:stringify, ->(input) { input.to_s })
         layer.register(:add_one, ->(input) { input + 1 })

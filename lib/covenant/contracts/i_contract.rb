@@ -58,28 +58,25 @@ module Covenant
       def call(args)
         raise ArgumentError, "Handler for :#{@command} not found" unless handler
 
-        input_result = @input.call(args)
-        return input_result if input_result.failure?
-
-        output_raw = handler.call(input_result.unwrap)
-
-        @output.call(output_raw)
-
-        # pipe(args, @input, handler, @output)
-
-        # return handlers[@command].call(args) if handlers
-        # return input.call(args) if block_given?
+        pipe(
+          Validator::ValidationResult.success(args),
+          @input,
+          handler,
+          @output
+        )
       end
 
       def pipe(*args)
-        args.reduce do |result, arg|
-          next result if result.respond_to?(:failure?) && result.failure?
+        initial = args.shift
+        args.reduce(initial) do |acc, step|
+          case acc
+          when Validator::ValidationResult
+            break acc if acc.failure?
 
-          result = result.unwrap if result.respond_to?(:success?) && result.success?
-
-          next arg.call(result) if arg.respond_to?(:call)
-
-          result
+            step.call(acc.unwrap) if step.respond_to?(:call)
+          else
+            step.call(acc) if step.respond_to?(:call)
+          end
         end
       end
     end
@@ -102,11 +99,9 @@ module Covenant
       def contracts_with_layer = @contracts.map { |contract| contract.provide(layers) }
 
       def handlers_for_contracts
-        contracts_with_layer.map do |contract|
-          {
-            contract.command => contract
-          }
-        end.reduce({}, &:merge)
+        contracts_with_layer.to_h do |contract|
+          [contract.command, contract]
+        end
       end
 
       def call(args) = @block.call(handlers_for_contracts, args)
